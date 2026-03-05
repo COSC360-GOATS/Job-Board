@@ -3,10 +3,9 @@ import { useState } from 'react'
 const defaults = {
     name: "toggles-default",
     options: ["Option A", "Option B", "Option C"],
-    selected: 1
 };
 
-function ToggleGroup({ name = defaults.name, options = defaults.options, selected = defaults.selected }) {
+function ToggleGroup({ name = defaults.name, options = defaults.options, selected }) {
     const [selectedIndex, setSelectedIndex] = useState(selected ?? 0);
 
     return (

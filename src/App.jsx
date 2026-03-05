@@ -2,12 +2,18 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import ToggleGroup from './components/ToggleGroup'
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
+      <ToggleGroup 
+        name="my-toggle-group" 
+        options={["A", "B", "C", "X", "Y", "Z"]} 
+        selected={0}  
+      />
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
