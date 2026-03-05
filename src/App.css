@@ -40,3 +40,30 @@
 .read-the-docs {
   color: #888;
 }
+
+/*job card css*/
+.job-card {
+  display: flex;
+  justify-content: space-between;
+  background: #d9d9d9;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 10px;
+}
+
+.job-left {
+  width: 60%;
+}
+
+.job-right {
+  width: 35%;
+}
+
+.job-stats {
+  background: black;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-top: 10px;
+}
