@@ -7,7 +7,15 @@ const defaults = [
     "NodeJS",
     "Express",
     "NextJS",
-    "MongoDB"
+    "MongoDB",
+    "Java",
+    "C++",
+    "Python",
+    "Go",
+    "Rust",
+    "Docker",
+    "AWS",
+    "Azure"
 ];
 
 function skillColor(name) {
@@ -35,17 +43,18 @@ function skillColor(name) {
     }
 }
 
-function Skill(props) {
+function Skill({ style, children, onClick }) {
     return (
         <li
-            className={`inline-block px-3 py-0.5 mx-0.75 my-0.5 rounded-full border cursor-default ${props.className}`}
-            style={props.style}
+            className='inline-block px-3 py-0.5 mx-0.75 my-0.5 rounded-full border cursor-default'
+            title={children}
+            style={style}
         >
-            {props.children}
+            {children}
             <button
                 type="button"
-                onClick={props.onClick}
-                title={`Remove ${props.children}`}
+                onClick={onClick}
+                title={`Remove "${children}"`}
                 className="ml-3 font-bold leading-none cursor-pointer bg-transparent border-0 p-0"
             >
                 ×
@@ -61,59 +70,64 @@ function Skills({ skills = defaults }) {
     const [isCreatingSkill, setIsCreatingSkill] = useState(false);
     const [newSkill, setNewSkill] = useState('');
 
-    const addSkill = (skill) => {
-        setSkillList([skill, ...skillList]);
+    const addToSkillList = (skill) => { setSkillList([skill, ...skillList]); };
+
+    const removeFromSkillList = (indexToRemove) => { setSkillList(skillList.filter((_, i) => i !== indexToRemove)); };
+
+    const resetCreateSkill = () => {
+        setNewSkill('');
+        setIsCreatingSkill(false);
     };
 
-    const removeSkill = (indexToRemove) => {
-        setSkillList(skillList.filter((_, i) => i !== indexToRemove));
+    const createNewSkillInput = () => {
+        const example = defaults[Math.floor(Math.random() * defaults.length)];
+        const placeholder = `e.g., ${example}`;
+
+        return (
+            <input
+                type="text"
+                value={newSkill}
+                title="Type a skill and press Enter to add it or Escape to cancel"
+                placeholder={placeholder}
+                className="bg-transparent border-0 p-0 outline-none w-32"
+                style={{ fieldSizing: 'content' }}
+                onChange={(e) => { setNewSkill(e.target.value); }}
+                onBlur={resetCreateSkill}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newSkill.trim() !== '') {
+                        addToSkillList(newSkill.trim());
+                        resetCreateSkill();
+                    } else if (e.key === 'Escape') {
+                        resetCreateSkill();
+                    }
+                }}
+                autoFocus
+            />
+        )
+    };
+
+    const addSkillButton = () => {
+        return (
+            <button
+                title="Add a New Skill"
+                className="inline-flex rounded-full border bg-[#404040] cursor-pointer px-3 py-0.5 mx-0.75 my-0.5"
+                onClick={() => setIsCreatingSkill(true)}
+            >
+                {isCreatingSkill ? createNewSkillInput() : 'Add Skill +'}
+            </button>
+        );
     };
 
     return (
         <fieldset className="border rounded-lg">
             <legend className="ml-4 px-1.5">Skills</legend>
             <ul className="mb-2 px-4 flex justify-start items-start flex-wrap">
-                <button
-                    title="Add a New Skill"
-                    className="inline-flex rounded-full border bg-[#404040] cursor-pointer px-3 py-0.5 mx-0.75 my-0.5"
-                    onClick={() => setIsCreatingSkill(true)}>
-                    {isCreatingSkill ? <input
-                        type="text"
-                        value={newSkill}
-                        className="bg-transparent border-0 p-0 outline-none w-20.5"
-                        onChange={(e) => {
-                            setNewSkill(e.target.value);
-
-                            // Reset the width to 1px every time to allow for shrinking
-                            // (If the input is already wide, the value of scrollWidth won't reduce so the width must collapse first)
-                            e.target.style.width = '1px';
-                            e.target.style.width = `${Math.max(82, e.target.scrollWidth + 2)}px`;
-                        }}
-                        onBlur={() => {
-                            if (newSkill.trim() !== '') {
-                                addSkill(newSkill.trim());
-                            }
-                            setNewSkill('');
-                            setIsCreatingSkill(false);
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && newSkill.trim() !== '') {
-                                addSkill(newSkill.trim());
-                                setNewSkill('');
-                                setIsCreatingSkill(false);
-                            } else if (e.key === 'Escape') {
-                                setNewSkill('');
-                                setIsCreatingSkill(false);
-                            }
-                        }}
-                        autoFocus
-                    /> : 'Add Skill +'}
-                </button>
+                {addSkillButton()}
                 {skillList.map((skill, i) => (
                     <Skill
                         key={i}
                         style={skillColor(skill)}
-                        onClick={() => removeSkill(i)}
+                        onClick={() => removeFromSkillList(i)}
                     >
                         {skill}
                     </Skill>
