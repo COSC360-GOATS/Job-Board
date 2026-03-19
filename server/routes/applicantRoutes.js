@@ -1,18 +1,12 @@
 import { Router } from 'express';
-import {
-    getApplicants,
-    getApplicantById,
-    createApplicant,
-    updateApplicant,
-    deleteApplicant
-} from "../controllers/applicantController.js";
+import controller from "../controllers/applicantController.js";
 
 const router = Router();
 
-router.get("/", getApplicants);
-router.get("/:id", getApplicantById);
-router.post("/", createApplicant);
-router.patch("/:id", updateApplicant);
-router.delete("/:id", deleteApplicant);
+router.get("/", controller.getAll);
+router.get("/:id", controller.getById);
+router.post("/", controller.create);
+router.patch("/:id", controller.update);
+router.delete("/:id", controller.remove);
 
 export default router;

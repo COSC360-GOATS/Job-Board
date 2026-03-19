@@ -1,4 +1,4 @@
-export function createService(data) {
+export default function createService(data) {
     return {
         getAll() {
             return data;

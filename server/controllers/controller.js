@@ -1,4 +1,4 @@
-export function createController(service) {
+export default function createController(service) {
     return {
         async getAll(req, res) {
             const items = await service.getAll();
