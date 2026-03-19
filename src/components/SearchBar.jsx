@@ -12,7 +12,6 @@ export default function SearchBar() {
     const data = await response.json();
     setResults(data); //saves the jobs returned from the server
     setSearched(true); //marks a search happened
-    setQuery(""); // clears the search box after submission
   };
 
   return (
