@@ -1,0 +1,11 @@
+[
+    {
+        "id": 1,
+        "name": "TechCorp",
+        "email": "info@techcorp.com",
+        "password": "password123",
+        "location": "San Francisco, CA",
+        "industry": "Technology",
+        "description": "TechCorp is a leading technology company specializing in software development and innovative solutions. We are committed to creating cutting-edge products that enhance the way people live and work."
+    }
+]
