@@ -1,0 +1,26 @@
+[
+    {
+        "id": 0,
+        "name": {
+            "first": "Alice",
+            "last": "Smith"
+        },
+        "email": "alicesmith@email.com",
+        "password": "password123",
+        "profilePicture": "https://example.com/profile/alice_smith.jpg",
+        "resume": "https://example.com/resume/alice_smith.pdf",
+        "skills": ["JavaScript", "React", "Node.js"]
+    },
+    {
+        "id": 1,
+        "name": {
+            "first": "Bob",
+            "last": "Johnson"
+        },
+        "email": "bobjohnson@email.com",
+        "password": "password123",
+        "profilePicture": "https://example.com/profile/bob_johnson.jpg",
+        "resume": "https://example.com/resume/bob_johnson.pdf",
+        "skills": ["Python", "Django", "PostgreSQL"]
+    }
+]
