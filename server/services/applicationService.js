@@ -1,4 +1,4 @@
-const data = require('../data/applications.json');
+import data from '../data/applications.json' with { type: 'json' };
 
 export const getApplicationService = () => data;
 
