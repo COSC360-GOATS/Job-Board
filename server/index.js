@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import applications from './routes/applicationRoutes.js';
 import applicants from './routes/applicantRoutes.js';
 import jobs from './routes/jobRoutes.js';
@@ -7,6 +8,7 @@ import ratings from './routes/ratingRoutes.js';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use("/applications", applications);
 app.use("/applicants", applicants);
