@@ -1,6 +1,5 @@
-import data from '../data/jobs.json' with { type: 'json' };
 import createService from './service.js';
 
-const service = createService(data);
-
-export default service;
+export default function jobService(db) {
+    return createService(db.collection('jobs'));
+}
