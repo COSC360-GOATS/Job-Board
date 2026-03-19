@@ -1,11 +1,13 @@
 import express from 'express';
-import applicationRoutes from './routes/applicationRoutes.js';
-import applicantRoutes from './routes/applicantRoutes.js';
+import applications from './routes/applicationRoutes.js';
+import applicants from './routes/applicantRoutes.js';
+import jobs from './routes/jobRoutes.js';
 
 const app = express();
 
 app.use(express.json());
-app.use("/applications", applicationRoutes);
-app.use("/applicants", applicantRoutes);
+app.use("/applications", applications);
+app.use("/applicants", applicants);
+app.use("/jobs", jobs);
 
 app.listen(3000, () => console.log("Server running on port 3000"));

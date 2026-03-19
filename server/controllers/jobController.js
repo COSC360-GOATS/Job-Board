@@ -1,9 +1,6 @@
-const { getAllJobs, getJobById } = require('../services/jobService');
+import createController from "./controller.js";
+import service from "../services/jobService.js";
 
-const getJobs = (req, res) => res.json(getAllJobs());
-const getJob = (req, res) => {
-  const job = getJobById(req.params.id);
-  job ? res.json(job) : res.status(404).json({ message: "Job not found" });
-};
+const controller = createController(service);
 
-module.exports = { getJobs, getJob };
+export default controller;

@@ -1,6 +1,6 @@
-const jobs = require('../data/jobs.json');
+import data from '../data/jobs.json' with { type: 'json' };
+import createService from './service.js';
 
-const getAllJobs = () => jobs;
-const getJobById = (id) => jobs.find(j => j.id === parseInt(id));
+const service = createService(data);
 
-module.exports = { getAllJobs, getJobById };
+export default service;
