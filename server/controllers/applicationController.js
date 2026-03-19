@@ -8,8 +8,8 @@ import {
 
 export async function createApplication(req, res) {
     try {
-        const { jobId, applicantId } = req.body;
-        const application = await createApplicationService({ jobId, applicantId });
+        const { jobId, applicantId, additionalResponses } = req.body;
+        const application = await createApplicationService({ jobId, applicantId, additionalResponses });
 
         if (!application) {
             return res.status(400).json({ error: "Failed to create application" });
@@ -54,9 +54,9 @@ export async function getApplicationById(req, res) {
 export async function updateApplication(req, res) {
     try {
         const { id } = req.params;
-        const { jobId, applicantId } = req.body;
+        const { jobId, applicantId, additionalResponses } = req.body;
 
-        const updated = await updateApplicationService(id, { jobId, applicantId });
+        const updated = await updateApplicationService(id, { jobId, applicantId, additionalResponses });
 
         if (!updated) {
             return res.status(404).json({ error: "Application not found" });
