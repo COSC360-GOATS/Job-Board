@@ -1,6 +1,5 @@
-import data from '../data/applicants.json' with { type: 'json' };
 import createService from './service.js';
 
-const service = createService(data);
-
-export default service;
+export default function applicantService(db) {
+    return createService(db.collection('applicants'));
+}

@@ -1,12 +1,13 @@
 import { Router } from "express";
-import controller from "../controllers/applicationController.js";
 
-const router = Router();
+export default function applicationRoutes(controller) {
+    const router = Router();
 
-router.get("/", controller.getAll);
-router.get("/:id", controller.getById);
-router.post("/", controller.create);
-router.patch("/:id", controller.update);
-router.delete("/:id", controller.remove);
+    router.get("/", controller.getAll);
+    router.get("/:id", controller.getById);
+    router.post("/", controller.create);
+    router.patch("/:id", controller.update);
+    router.delete("/:id", controller.remove);
 
-export default router;
+    return router;
+}
