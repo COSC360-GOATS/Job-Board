@@ -1,7 +1,0 @@
-[
-    { "id": 0, "jobId": 1, "applicantId": 4, "additionalResponses": [] },
-    { "id": 1, "jobId": 2, "applicantId": 7, "additionalResponses": [] },
-    { "id": 2, "jobId": 8, "applicantId": 8, "additionalResponses": [] },
-    { "id": 3, "jobId": 13, "applicantId": 2, "additionalResponses": [] },
-    { "id": 4, "jobId": 20, "applicantId": 4, "additionalResponses": [] }
-]
