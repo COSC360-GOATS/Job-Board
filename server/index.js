@@ -1,5 +1,6 @@
 import express from 'express';
 import { MongoClient } from 'mongodb';
+import 'dotenv/config';
 
 import applicantService from './services/applicantService.js';
 import applicantController from './controllers/applicantController.js';
@@ -30,7 +31,7 @@ await db();
 app.listen(3000, () => console.log("Server running on port 3000"));
 
 async function db() {
-    const uri = "mongodb+srv://kadenlukeharris6_db_user:FWLwrzdaI3A1lHTm@360project.9gum5sk.mongodb.net/?appName=360Project";
+    const uri = process.env.MONGO_URI;
     const client = new MongoClient(uri);
     
     try {
