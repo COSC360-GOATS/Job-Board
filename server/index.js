@@ -2,24 +2,10 @@ import express from 'express';
 import { MongoClient } from 'mongodb';
 import 'dotenv/config';
 
-import applicantService from './services/applicantService.js';
-import applicantController from './controllers/applicantController.js';
 import applicantRoutes from './routes/applicantRoutes.js';
-
-import applicationService from './services/applicationService.js';
-import applicationController from './controllers/applicationController.js';
 import applicationRoutes from './routes/applicationRoutes.js';
-
-import ratingService from './services/ratingService.js';
-import ratingController from './controllers/ratingController.js';
 import ratingRoutes from './routes/ratingRoutes.js';
-
-import jobService from './services/jobService.js';
-import jobController from './controllers/jobController.js';
 import jobRoutes from './routes/jobRoutes.js';
-
-import employerService from './services/employerService.js';
-import employerController from './controllers/employerController.js';
 import employerRoutes from './routes/employerRoutes.js';
 
 const app = express();
@@ -38,11 +24,11 @@ async function db() {
         await client.connect();
         const db = client.db("JobBoard");
 
-        app.use("/applicants", applicantRoutes(applicantController(applicantService(db))));
-        app.use("/applications", applicationRoutes(applicationController(applicationService(db))));
-        app.use("/jobs", jobRoutes(jobController(jobService(db))));
-        app.use("/employers", employerRoutes(employerController(employerService(db))));
-        app.use("/ratings", ratingRoutes(ratingController(ratingService(db))));
+        app.use("/applicants", applicantRoutes(db));
+        app.use("/applications", applicationRoutes(db));
+        app.use("/jobs", jobRoutes(db));
+        app.use("/employers", employerRoutes(db));
+        app.use("/ratings", ratingRoutes(db));
 
         console.log("MongoDB connected!");
     }
