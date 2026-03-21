@@ -1,12 +1,12 @@
 import NavBar from './components/NavBar'
 import './App.css'
-import JobCard from './components/employers/JobCard'
+import JobDashboard from './components/employers/JobDashboard'
 
 function App() {
   return (
     <main>
       <NavBar />
-      <JobCard />
+      <JobDashboard />
     </main>
   )
 }
