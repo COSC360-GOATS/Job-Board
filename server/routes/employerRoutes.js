@@ -1,6 +1,10 @@
 import express from "express";
+import employerController from "../controllers/employerController.js";
+import employerService from "../services/employerService.js";
 
-export default function employerRoutes(controller) {
+export default function employerRoutes(db) {
+    const service = employerService(db);
+    const controller = employerController(service);
     const router = express.Router();
 
     router.get("/", controller.getAll);

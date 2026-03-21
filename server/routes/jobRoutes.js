@@ -1,6 +1,10 @@
 import { Router } from 'express';
+import jobController from '../controllers/jobController.js';
+import jobService from '../services/jobService.js';
 
-export default function jobRoutes(controller) {
+export default function jobRoutes(db) {
+    const service = jobService(db);
+    const controller = jobController(service);
     const router = Router();
 
     router.get("/", controller.getAll);
