@@ -8,6 +8,7 @@ export default function jobRoutes(db) {
     const router = Router();
 
     router.get("/", controller.getAll);
+    router.get("/employer/:employerId", controller.getByEmployerId);
     router.get("/:id", controller.getById);
     router.post("/", controller.create);
     router.patch("/:id", controller.update);
