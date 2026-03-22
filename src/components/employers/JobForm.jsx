@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Skills from "../Skills";
 
 function JobForm({ job }) {
@@ -12,6 +12,7 @@ function JobForm({ job }) {
     const [skills, setSkills] = useState(job?.skills || []);
     const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+    const navigate = useNavigate();
     const loc = useLocation();
     const creating = loc.pathname === "/jobs/new";
 
@@ -60,6 +61,8 @@ function JobForm({ job }) {
 
             const saved = await res.json();
             console.log("Saved job", saved);
+
+            navigate('/jobs');
         } catch (err) {
             console.error("Request failed", err);
         }
@@ -67,6 +70,7 @@ function JobForm({ job }) {
 
     return (
         <form onSubmit={handleSubmit} className="text-white p-8 rounded-lg border border-gray-300 max-w-lg flex flex-col gap-3 min-w-3/4 mx-auto">
+            <legend className="text-2xl font-semibold mb-4">{creating ? "Create New Job" : `Editing "${job.title}"`}</legend>
             <label htmlFor="job-title">Job Title</label>
             <input onChange={(e) => setTitle(e.target.value)} id="job-title" type="text" placeholder={job?.title || "Job Title"} className={inputStyle} />
 
@@ -101,12 +105,12 @@ function JobForm({ job }) {
                     </div>
                 ))
             }
-            <button type="button" onClick={() => addQuestion()} className={`${inputStyle} cursor-pointer hover:bg-gray-800`}>+ Add Additional Question</button>
+            <button type="button" onClick={() => addQuestion()} className={`${inputStyle} cursor-pointer bg-gray-200 text-black hover:bg-gray-50`}>+ Add Additional Question</button>
 
             <label htmlFor="job-skills">Required Skills</label>
             <Skills id="job-skills" onChange={(e) => setSkills(e.target.value)} skills={skills} />
 
-            <button type="submit" className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-800">{creating ? "Create Job" : "Update Job"}</button>
+            <button type="submit" className="cursor-pointer rounded-lg text-black bg-gray-200 px-4 py-2 hover:bg-gray-50 mt-4">{creating ? "Create Job" : "Update Job"}</button>
         </form >
     )
 }

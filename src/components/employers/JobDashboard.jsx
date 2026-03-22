@@ -44,7 +44,7 @@ function JobDashboard() {
           </div>
         ))}
       </div>
-      <button onClick={() => navigate('/jobs/new')} className="text-white cursor-pointer rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-800">Create Job</button>
+      <button onClick={() => navigate('/jobs/new')} className="cursor-pointer rounded-lg text-black bg-gray-200 px-4 py-2 hover:bg-gray-50">Create Job</button>
     </>
   );
 }
