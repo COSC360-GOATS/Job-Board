@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { MongoClient } from 'mongodb';
 import 'dotenv/config';
 
@@ -10,6 +11,7 @@ import employerRoutes from './routes/employerRoutes.js';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 await db();
