@@ -7,7 +7,13 @@ const defaultJob = {
     payRange: {
         low: 70000,
         high: 120000
-    }
+    },
+    location: 'Kelowna, BC',
+    additionalQuestions: [
+        'What is your experience with JavaScript?',
+        'Have you worked with React before?',
+        'Do you have experience with Node.js?'
+    ]
 };
 
 function JobCard({ job = defaultJob }) {
