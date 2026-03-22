@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import Skills from "../Skills";
 
 function JobForm({ job }) {
     const [title, setTitle] = useState(job?.title || "");
@@ -8,7 +9,7 @@ function JobForm({ job }) {
     const [payRangeHigh, setPayRangeHigh] = useState(job?.payRange.high || "");
     const [location, setLocation] = useState(job?.location || "");
     const [additionalQuestions, setAdditionalQuestions] = useState(job?.additionalQuestions || []);
-    const [skills, setSkills] = useState(job?.skills || "");
+    const [skills, setSkills] = useState(job?.skills || []);
     const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     const loc = useLocation();
@@ -103,8 +104,7 @@ function JobForm({ job }) {
             <button type="button" onClick={() => addQuestion()} className={`${inputStyle} cursor-pointer hover:bg-gray-800`}>+ Add Additional Question</button>
 
             <label htmlFor="job-skills">Required Skills</label>
-            {/* Placeholder until Skills component gets merged */}
-            <input onChange={(e) => setSkills(e.target.value)} id="job-skills" type="text" placeholder={job?.skills || "Required Skills"} className={inputStyle} />
+            <Skills id="job-skills" onChange={(e) => setSkills(e.target.value)} skills={skills} />
 
             <button type="submit" className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-800">{creating ? "Create Job" : "Update Job"}</button>
         </form >

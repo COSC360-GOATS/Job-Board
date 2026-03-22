@@ -34,16 +34,18 @@ function JobDashboard() {
   }, [API_BASE]);
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6 px-6 py-3">
+    <>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6 px-6 py-3">
         {loading && <p className="text-white">Loading jobs...</p>}
         {error && <p className="text-red-400">{error}</p>}
         {!loading && !error && jobs.map((job) => (
-            <div key={job._id || job.id} className="mb-4">
-                <JobCard job={job} />
-            </div>
+          <div key={job._id || job.id} className="mb-4">
+            <JobCard job={job} />
+          </div>
         ))}
-        <button onClick={() => navigate('/jobs/new')} className="text-white cursor-pointer rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-800">Create Job</button>
-    </div>
+      </div>
+      <button onClick={() => navigate('/jobs/new')} className="text-white cursor-pointer rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-800">Create Job</button>
+    </>
   );
 }
 
