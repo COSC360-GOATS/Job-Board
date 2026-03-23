@@ -16,13 +16,35 @@ function JobForm({ job }) {
     const loc = useLocation();
     const creating = loc.pathname === "/jobs/new";
 
-    const inputStyle = "rounded-lg border border-gray-300 px-4 py-2 mb-4"
+    const inputStyle = "rounded-lg border border-gray-300 px-4 py-2 mb-4";
+
     const addQuestion = () => {
         setAdditionalQuestions([...additionalQuestions, undefined]);
     };
     const removeQuestion = (i) => {
         setAdditionalQuestions(additionalQuestions.filter((_, index) => index !== i));
     };
+
+    async function deleteJob() {
+        if (creating) {
+            console.error("Can't delete a job that hasn't been created yet");
+            return;
+        }
+
+        confirm("Are you sure you want to delete this job? This action cannot be undone.") && await fetch(`${API_BASE}/jobs/${job._id}`, {
+            method: "DELETE",
+        }).then(res => {
+            if (!res.ok) {
+                console.error("Something went wrong deleting the job", res.status);
+                return;
+            }
+
+            console.log("Deleted job");
+            navigate('/jobs');
+        }).catch(err => {
+            console.error("Request failed", err);
+        });
+    }
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -70,7 +92,13 @@ function JobForm({ job }) {
 
     return (
         <form onSubmit={handleSubmit} className="text-white p-8 rounded-lg border border-gray-300 max-w-lg flex flex-col gap-3 min-w-3/4 mx-auto">
-            <legend className="text-2xl font-semibold mb-4">{creating ? "Create New Job" : `Editing "${job.title}"`}</legend>
+            <div className="flex items-center justify-between">
+                <legend className="text-2xl font-semibold mb-4">{creating ? "Create New Job" : `Editing "${job.title}"`}</legend>
+                {
+                    !creating && (<button type="button" onClick={deleteJob} className="cursor-pointer rounded-lg bg-red-500 text-white px-4 py-2 hover:bg-red-400">Delete Job</button>)
+                }
+            </div>
+
             <label htmlFor="job-title">Job Title</label>
             <input onChange={(e) => setTitle(e.target.value)} id="job-title" type="text" placeholder={job?.title || "Job Title"} className={inputStyle} />
 
