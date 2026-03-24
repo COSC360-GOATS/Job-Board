@@ -10,5 +10,89 @@
       "skills": ["JavaScript", "Node.js", "React", "Git"],
       "datePosted": "2024-06-01",
       "additionalQuestions": []
+    },
+    {
+      "id": 2,
+      "employerId": 2,
+      "title": "Data Analyst",
+      "company": "Data Analytics Firm B",
+      "location": "San Francisco, CA",
+      "salary": "$80,000 - $100,000",
+      "description": "We are seeking a data analyst to help us make sense of our data and provide insights to drive business decisions. The ideal candidate will have experience with SQL, Python, and data visualization tools. Responsibilities include analyzing large datasets, creating reports, and collaborating with stakeholders to identify trends and opportunities.",
+      "skills": ["SQL", "Python", "Tableau", "Excel"],
+      "datePosted": "2024-06-05",
+      "additionalQuestions": []
+    },
+    {
+      "id": 3,
+      "employerId": 1,
+      "title": "Product Manager",
+      "company": "Tech Company A",
+      "location": "New York, NY",
+      "salary": "$110,000 - $130,000",
+      "description": "We are looking for an experienced product manager to lead the development of our new product line. The ideal candidate will have experience in product management, strong communication skills, and the ability to work cross-functionally. Responsibilities include defining product vision, creating roadmaps, and collaborating with engineering and design teams.",
+      "skills": ["Product Management", "Agile", "Communication", "Leadership"],
+      "datePosted": "2024-06-10",
+      "additionalQuestions": []
+    },
+    {
+      "id": 4,
+      "employerId": 3,
+      "title": "Marketing Specialist",
+      "company": "Marketing Agency C",
+      "location": "Chicago, IL",
+      "salary": "$60,000 - $80,000",
+      "description": "We are seeking a marketing specialist to help us develop and execute marketing campaigns for our clients. The ideal candidate will have experience with digital marketing, social media, and content creation. Responsibilities include creating marketing strategies, managing social media accounts, and analyzing campaign performance.",
+      "skills": ["Digital Marketing", "Social Media", "Content Creation", "Analytics"],
+      "datePosted": "2024-06-15",
+      "additionalQuestions": []
+    },
+    {
+      "id": 5,
+      "employerId": 2,
+      "title": "UX Designer",
+      "company": "Data Analytics Firm B",
+      "location": "San Francisco, CA",
+      "salary": "$90,000 - $110,000",
+      "description": "We are looking for a talented UX designer to help us create intuitive and user-friendly interfaces for our data analytics products. The ideal candidate will have experience with user research, wireframing, and prototyping. Responsibilities include conducting user research, creating wireframes and prototypes, and collaborating with product managers and engineers.",
+      "skills": ["UX Design", "User Research", "Wireframing", "Prototyping"],
+      "datePosted": "2024-06-20",
+      "additionalQuestions": []
+    },
+    {
+      "id": 6,
+      "employerId": 3,
+      "title": "Sales Representative",
+      "company": "Marketing Agency C",
+      "location": "Chicago, IL",
+      "salary": "$50,000 - $70,000",
+      "description": "We are seeking a sales representative to help us grow our client base and drive revenue. The ideal candidate will have experience in sales, strong communication skills, and the ability to build relationships with clients. Responsibilities include prospecting for new clients, conducting sales presentations, and closing deals.",
+      "skills": ["Sales", "Communication", "Relationship Building", "Negotiation"],
+      "datePosted": "2024-06-25",
+      "additionalQuestions": []
+    },
+    {
+      "id": 7,
+      "employerId": 1,
+      "title": "DevOps Engineer",
+      "company": "Tech Company A",
+      "location": "New York, NY",
+      "salary": "$120,000 - $140,000",
+      "description": "We are looking for a skilled DevOps engineer to help us automate our infrastructure and improve our deployment processes. The ideal candidate will have experience with cloud platforms, containerization, and CI/CD pipelines. Responsibilities include managing cloud infrastructure, automating deployment processes, and collaborating with development teams to ensure smooth releases.",
+      "skills": ["Cloud Platforms", "Containerization", "CI/CD", "Automation"],
+      "datePosted": "2024-06-30",
+      "additionalQuestions": []
+    },
+    {
+      "id": 8,
+      "employerId": 2,
+      "title": "Machine Learning Engineer",
+      "company": "Data Analytics Firm B",
+      "location": "San Francisco, CA",
+      "salary": "$130,000 - $150,000",
+      "description": "We are seeking a machine learning engineer to help us develop and deploy machine learning models for our data analytics products. The ideal candidate will have experience with machine learning algorithms, Python, and cloud platforms. Responsibilities include developing machine learning models, deploying models to production, and collaborating with data scientists and engineers.",
+      "skills": ["Machine Learning", "Python", "Cloud Platforms", "Model Deployment"],
+      "datePosted": "2024-07-05",
+      "additionalQuestions": []
     }
   ]

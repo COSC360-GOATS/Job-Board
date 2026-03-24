@@ -1,3 +1,4 @@
+import React from 'react';
 const navItems = [
 	{page: "Job Page", link: "/notyourmom"},
 	{page: "Profile", link: "/yourprofile"},
