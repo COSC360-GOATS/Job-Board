@@ -50,7 +50,12 @@ function JobDashboard() {
         {error && <p className="text-red-400">{error}</p>}
         {!loading && !error && jobs.map((job) => (
           <div key={job._id || job.id} className="mb-4">
-            <JobCard job={job} />
+            <JobCard
+              job={job}
+              onDelete={(deletedJobId) => {
+                setJobs((prevJobs) => prevJobs.filter((j) => j._id !== deletedJobId));
+              }}
+            />
           </div>
         ))}
       </div>

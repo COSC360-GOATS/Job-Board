@@ -16,14 +16,51 @@ const defaultJob = {
     ]
 };
 
-function JobCard({ job = defaultJob }) {
+function JobCard({ job = defaultJob, onDelete }) {
     const navigate = useNavigate();
+    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+
+    const buttonStyle = "cursor-pointer rounded-lg bg-gray-200 text-sm text-black px-2 py-1 hover:bg-gray-50";
+
+    async function deleteJob() {
+        confirm("Are you sure you want to delete this job? This action cannot be undone.") && await fetch(`${API_BASE}/jobs/${job._id}`, {
+            method: "DELETE",
+        }).then(res => {
+            if (!res.ok) {
+                console.error("Something went wrong deleting the job", res.status);
+                return;
+            }
+
+            console.log("Deleted job");
+            onDelete?.(job._id);
+        }).catch(err => {
+            console.error("Request failed", err);
+        });
+    }
 
     return (
-        <div onClick={() => navigate(`/jobs/${job._id}`, { state: { job } })} className="text-white p-8 rounded-lg border border-gray-300 max-w-lg flex flex-col gap-3 cursor-pointer hover:bg-gray-800">
+        <div className="text-white p-8 rounded-lg border border-gray-300 max-w-lg flex flex-col gap-3">
             <h3 className="text-3xl font-semibold">{job.title}</h3>
             <h6 className="text-lg">${job.payRange.low} - ${job.payRange.high}, <span className="text-gray-400">{job.location}</span></h6>
-            <p className="text-gray-400 line-clamp-3">{job.description}</p>
+
+            <div className="flex justify-between items-center grow">
+                <p className="text-gray-400 line-clamp-3">{job.description}</p>
+                <div className="flex flex-wrap justify-end gap-2 mt-2">
+                    <button
+                        className={buttonStyle}
+                        onClick={() => navigate(`/jobs/${job._id}`, { state: { job } })}
+                    >
+                        Edit
+                    </button>
+                    <button
+                        className={`${buttonStyle} bg-red-500 hover:bg-red-400`}
+                        onClick={deleteJob}
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
         </div>
     )
 }
