@@ -64,6 +64,7 @@ function JobForm({ job }) {
             },
             additionalQuestions: additionalQuestions.filter(q => q !== undefined),
             skills,
+            employerId: import.meta.env.VITE_TEMP_EMPLOYER_ID // TEMPORARY until authentication is implemented
         }
 
         const url = creating ? `${API_BASE}/jobs` : `${API_BASE}/jobs/${job._id}`;
@@ -95,7 +96,11 @@ function JobForm({ job }) {
             <div className="flex items-center justify-between">
                 <legend className="text-2xl font-semibold mb-4">{creating ? "Create New Job" : `Editing "${job.title}"`}</legend>
                 {
-                    !creating && (<button type="button" onClick={deleteJob} className="cursor-pointer rounded-lg bg-red-500 text-white px-4 py-2 hover:bg-red-400">Delete Job</button>)
+                    !creating && (
+                        <button type="button" onClick={deleteJob} className="cursor-pointer rounded-lg bg-red-500 text-white px-4 py-2 hover:bg-red-400">
+                            Delete Job
+                        </button>
+                    )
                 }
             </div>
 
