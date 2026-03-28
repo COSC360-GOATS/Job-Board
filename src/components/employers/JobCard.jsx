@@ -42,7 +42,7 @@ function JobCard({ job = defaultJob, onDelete }) {
     }
 
     return (
-        <div className="text-white p-8 rounded-lg border border-gray-300 max-w-lg flex flex-col gap-3">
+        <div className="text-white p-8 rounded-lg border border-gray-300 w-full flex flex-col gap-3">
 
             <div className="flex justify-between items-start gap-3 grow">
                 <h3 className="text-3xl font-semibold flex-1 min-w-0 wrap-break-word">{job.title}</h3>
