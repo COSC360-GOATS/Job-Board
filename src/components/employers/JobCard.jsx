@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Skill } from "../Skills";
 
 const defaultJob = {
     id: 1,
@@ -13,7 +14,8 @@ const defaultJob = {
         'What is your experience with JavaScript?',
         'Have you worked with React before?',
         'Do you have experience with Node.js?'
-    ]
+    ],
+    skills: ['JavaScript', 'React', 'Node.js']
 };
 
 function JobCard({ job = defaultJob, onDelete }) {
@@ -41,12 +43,11 @@ function JobCard({ job = defaultJob, onDelete }) {
 
     return (
         <div className="text-white p-8 rounded-lg border border-gray-300 max-w-lg flex flex-col gap-3">
-            <h3 className="text-3xl font-semibold">{job.title}</h3>
-            <h6 className="text-lg">${job.payRange.low} - ${job.payRange.high}, <span className="text-gray-400">{job.location}</span></h6>
 
-            <div className="flex justify-between items-center grow">
-                <p className="text-gray-400 line-clamp-3">{job.description}</p>
-                <div className="flex flex-wrap justify-end gap-2 mt-2">
+            <div className="flex justify-between items-start gap-3 grow">
+                <h3 className="text-3xl font-semibold flex-1 min-w-0 wrap-break-word">{job.title}</h3>
+
+                <div className="flex justify-end gap-2 shrink-0">
                     <button
                         className={buttonStyle}
                         onClick={() => navigate(`/jobs/${job._id}`, { state: { job } })}
@@ -61,6 +62,22 @@ function JobCard({ job = defaultJob, onDelete }) {
                     </button>
                 </div>
             </div>
+
+            <div className="wrap-break-word">
+                <h6 className="text-lg">${job.payRange.low} - ${job.payRange.high}, <span className="text-gray-400">{job.location}</span></h6>
+            </div>
+
+
+            <p className="text-gray-400 line-clamp-3">{job.description}</p>
+
+            <ul className="w-full flex justify-start items-center flex-nowrap overflow-x-auto overflow-y-hidden [&>li]:shrink-0">
+                {(job.skills ?? []).map((skill, i) => (
+                    <Skill
+                        key={i}
+                        name={skill}
+                    />
+                ))}
+            </ul>
         </div>
     )
 }

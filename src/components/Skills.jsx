@@ -43,23 +43,29 @@ function skillColor(name) {
     }
 }
 
-function Skill({ style, children, onClick }) {
+export function Skill({ name, children }) {
     return (
         <li
             className='inline-block px-3 py-0.5 mx-0.75 my-0.5 rounded-full border cursor-default'
-            title={children}
-            style={style}
+            title={name}
+            style={skillColor(name)}
         >
+            {name}
             {children}
-            <button
-                type="button"
-                onClick={onClick}
-                title={`Remove "${children}"`}
-                className="ml-3 font-bold leading-none cursor-pointer bg-transparent border-0 p-0"
-            >
-                ×
-            </button>
         </li>
+    );
+}
+
+function RemoveSkillButton({ name, onClick }) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            title={`Remove "${name}"`}
+            className="ml-3 font-bold leading-none cursor-pointer bg-transparent border-0 p-0"
+        >
+            ×
+        </button>
     );
 }
 
@@ -102,7 +108,9 @@ function Skills({ skills = defaults, id, onChange }) {
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' && newSkill.trim() !== '') {
                         e.preventDefault();
-                        addToSkillList(newSkill.trim());
+                        const capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join('');
+                        const formattedSkill = newSkill.split(' ').map(capitalize).join(' ');
+                        addToSkillList(formattedSkill);
                         resetCreateSkill();
                     } else if (e.key === 'Escape') {
                         e.preventDefault();
@@ -135,10 +143,9 @@ function Skills({ skills = defaults, id, onChange }) {
                 {skillList.map((skill, i) => (
                     <Skill
                         key={i}
-                        style={skillColor(skill)}
-                        onClick={() => removeFromSkillList(i)}
+                        name={skill}
                     >
-                        {skill}
+                        <RemoveSkillButton name={skill} onClick={() => removeFromSkillList(i)} />
                     </Skill>
                 ))}
             </ul>
