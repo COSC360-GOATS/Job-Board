@@ -43,12 +43,12 @@ function skillColor(name) {
     }
 }
 
-export function Skill({ name, children }) {
+export function Skill({ name, children, style, className = '' }) {
     return (
         <li
-            className='inline-block px-3 py-0.5 mx-0.75 my-0.5 rounded-full border cursor-default'
+            className={`inline-block px-3 py-0.5 mx-0.75 my-0.5 rounded-full border cursor-default ${className}`}
             title={name}
-            style={skillColor(name)}
+            style={{ ...skillColor(name), ...style }}
         >
             {name}
             {children}

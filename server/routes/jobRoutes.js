@@ -13,6 +13,7 @@ export default function jobRoutes(db) {
     router.post("/", controller.create);
     router.patch("/:id", controller.update);
     router.delete("/:id", controller.remove);
+    router.get("/:id/applications", controller.getApplicationsForJob);
 
     return router;
 }

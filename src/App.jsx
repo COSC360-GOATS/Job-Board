@@ -3,6 +3,7 @@ import './App.css'
 import JobDashboard from './components/employers/JobDashboard'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import JobOverview from './components/employers/JobDetails'
+import ApplicantList from './components/employers/ApplicationList'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/jobs" element={<JobDashboard />} />
           <Route path="/jobs/:id" element={<JobOverview />} />
+          <Route path="/jobs/:id/applications" element={<ApplicantList />} />
         </Routes>
       </main>
     </Router>
