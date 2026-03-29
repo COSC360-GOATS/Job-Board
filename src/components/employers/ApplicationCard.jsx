@@ -2,6 +2,7 @@ import { Skill } from "../Skills";
 
 export function ApplicationCard({ application, job }) {
     const applicant = application.applicant || {};
+    const appliedDate = application.date;
 
     const applicantSkills = applicant.skills ?? [];
     const requiredSkillSet = new Set((job?.skills ?? []).map((skill) => skill.toLowerCase()));
@@ -16,15 +17,19 @@ export function ApplicationCard({ application, job }) {
     const otherSkills = applicantSkills.filter((skill) => !requiredSkillSet.has(skill.toLowerCase()));
     const orderedSkills = [...matchedSkills, ...otherSkills];
 
-    return (
-        <section className="text-white p-8 rounded-lg border border-gray-300 flex items-start gap-4">
+    const appliedTimeAgo = formatTimeAgo(appliedDate);
 
-            <div className="flex flex-col gap-2 basis-1/2 max-w-1/2 min-w-0 overflow-hidden p-4">
-                <div className="flex justify-between items-end gap-3 flex-wrap">
-                    <div className="flex items-center">
-                        <img src={applicant.profile} alt={`${applicant.name.first} ${applicant.name.last}`} className="w-36 h-36 rounded-full border border-gray-300 object-cover text-center flex justify-center items-center text-gray-300" />
+    return (
+        <section className="text-white p-6 rounded-lg border border-gray-300 grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2 min-w-0 overflow-hidden p-2">
+                <div className="flex justify-between items-start gap-3 flex-wrap">
+                    <div className="flex items-center min-w-0">
+                        <img src={applicant.profile} alt={`${applicant.name.first} ${applicant.name.last}`} className="w-24 h-24 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover text-center flex justify-center items-center text-gray-300 shrink-0" />
                         <div className="ml-4 flex flex-col gap-1 min-w-0">
-                            <h3 className="text-3xl font-semibold">{applicant.name.last}, {applicant.name.first}</h3>
+                            <h3 className="text-2xl sm:text-3xl font-semibold wrap-break-word">{applicant.name.last}, {applicant.name.first}</h3>
+                            {appliedTimeAgo && (
+                                <p className="text-sm text-gray-400">Applied {appliedTimeAgo}</p>
+                            )}
                             <a href={`mailto:${applicant.email}`} className="text-blue-500 hover:underline">
                                 {applicant.email}
                             </a>
@@ -37,7 +42,7 @@ export function ApplicationCard({ application, job }) {
                     <button
                         type="button"
                         disabled={!applicant.resume}
-                        className="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-red-300/50 bg-red-950/30 px-3 py-2 text-sm font-medium text-red-200 hover:bg-red-900/40 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-red-300/50 bg-red-950/30 px-3 py-2 text-sm font-medium text-red-200 hover:bg-red-900/40 disabled:cursor-not-allowed disabled:opacity-50 shrink-0"
                         title={applicant.resume ? 'Download resume PDF' : 'No resume uploaded'}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
@@ -56,7 +61,7 @@ export function ApplicationCard({ application, job }) {
                     ))}
                 </ul>
             </div>
-            <div className="basis-1/2 max-w-1/2 min-w-0 wrap-break-word">
+            <div className="min-w-0 wrap-break-word p-2">
                 <h4 className="font-semibold text-xl mb-2">Additional Questions:</h4>
                 {job.additionalQuestions?.map((question, i) => (
                     <p key={`question-${application._id}-${i}`}>
@@ -74,4 +79,33 @@ export function ApplicationCard({ application, job }) {
             </div>
         </section>
     );
+}
+
+function formatTimeAgo(value) {
+    if (!value) return '';
+
+    const dateValue = typeof value === 'object' && value.$date ? value.$date : value;
+    const timestamp = new Date(dateValue).getTime();
+    if (Number.isNaN(timestamp)) return '';
+
+    const secondsDiff = Math.floor((timestamp - Date.now()) / 1000);
+    const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+    const intervals = [
+        ['year', 60 * 60 * 24 * 365],
+        ['month', 60 * 60 * 24 * 30],
+        ['week', 60 * 60 * 24 * 7],
+        ['day', 60 * 60 * 24],
+        ['hour', 60 * 60],
+        ['minute', 60],
+        ['second', 1]
+    ];
+
+    for (const [unit, seconds] of intervals) {
+        if (Math.abs(secondsDiff) >= seconds || unit === 'second') {
+            return rtf.format(Math.trunc(secondsDiff / seconds), unit);
+        }
+    }
+
+    return '';
 }
