@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Skill } from "../Skills";
+import { formatTimeAgo } from "../../utils/formatTimeAgo";
 
 const defaultJob = {
     id: 1,
@@ -21,6 +22,8 @@ const defaultJob = {
 function JobCard({ job = defaultJob, onDelete }) {
     const navigate = useNavigate();
     const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const postedDate = job.postedAt || job.date || job.createdAt;
+    const postedTimeAgo = formatTimeAgo(postedDate);
 
 
     const buttonStyle = "cursor-pointer rounded-lg bg-gray-200 text-sm text-black px-2 py-1 hover:bg-gray-50";
@@ -70,6 +73,9 @@ function JobCard({ job = defaultJob, onDelete }) {
 
             <div className="wrap-break-word">
                 <h6 className="text-lg">${job.payRange.low} - ${job.payRange.high}, <span className="text-gray-400">{job.location}</span></h6>
+                {postedTimeAgo && (
+                    <p className="text-sm text-gray-400">Posted {postedTimeAgo}</p>
+                )}
             </div>
 
 

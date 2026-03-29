@@ -1,8 +1,9 @@
 import { Skill } from "../Skills";
+import { formatTimeAgo } from "../../utils/formatTimeAgo";
 
 export function ApplicationCard({ application, job }) {
     const applicant = application.applicant || {};
-    const appliedDate = application.date;
+    const appliedDate = application.date || application['date:'] || application.appliedAt || application.createdAt;
 
     const applicantSkills = applicant.skills ?? [];
     const requiredSkillSet = new Set((job?.skills ?? []).map((skill) => skill.toLowerCase()));
@@ -28,7 +29,9 @@ export function ApplicationCard({ application, job }) {
                         <div className="ml-4 flex flex-col gap-1 min-w-0">
                             <h3 className="text-2xl sm:text-3xl font-semibold wrap-break-word">{applicant.name.last}, {applicant.name.first}</h3>
                             {appliedTimeAgo && (
-                                <p className="text-sm text-gray-400">Applied {appliedTimeAgo}</p>
+                                <p className="text-sm text-gray-400 inline-flex items-center gap-2 flex-wrap">
+                                    <span>Applied {appliedTimeAgo}</span>
+                                </p>
                             )}
                             <a href={`mailto:${applicant.email}`} className="text-blue-500 hover:underline">
                                 {applicant.email}
@@ -79,33 +82,4 @@ export function ApplicationCard({ application, job }) {
             </div>
         </section>
     );
-}
-
-function formatTimeAgo(value) {
-    if (!value) return '';
-
-    const dateValue = typeof value === 'object' && value.$date ? value.$date : value;
-    const timestamp = new Date(dateValue).getTime();
-    if (Number.isNaN(timestamp)) return '';
-
-    const secondsDiff = Math.floor((timestamp - Date.now()) / 1000);
-    const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
-
-    const intervals = [
-        ['year', 60 * 60 * 24 * 365],
-        ['month', 60 * 60 * 24 * 30],
-        ['week', 60 * 60 * 24 * 7],
-        ['day', 60 * 60 * 24],
-        ['hour', 60 * 60],
-        ['minute', 60],
-        ['second', 1]
-    ];
-
-    for (const [unit, seconds] of intervals) {
-        if (Math.abs(secondsDiff) >= seconds || unit === 'second') {
-            return rtf.format(Math.trunc(secondsDiff / seconds), unit);
-        }
-    }
-
-    return '';
 }
