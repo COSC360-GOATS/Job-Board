@@ -44,9 +44,13 @@ function ApplicantList() {
 
     return (
         <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] gap-6 px-6 py-3 cursor-default">
-            {applications.map((application) => (
+            {
+            applications.length === 0 ? (
+                <p className="text-white">No applications found for this job.</p>
+            ) : (
+            applications.map((application) => (
                 <ApplicationCard key={application._id} application={application} job={job} />
-            ))}
+            )))}
         </div>
     );
 }
