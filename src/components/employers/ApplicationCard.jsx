@@ -17,9 +17,9 @@ export function ApplicationCard({ application, job }) {
     const orderedSkills = [...matchedSkills, ...otherSkills];
 
     return (
-        <section className="text-white p-8 rounded-lg border border-gray-300 w-full flex items-start gap-4">
+        <section className="text-white p-8 rounded-lg border border-gray-300 flex items-start gap-4">
 
-            <div className="flex flex-col gap-2 basis-1/3 max-w-1/3 min-w-0 overflow-hidden p-4">
+            <div className="flex flex-col gap-2 basis-1/2 max-w-1/2 min-w-0 overflow-hidden p-4">
                 <div className="flex justify-between items-end gap-3 flex-wrap">
                     <div className="flex items-center">
                         <img src={applicant.profile} alt={`${applicant.name.first} ${applicant.name.last}`} className="w-36 h-36 rounded-full border border-gray-300 object-cover text-center flex justify-center items-center text-gray-300" />
@@ -56,7 +56,7 @@ export function ApplicationCard({ application, job }) {
                     ))}
                 </ul>
             </div>
-            <div className="basis-2/3 max-w-2/3 min-w-0 wrap-break-word">
+            <div className="basis-1/2 max-w-1/2 min-w-0 wrap-break-word">
                 <h4 className="font-semibold text-xl mb-2">Additional Questions:</h4>
                 {job.additionalQuestions?.map((question, i) => (
                     <p key={`question-${application._id}-${i}`}>

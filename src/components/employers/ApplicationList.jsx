@@ -43,7 +43,7 @@ function ApplicantList() {
     if (error) return <p className="text-red-400">{error}</p>;
 
     return (
-        <div className="flex flex-col gap-4 px-6 py-3 cursor-default">
+        <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] gap-6 px-6 py-3 cursor-default">
             {applications.map((application) => (
                 <ApplicationCard key={application._id} application={application} job={job} />
             ))}
