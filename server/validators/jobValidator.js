@@ -1,14 +1,27 @@
 import joi from 'joi';
 
-export default schema = joi.object({
-    title: joi.string().required().min(3).max(100),
-    description: joi.string().required().min(10).max(5000),
-    location: joi.string().required().min(2).max(100),
+const jobFieldsSchema = {
+    title: joi.string().min(3).max(100),
+    description: joi.string().min(10).max(5000),
+    location: joi.string().min(2).max(100),
     payRange: joi.object({
-        low: joi.number().required().min(0),
-        high: joi.number().required().min(joi.ref('low'))
-    }).required(),
-    skills: joi.array().items(joi.string()).required(),
-    employerId: joi.string().required(),
-    additionalQuestions: joi.array().items(joi.string()).max(10).required()
+        low: joi.number().min(0),
+        high: joi.number().min(joi.ref('low'))
+    }),
+    skills: joi.array().items(joi.string()),
+    employerId: joi.string(),
+    additionalQuestions: joi.array().items(joi.string()).max(10)
+};
+
+export const createJobSchema = joi.object({
+    ...jobFieldsSchema,
+    title: jobFieldsSchema.title.required(),
+    description: jobFieldsSchema.description.required(),
+    location: jobFieldsSchema.location.required(),
+    payRange: jobFieldsSchema.payRange.required(),
+    skills: jobFieldsSchema.skills.required(),
+    employerId: jobFieldsSchema.employerId.required(),
+    additionalQuestions: jobFieldsSchema.additionalQuestions.required()
 });
+
+export const updateJobSchema = joi.object(jobFieldsSchema);
