@@ -1,12 +1,17 @@
 import { Router } from "express";
-import controller from "../controllers/ratingController.js";
+import ratingController from "../controllers/ratingController.js";
+import ratingService from "../services/ratingService.js";
 
-const router = Router();
+export default function ratingRoutes(db) {
+    const service = ratingService(db);
+    const controller = ratingController(service);
+    const router = Router();
 
-router.get("/", controller.getAll);
-router.get("/:id", controller.getById);
-router.post("/", controller.create);
-router.put("/:id", controller.update);
-router.delete("/:id", controller.remove);
+    router.get("/", controller.getAll);
+    router.get("/:id", controller.getById);
+    router.post("/", controller.create);
+    router.put("/:id", controller.update);
+    router.delete("/:id", controller.remove);
 
-export default router;
+    return router;
+}

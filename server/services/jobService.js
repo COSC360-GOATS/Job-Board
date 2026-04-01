@@ -1,6 +1,16 @@
-import data from '../data/jobs.json' with { type: 'json' };
 import createService from './service.js';
+import { ObjectId } from "mongodb";
 
-const service = createService(data);
+export default function jobService(db) {
+    const collection = db.collection('jobs');
+    const service = createService(collection);
 
-export default service;
+    return {
+        ...service,
+
+        async getByEmployerId(employerId) {
+            if (!ObjectId.isValid(employerId)) return []; 
+            return await collection.find({ employerId: employerId }).toArray();
+        }
+    }
+}

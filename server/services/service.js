@@ -1,46 +1,31 @@
-export default function createService(data) {
+import { ObjectId } from 'mongodb';
+
+export default function createService(collection) {
     return {
-        getAll() {
-            return data;
+        async getAll() {
+            return await collection.find({}).toArray();
         },
 
-        getById(id) {
-            const target = parseInt(id);
-            return data.find(x => x.id === target);
+        async getById(id) {
+            return await collection.findOne({ _id: new ObjectId(id) });
         },
 
-        create(payload) {
-            const lastId = data.length > 0 ? data[data.length - 1].id : 0;
-            const newItem = {
-                id: lastId + 1,
-                ...payload
-            };
-
-            data.push(newItem);
-            return newItem;
+        async create(payload) {
+            const result = await collection.insertOne(payload);
+            return await collection.findOne({ _id: result.insertedId });
         },
 
-        update(id, payload) {
-            const target = parseInt(id);
-            const index = data.findIndex(x => x.id === target);
+        async update(id, payload) {
+            await collection.updateOne(
+                { _id: new ObjectId(id) },
+                { $set: payload }
+            );
 
-            if (index === -1) return null;
-            
-            data[index] = { ...data[index], ...payload, id: target };
-
-            return data[index];
+            return await collection.findOne({ _id: new ObjectId(id) });
         },
 
-        remove(id) {
-            const target = parseInt(id);
-            const index = data.findIndex(x => x.id === target);
-
-            if (index === -1) return null;
-
-            const removed = data[index];
-            data.splice(index, 1);
-
-            return removed;
+        async remove(id) {
+            return await collection.deleteOne({ _id: new ObjectId(id) });
         }
     }
 }
