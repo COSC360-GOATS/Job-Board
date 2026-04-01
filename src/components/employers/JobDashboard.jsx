@@ -79,33 +79,37 @@ function JobDashboard() {
   }, [API_BASE]);
 
   return (
-    <>
-      <div className="flex flex-wrap items-center gap-3 px-6 py-3 text-white">
-        <label htmlFor="job-sort-by">Sort by</label>
-        <select
-          id="job-sort-by"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="rounded-lg border border-gray-300 px-3 py-2 bg-transparent"
-        >
-          <option value="postedAt" className="text-black">Posted date</option>
-          <option value="location" className="text-black">Location</option>
-          <option value="payRange" className="text-black">Pay range</option>
-        </select>
+    <div className="px-6 py-3 text-white">
+      <div className="flex justify-between">
+        <button onClick={() => navigate('/jobs/new')} className="cursor-pointer rounded-lg text-black bg-gray-200 px-12 py-2 hover:bg-gray-50">Create Job</button>
 
-        <label htmlFor="job-sort-order">Order</label>
-        <select
-          id="job-sort-order"
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
-          className="rounded-lg border border-gray-300 px-3 py-2 bg-transparent"
-        >
-          <option value="desc" className="text-black">Descending</option>
-          <option value="asc" className="text-black">Ascending</option>
-        </select>
+        <div className="flex flex-wrap items-center gap-3">
+          <label htmlFor="job-sort-by">Sort by</label>
+          <select
+            id="job-sort-by"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="rounded-lg border border-gray-300 px-3 py-2 bg-transparent"
+          >
+            <option value="postedAt" className="text-black">Posted date</option>
+            <option value="location" className="text-black">Location</option>
+            <option value="payRange" className="text-black">Pay range</option>
+          </select>
+
+          <label htmlFor="job-sort-order">Order</label>
+          <select
+            id="job-sort-order"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            className="rounded-lg border border-gray-300 px-3 py-2 bg-transparent"
+          >
+            <option value="desc" className="text-black">Descending</option>
+            <option value="asc" className="text-black">Ascending</option>
+          </select>
+        </div>
       </div>
 
-      <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] items-stretch gap-6 px-6 py-3">
+      <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] items-stretch gap-6 py-3">
         {loading && <p className="text-white">Loading jobs...</p>}
         {error && <p className="text-red-400">{error}</p>}
         {!loading && !error && sortedJobs.map((job) => (
@@ -119,8 +123,7 @@ function JobDashboard() {
           </div>
         ))}
       </div>
-      <button onClick={() => navigate('/jobs/new')} className="cursor-pointer rounded-lg text-black bg-gray-200 px-4 py-2 hover:bg-gray-50">Create Job</button>
-    </>
+    </div>
   );
 }
 
