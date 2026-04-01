@@ -2,7 +2,7 @@ import joi from 'joi';
 
 const jobFieldsSchema = {
     title: joi.string().min(3).max(100),
-    description: joi.string().min(10).max(5000),
+    description: joi.string().min(10).max(1500),
     location: joi.string().min(2).max(100),
     payRange: joi.object({
         low: joi.number().min(0),
@@ -10,7 +10,7 @@ const jobFieldsSchema = {
     }),
     skills: joi.array().items(joi.string()),
     employerId: joi.string(),
-    additionalQuestions: joi.array().items(joi.string()).max(10)
+    additionalQuestions: joi.array().items(joi.string().min(3).max(200)).max(10)
 };
 
 export const createJobSchema = joi.object({

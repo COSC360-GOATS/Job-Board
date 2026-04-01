@@ -69,8 +69,7 @@ function RemoveSkillButton({ name, onClick }) {
     );
 }
 
-
-function Skills({ skills = defaults, id, onChange }) {
+function Skills({ skills = defaults, id, onChange, className = '', ...props }) {
     const [skillList, setSkillList] = useState(skills);
 
     const [isCreatingSkill, setIsCreatingSkill] = useState(false);
@@ -89,7 +88,7 @@ function Skills({ skills = defaults, id, onChange }) {
         if (onChange) {
             onChange({ target: { value: skillList } });
         }
-    }, [skillList, onChange]);
+    }, [skillList]);
 
     const createNewSkillInput = () => {
         const example = defaults[Math.floor(Math.random() * defaults.length)];
@@ -136,9 +135,8 @@ function Skills({ skills = defaults, id, onChange }) {
     };
 
     return (
-        <fieldset id={id} className="border rounded-lg">
-            <legend className="ml-4 px-1.5">Skills</legend>
-            <ul className="mb-2 px-4 flex justify-start items-start flex-wrap">
+        <fieldset id={id} className={`border rounded-lg ${className}`.trim()} {...props}>
+            <ul className="p-3 flex justify-start items-start flex-wrap">
                 {addSkillButton()}
                 {skillList.map((skill, i) => (
                     <Skill
