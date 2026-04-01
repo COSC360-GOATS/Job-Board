@@ -10,7 +10,8 @@ const jobFieldsSchema = {
     }),
     skills: joi.array().items(joi.string()),
     employerId: joi.string(),
-    additionalQuestions: joi.array().items(joi.string().min(3).max(200)).max(10)
+    additionalQuestions: joi.array().items(joi.string().min(3).max(200)).max(10),
+    postedAt: joi.date().iso()
 };
 
 export const createJobSchema = joi.object({

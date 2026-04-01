@@ -45,7 +45,7 @@ function JobCard({ job = defaultJob, onDelete }) {
     }
 
     return (
-        <div className="cursor-default text-white p-8 rounded-lg border border-gray-300 w-full flex flex-col gap-3">
+        <div className="cursor-default text-white p-8 rounded-lg border border-gray-300 w-full h-full flex flex-col gap-3">
 
             <div className="flex justify-between items-start gap-3 grow">
                 <h3 
@@ -79,9 +79,9 @@ function JobCard({ job = defaultJob, onDelete }) {
             </div>
 
 
-            <p className="text-gray-400 line-clamp-3">{job.description}</p>
+            <p className="text-gray-400 line-clamp-3 min-h-18">{job.description}</p>
 
-            <ul className="w-full flex justify-start items-center flex-nowrap overflow-x-auto overflow-y-hidden [&>li]:shrink-0">
+            <ul className="w-full mt-auto flex justify-start items-center flex-nowrap overflow-x-auto overflow-y-hidden [&>li]:shrink-0">
                 {(job.skills ?? []).map((skill, i) => (
                     <Skill
                         key={i}

@@ -124,7 +124,8 @@ function JobForm({ job }) {
             },
             additionalQuestions: additionalQuestions.map((q) => q.trim()).filter((q) => q !== ""),
             skills,
-            employerId: import.meta.env.VITE_TEMP_EMPLOYER_ID // TEMPORARY until authentication is implemented
+            employerId: import.meta.env.VITE_TEMP_EMPLOYER_ID, // TEMPORARY until authentication is implemented
+            postedAt: creating ? new Date().toISOString() : job.postedAt
         }
 
         const url = creating ? `${API_BASE}/jobs` : `${API_BASE}/jobs/${job._id}`;

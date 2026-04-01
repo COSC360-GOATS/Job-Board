@@ -105,11 +105,11 @@ function JobDashboard() {
         </select>
       </div>
 
-      <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] gap-6 px-6 py-3">
+      <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] items-stretch gap-6 px-6 py-3">
         {loading && <p className="text-white">Loading jobs...</p>}
         {error && <p className="text-red-400">{error}</p>}
         {!loading && !error && sortedJobs.map((job) => (
-          <div key={job._id || job.id} className="mb-4">
+          <div key={job._id || job.id} className="h-full">
             <JobCard
               job={job}
               onDelete={(deletedJobId) => {
