@@ -51,6 +51,7 @@ function JobCard({ job = defaultJob, onDelete }) {
                 <h3 
                     className="text-3xl cursor-pointer font-semibold flex-1 min-w-0 wrap-break-word hover:underline"
                     onClick={() => navigate(`/jobs/${job._id}/applications`, { state: { job } })}
+                    title={`View applications for ${job.title}`}
                     >
                         {job.title}
                     </h3>
