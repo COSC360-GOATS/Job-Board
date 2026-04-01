@@ -1,22 +1,24 @@
 import NavBar from './components/NavBar'
 import './App.css'
-import JobDashboard from './components/employers/JobDashboard'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import JobOverview from './components/employers/JobDetails'
-import ApplicantList from './components/employers/ApplicationList'
+import { Routes, Route } from 'react-router-dom'
 
 function App() {
   return (
-    <Router>
-      <main>
-        <NavBar />
-        <Routes>
-          <Route path="/jobs" element={<JobDashboard />} />
-          <Route path="/jobs/:id" element={<JobOverview />} />
-          <Route path="/jobs/:id/applications" element={<ApplicantList />} />
-        </Routes>
-      </main>
-    </Router>
+    <main>
+      <NavBar />
+      <Routes>
+        {/* TEMPORARY Routes, once pages are implemented replace these with the correct component */}
+        <Route path="/home" element={<h1>Home</h1>} />
+        <Route path="/profile" element={<h1>Profile</h1>} />
+        <Route path="/create" element={<h1>Create</h1>} />
+        <Route path="/listings" element={<h1>Listings</h1>} />
+        <Route path="/signout" element={<h1>Sign Out</h1>} />
+    
+        <Route path="/jobs" element={<JobDashboard />} />
+        <Route path="/jobs/:id" element={<JobOverview />} />
+        <Route path="/jobs/:id/applications" element={<ApplicantList />} />
+      </Routes>
+    </main>
   )
 }
 
