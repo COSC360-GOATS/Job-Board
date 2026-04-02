@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const defaults = [
     "React",
@@ -43,28 +43,33 @@ function skillColor(name) {
     }
 }
 
-function Skill({ style, children, onClick }) {
+export function Skill({ name, children, style, className = '' }) {
     return (
         <li
-            className='inline-block px-3 py-0.5 mx-0.75 my-0.5 rounded-full border cursor-default'
-            title={children}
-            style={style}
+            className={`inline-block px-3 py-0.5 mx-0.75 my-0.5 rounded-full border cursor-default ${className}`}
+            title={name}
+            style={{ ...skillColor(name), ...style }}
         >
+            {name}
             {children}
-            <button
-                type="button"
-                onClick={onClick}
-                title={`Remove "${children}"`}
-                className="ml-3 font-bold leading-none cursor-pointer bg-transparent border-0 p-0"
-            >
-                ×
-            </button>
         </li>
     );
 }
 
+function RemoveSkillButton({ name, onClick }) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            title={`Remove "${name}"`}
+            className="ml-3 font-bold leading-none cursor-pointer bg-transparent border-0 p-0"
+        >
+            ×
+        </button>
+    );
+}
 
-function Skills({ skills = defaults }) {
+function Skills({ skills = defaults, id, onChange, className = '', ...props }) {
     const [skillList, setSkillList] = useState(skills);
 
     const [isCreatingSkill, setIsCreatingSkill] = useState(false);
@@ -78,6 +83,12 @@ function Skills({ skills = defaults }) {
         setNewSkill('');
         setIsCreatingSkill(false);
     };
+
+    useEffect(() => {
+        if (onChange) {
+            onChange({ target: { value: skillList } });
+        }
+    }, [skillList]);
 
     const createNewSkillInput = () => {
         const example = defaults[Math.floor(Math.random() * defaults.length)];
@@ -95,9 +106,13 @@ function Skills({ skills = defaults }) {
                 onBlur={resetCreateSkill}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' && newSkill.trim() !== '') {
-                        addToSkillList(newSkill.trim());
+                        e.preventDefault();
+                        const capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join('');
+                        const formattedSkill = newSkill.split(' ').map(capitalize).join(' ');
+                        addToSkillList(formattedSkill);
                         resetCreateSkill();
                     } else if (e.key === 'Escape') {
+                        e.preventDefault();
                         resetCreateSkill();
                     }
                 }}
@@ -109,6 +124,7 @@ function Skills({ skills = defaults }) {
     const addSkillButton = () => {
         return (
             <button
+                type="button"
                 title="Add a New Skill"
                 className="inline-flex rounded-full border bg-[#404040] cursor-pointer px-3 py-0.5 mx-0.75 my-0.5"
                 onClick={() => setIsCreatingSkill(true)}
@@ -119,17 +135,15 @@ function Skills({ skills = defaults }) {
     };
 
     return (
-        <fieldset className="border rounded-lg">
-            <legend className="ml-4 px-1.5">Skills</legend>
-            <ul className="mb-2 px-4 flex justify-start items-start flex-wrap">
+        <fieldset id={id} className={`border rounded-lg ${className}`.trim()} {...props}>
+            <ul className="p-3 flex justify-start items-start flex-wrap">
                 {addSkillButton()}
                 {skillList.map((skill, i) => (
                     <Skill
                         key={i}
-                        style={skillColor(skill)}
-                        onClick={() => removeFromSkillList(i)}
+                        name={skill}
                     >
-                        {skill}
+                        <RemoveSkillButton name={skill} onClick={() => removeFromSkillList(i)} />
                     </Skill>
                 ))}
             </ul>

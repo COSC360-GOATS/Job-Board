@@ -1,9 +1,9 @@
 import express from 'express';
+import cors from 'cors';
 import { MongoClient } from 'mongodb';
 import process from 'process';
 import 'dotenv/config';
 
-import cors from 'cors';
 import applicantRoutes from './routes/applicantRoutes.js';
 import applicationRoutes from './routes/applicationRoutes.js';
 import ratingRoutes from './routes/ratingRoutes.js';
