@@ -14,7 +14,6 @@ const INITIAL_FORM = FIELDS.reduce((values, field) => {
 
 function EmployerForm() {
   const [formData, setFormData] = useState(INITIAL_FORM)
-  const [responseData, setResponseData] = useState(null)
   const [errorMessage, setErrorMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -26,7 +25,6 @@ function EmployerForm() {
   const handleSubmit = async (event) => {
     event.preventDefault()
     setErrorMessage('')
-    setResponseData(null)
     setIsSubmitting(true)
 
     try {
@@ -53,7 +51,6 @@ function EmployerForm() {
         throw new Error(payload?.error || `Request failed with status ${response.status}.`)
       }
 
-      setResponseData(payload)
       setFormData(INITIAL_FORM)
     } catch (error) {
       setErrorMessage(error.message)
@@ -98,15 +95,6 @@ function EmployerForm() {
         <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 font-semibold text-red-700">
           Error: {errorMessage}
         </p>
-      )}
-
-      {responseData && (
-        <section className="mt-5 border-t border-slate-200 pt-4">
-          <h2 className="text-base font-semibold">Server JSON Response</h2>
-          <pre className="mt-2 overflow-x-auto rounded-lg bg-slate-900 p-3 text-sm text-slate-100">
-            {JSON.stringify(responseData, null, 2)}
-          </pre>
-        </section>
       )}
     </section>
   )
