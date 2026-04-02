@@ -1,5 +1,5 @@
 import NavBar from './components/NavBar'
-import './App.css'
+import EmployerForm from './components/EmployerForm'
 import { Routes, Route } from 'react-router-dom'
 import JobDashboard from './components/employers/JobDashboard'
 import JobOverview from './components/employers/JobDetails'
@@ -7,7 +7,7 @@ import ApplicationList from './components/employers/ApplicationList'
 
 function App() {
   return (
-    <main>
+    <main className="min-h-screen bg-linear-to-b from-slate-100 via-blue-50 to-white px-4 py-8 text-slate-900">
       <NavBar />
       <Routes>
         {/* TEMPORARY Routes, once pages are implemented replace these with the correct component */}
@@ -20,6 +20,7 @@ function App() {
         <Route path="/jobs" element={<JobDashboard />} />
         <Route path="/jobs/:id" element={<JobOverview />} />
         <Route path="/jobs/:id/applications" element={<ApplicationList />} />
+        <Route path="/EmployerSignup" element={<EmployerForm />} />
       </Routes>
     </main>
   )
