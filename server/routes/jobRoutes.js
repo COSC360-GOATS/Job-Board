@@ -1,12 +1,18 @@
 import { Router } from 'express';
-import controller from "../controllers/jobController.js";
+import jobController from '../controllers/jobController.js';
+import jobService from '../services/jobService.js';
 
-const router = Router();
+export default function jobRoutes(db) {
+    const service = jobService(db);
+    const controller = jobController(service);
+    const router = Router();
 
-router.get("/", controller.getAll);
-router.get("/:id", controller.getById);
-router.post("/", controller.create);
-router.patch("/:id", controller.update);
-router.delete("/:id", controller.remove);
+    router.get("/", controller.getAll);
+    router.get("/employer/:employerId", controller.getByEmployerId);
+    router.get("/:id", controller.getById);
+    router.post("/", controller.create);
+    router.patch("/:id", controller.update);
+    router.delete("/:id", controller.remove);
 
-export default router;
+    return router;
+}
