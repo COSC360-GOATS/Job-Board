@@ -32,7 +32,6 @@ async function db() {
         app.use("/jobs", jobRoutes(db));
         app.use("/employers", employerRoutes(db));
         app.use("/ratings", ratingRoutes(db));
-
         console.log("MongoDB connected!");
     }
     catch (err) {

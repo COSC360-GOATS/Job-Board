@@ -5,6 +5,8 @@ const FIELDS = [
   { name: 'email', label: 'Contact Email', type: 'email', placeholder: 'email@company.com' },
   { name: 'location', label: 'Location', type: 'text', placeholder: 'Kelowna, BC' },
   { name: 'industry', label: 'Industry', type: 'text', placeholder: 'SaaaaS' },
+  { name: 'username', label: 'Username', type: 'text', placeholder: 'username' },
+  { name: 'password', label: 'Password', type: 'password', placeholder: 'password' },
 ]
 
 const INITIAL_FORM = FIELDS.reduce((values, field) => {
