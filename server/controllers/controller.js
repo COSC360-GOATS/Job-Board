@@ -38,7 +38,8 @@ export default function createController(service) {
                 return res.status(200).json(updated);
             }
             catch (err) {
-                return res.status(400).json({ error: "Invalid id format" });
+                console.error('Update error:', err);
+                return res.status(500).json({ error: "Failed to update item" });
             }
         },
 

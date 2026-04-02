@@ -13,6 +13,15 @@ export default function jobController(service) {
             } catch (error) {
                 return res.status(400).json({ error: "Invalid employer id format" });
             }
+        },
+
+        async getApplicationsForJob(req, res) {
+            try {
+                const applications = await service.getApplicationsForJob(req.params.id);
+                return res.status(200).json(applications);
+            } catch (error) {
+                return res.status(400).json({ error: "Invalid job id format" });
+            }
         }
     }
 }
