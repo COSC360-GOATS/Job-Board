@@ -6,28 +6,35 @@ import FormField from "./FormField";
 function validateJobForm({ title, description, payRangeLow, payRangeHigh, location, additionalQuestions }) {
     const errors = {};
 
+    const patterns = {
+        title: /^.{3,100}$/,
+        description: /^.{10,1500}$/,
+        location: /^.{2,100}$/,
+        additionalQuestion: /^.{3,200}$/
+    };
+
     title = title.trim();
     description = description.trim();
     location = location.trim();
 
-    if (!title) {
+    if (title === "") {
         errors.title = "Job title is required.";
     }
-    else if (title.length < 3 || title.length > 100) {
+    else if (!patterns.title.test(title)) {
         errors.title = "Job title must be between 3 and 100 characters.";
     }
 
-    if (!description) {
+    if (description === "") {
         errors.description = "Job description is required.";
     }
-    else if (description.length < 10 || description.length > 1500) {
+    else if (!patterns.description.test(description)) {
         errors.description = "Job description must be between 10 and 1500 characters.";
     }
 
-    if (!location) {
+    if (location === "") {
         errors.location = "Location is required.";
     }
-    else if (location.length < 2 || location.length > 100) {
+    else if (!patterns.location.test(location)) {
         errors.location = "Location must be between 2 and 100 characters.";
     }
 
@@ -50,7 +57,7 @@ function validateJobForm({ title, description, payRangeLow, payRangeHigh, locati
         if (q.trim() === "") {
             return "Additional question cannot be blank.";
         }
-        if (q.trim().length < 3 || q.trim().length > 200) {
+        if (!patterns.additionalQuestion.test(q.trim())) {
             return "Additional question must be between 3 and 200 characters.";
         }
         return null;
