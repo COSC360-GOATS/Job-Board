@@ -1,12 +1,21 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar'
+import Register from './components/Register';
+import Login from './components/Login';
 import './App.css'
 
 function App() {
   return (
-    <main>
+    <BrowserRouter>
       <NavBar />
-    </main>
-  )
+      <main>
+        <Routes>
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </main>
+    </BrowserRouter>
+  );
 }
 
 export default App
