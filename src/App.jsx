@@ -14,7 +14,7 @@ function App() {
         <Route path="/create" element={<h1>Create</h1>} />
         <Route path="/listings" element={<h1>Listings</h1>} />
         <Route path="/signout" element={<h1>Sign Out</h1>} />
-        <Route path="/EmployerSignup" element={<EmployerForm />} />
+        <Route path="/employers" element={<EmployerForm />} />
       </Routes>
     </main>
   )
