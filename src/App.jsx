@@ -1,6 +1,9 @@
 import NavBar from './components/NavBar'
 import './App.css'
 import { Routes, Route } from 'react-router-dom'
+import JobDashboard from './components/employers/JobDashboard'
+import JobOverview from './components/employers/JobDetails'
+import ApplicationList from './components/employers/ApplicationList'
 
 function App() {
   return (
@@ -16,7 +19,7 @@ function App() {
     
         <Route path="/jobs" element={<JobDashboard />} />
         <Route path="/jobs/:id" element={<JobOverview />} />
-        <Route path="/jobs/:id/applications" element={<ApplicantList />} />
+        <Route path="/jobs/:id/applications" element={<ApplicationList />} />
       </Routes>
     </main>
   )
