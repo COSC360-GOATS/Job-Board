@@ -46,41 +46,35 @@ function AdminDashboard() {
 
   const handleToggleStatus = async (id) => {
     try {
-      if (activeTab === 'Listings') {
-        const endpoint = '/api/jobs'
-        const response = await fetch(`${endpoint}/${id}`, {
-          method: 'DELETE'
-        })
-        
-        if (!response.ok) {
-          throw new Error('Failed to close listing')
-        }
-        
-        setItems(items.filter(item => item._id !== id))
-      } else {
-        let endpoint = '/api/applicants'
-        if (activeTab === 'Employers') {
-          endpoint = '/api/employers'
-        }
-        
-        const item = items.find(i => i._id === id)
-        const newStatus = !item.isDeactivated
-        
-        const response = await fetch(`${endpoint}/${id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ isDeactivated: newStatus })
-        })
-        
-        if (!response.ok) {
-          throw new Error(`Failed to update ${activeTab.toLowerCase().slice(0, -1)}`)
-        }
-        
-        const updatedItem = await response.json()
-        setItems(items.map(item => item._id === id ? updatedItem : item))
+      let endpoint = '/api/applicants'
+      let statusField = 'isDeactivated'
+      
+      if (activeTab === 'Employers') {
+        endpoint = '/api/employers'
+        statusField = 'isDeactivated'
+      } else if (activeTab === 'Listings') {
+        endpoint = '/api/jobs'
+        statusField = 'isClosed'
       }
+      
+      const item = items.find(i => i._id === id)
+      const currentStatus = statusField === 'isClosed' ? item.isClosed : item.isDeactivated
+      const newStatus = !currentStatus
+      
+      const response = await fetch(`${endpoint}/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ [statusField]: newStatus })
+      })
+      
+      if (!response.ok) {
+        throw new Error(`Failed to update ${activeTab.toLowerCase().slice(0, -1)}`)
+      }
+      
+      const updatedItem = await response.json()
+      setItems(items.map(item => item._id === id ? updatedItem : item))
     } catch (err) {
       console.error(`Error updating item:`, err)
       setError(err.message)

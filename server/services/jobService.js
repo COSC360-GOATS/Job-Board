@@ -8,6 +8,11 @@ export default function jobService(db) {
     return {
         ...service,
 
+        async create(payload) {
+            payload.isClosed = false;
+            return await service.create(payload);
+        },
+
         async getByEmployerId(employerId) {
             if (!ObjectId.isValid(employerId)) return [];
             return await collection.find({ employerId: employerId }).toArray();
