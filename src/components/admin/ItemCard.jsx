@@ -45,13 +45,15 @@ function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 flex gap-6 hover:shadow-md transition">
-      <div className="shrink-0">
-        <div className="w-24 h-24 bg-gray-300 rounded-lg flex items-center justify-center">
-          <span className="text-gray-600 text-sm font-medium">
-            {firstInitial}{lastInitial}
-          </span>
+      {itemType !== 'listing' && (
+        <div className="shrink-0">
+          <div className="w-24 h-24 bg-gray-300 rounded-lg flex items-center justify-center">
+            <span className="text-gray-600 text-sm font-medium">
+              {firstInitial}{lastInitial}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="grow">
         <h3 className="text-lg font-semibold text-gray-900 mb-1">{name}</h3>
