@@ -44,7 +44,7 @@ function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
   const lastInitial = itemType === 'listing' ? item.location?.[0] || '' : lastName?.[0] || ''
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 flex gap-6 hover:shadow-md transition">
+    <div className={`bg-white rounded-lg border border-gray-200 p-6 flex gap-6 hover:shadow-md transition ${item.isDeactivated && itemType !== 'listing' ? 'opacity-60' : ''}`}>
       {itemType !== 'listing' && (
         <div className="shrink-0">
           <div className="w-24 h-24 bg-gray-300 rounded-lg flex items-center justify-center">
@@ -56,7 +56,14 @@ function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
       )}
 
       <div className="grow">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">{name}</h3>
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
+          {item.isDeactivated && itemType !== 'listing' && (
+            <span className="px-2 py-1 text-xs font-semibold text-gray-500 bg-gray-200 rounded">
+              Deactivated
+            </span>
+          )}
+        </div>
         <p className="text-gray-600 text-sm mb-2">{email}</p>
         <p className="text-gray-500 text-sm mb-4">{description}</p>
 
@@ -66,9 +73,15 @@ function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
           </button>
           <button
             onClick={() => onDelete(item._id)}
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700 rounded-lg transition"
+            className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
+              itemType === 'listing'
+                ? 'text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700'
+                : item.isDeactivated
+                  ? 'text-green-700 bg-green-100 hover:bg-green-200'
+                  : 'text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700'
+            }`}
           >
-            {itemType === 'listing' ? 'Close' : 'Deactivate'}
+            {itemType === 'listing' ? 'Close' : item.isDeactivated ? 'Reactivate' : 'Deactivate'}
           </button>
           <button
             onClick={() => onEdit(item._id)}

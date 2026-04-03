@@ -44,26 +44,45 @@ function AdminDashboard() {
     }
   }, [activeTab])
 
-  const handleDelete = async (id) => {
+  const handleToggleStatus = async (id) => {
     try {
-      let endpoint = '/api/applicants'
-      if (activeTab === 'Employers') {
-        endpoint = '/api/employers'
-      } else if (activeTab === 'Listings') {
-        endpoint = '/api/jobs'
+      if (activeTab === 'Listings') {
+        const endpoint = '/api/jobs'
+        const response = await fetch(`${endpoint}/${id}`, {
+          method: 'DELETE'
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to close listing')
+        }
+        
+        setItems(items.filter(item => item._id !== id))
+      } else {
+        let endpoint = '/api/applicants'
+        if (activeTab === 'Employers') {
+          endpoint = '/api/employers'
+        }
+        
+        const item = items.find(i => i._id === id)
+        const newStatus = !item.isDeactivated
+        
+        const response = await fetch(`${endpoint}/${id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ isDeactivated: newStatus })
+        })
+        
+        if (!response.ok) {
+          throw new Error(`Failed to update ${activeTab.toLowerCase().slice(0, -1)}`)
+        }
+        
+        const updatedItem = await response.json()
+        setItems(items.map(item => item._id === id ? updatedItem : item))
       }
-      
-      const response = await fetch(`${endpoint}/${id}`, {
-        method: 'DELETE'
-      })
-      
-      if (!response.ok) {
-        throw new Error(`Failed to delete ${activeTab.toLowerCase().slice(0, -1)}`)
-      }
-      
-      setItems(items.filter(item => item._id !== id))
     } catch (err) {
-      console.error(`Error deleting item:`, err)
+      console.error(`Error updating item:`, err)
       setError(err.message)
     }
   }
@@ -166,7 +185,7 @@ function AdminDashboard() {
               key={item._id}
               item={item}
               itemType={activeTab === 'Employers' ? 'employer' : activeTab === 'Listings' ? 'listing' : 'applicant'}
-              onDelete={handleDelete}
+              onDelete={handleToggleStatus}
               onEdit={handleEdit}
             />
           ))}
