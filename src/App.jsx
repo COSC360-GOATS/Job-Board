@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom'
 import JobDashboard from './components/employers/JobDashboard'
 import JobOverview from './components/employers/JobDetails'
 import ApplicationList from './components/employers/ApplicationList'
+import AdminDashboard from './components/admin/AdminDashboard'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/listings" element={<h1>Listings</h1>} />
         <Route path="/signout" element={<h1>Sign Out</h1>} />
         <Route path="/employers" element={<EmployerForm />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </main>
   )
