@@ -1,4 +1,5 @@
 import createService from './service.js';
+import { getNextId } from '../utils/idGenerator.js';
 
 export default function applicantService(db) {
     const baseService = createService(db.collection('applicants'));
@@ -13,6 +14,9 @@ export default function applicantService(db) {
                 error.statusCode = 409;
                 throw error;
             }
+
+            // Add incremental ID
+            payload.applicantId = await getNextId(db, 'applicantId');
 
             const result = await collection.insertOne(payload);
             return await collection.findOne({ _id: result.insertedId });
