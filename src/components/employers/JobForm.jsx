@@ -70,7 +70,7 @@ function validateJobForm({ title, description, payRangeLow, payRangeHigh, locati
     return errors;
 }
 
-function JobForm({ job }) {
+function JobForm({ job, onSave, onCancel, isModal }) {
     const [title, setTitle] = useState(job?.title || "");
     const [description, setDescription] = useState(job?.description || "");
     const [payRangeLow, setPayRangeLow] = useState(job?.payRange?.low ?? "");
@@ -81,11 +81,12 @@ function JobForm({ job }) {
     const [skills, setSkills] = useState(job?.skills || []);
     const [touched, setTouched] = useState({});
     const [submitted, setSubmitted] = useState(false);
+    const [saving, setSaving] = useState(false);
     const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     const navigate = useNavigate();
     const loc = useLocation();
-    const creating = loc.pathname === "/jobs/new";
+    const creating = !isModal && loc.pathname === "/jobs/new";
 
     const inputStyle = "rounded-lg border border-gray-300 px-4 py-2";
     const errors = validateJobForm({ title, description, payRangeLow, payRangeHigh, location, additionalQuestions });
@@ -131,14 +132,21 @@ function JobForm({ job }) {
             },
             additionalQuestions: additionalQuestions.map((q) => q.trim()).filter((q) => q !== ""),
             skills,
-            employerId: import.meta.env.VITE_TEMP_EMPLOYER_ID, // TEMPORARY until authentication is implemented
+            employerId: import.meta.env.VITE_TEMP_EMPLOYER_ID,
             postedAt: creating ? new Date().toISOString() : job.postedAt
         }
 
-        const url = creating ? `${API_BASE}/jobs` : `${API_BASE}/jobs/${job._id}`;
-        const method = creating ? "POST" : "PATCH";
-
+        setSaving(true);
+        
         try {
+            if (isModal && onSave) {
+                await onSave(payload);
+                return;
+            }
+
+            const url = creating ? `${API_BASE}/jobs` : `${API_BASE}/jobs/${job._id}`;
+            const method = creating ? "POST" : "PATCH";
+
             const res = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
@@ -156,14 +164,18 @@ function JobForm({ job }) {
             navigate('/jobs');
         } catch (err) {
             console.error("Request failed", err);
+        } finally {
+            setSaving(false);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="text-white p-8 rounded-lg border border-gray-300 max-w-lg flex flex-col gap-3 min-w-3/4 mx-auto">
-            <div className="flex items-center justify-between">
-                <legend className="text-2xl font-semibold mb-4">{creating ? "Create New Job" : `Editing "${job.title}"`}</legend>
-            </div>
+        <form onSubmit={handleSubmit} className={isModal ? "space-y-4" : "text-white p-8 rounded-lg border border-gray-300 max-w-lg flex flex-col gap-3 min-w-3/4 mx-auto"}>
+            {!isModal && (
+                <div className="flex items-center justify-between">
+                    <legend className="text-2xl font-semibold mb-4">{creating ? "Create New Job" : `Editing "${job.title}"`}</legend>
+                </div>
+            )}
 
             <FormField label="Job Title" htmlFor="job-title" error={errors.title} showError={touched.title || submitted}>
                 <input
@@ -273,7 +285,29 @@ function JobForm({ job }) {
                 <Skills id="job-skills" onChange={(e) => setSkills(e.target.value)} skills={skills} />
             </div>
 
-            <button type="submit" className="cursor-pointer rounded-lg text-black bg-gray-200 px-4 py-2 hover:bg-gray-50 mt-4">{creating ? "Create Job" : "Update Job"}</button>
+            {isModal ? (
+                <div className="flex gap-4 justify-end pt-6">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={saving}
+                        className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium disabled:opacity-50"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium disabled:opacity-50"
+                    >
+                        {saving ? "Saving..." : "Save Changes"}
+                    </button>
+                </div>
+            ) : (
+                <button type="submit" disabled={saving} className="cursor-pointer rounded-lg text-black bg-gray-200 px-4 py-2 hover:bg-gray-50 mt-4 disabled:opacity-50">
+                    {saving ? "Saving..." : (creating ? "Create Job" : "Update Job")}
+                </button>
+            )}
         </form >
     )
 }

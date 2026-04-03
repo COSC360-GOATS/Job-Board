@@ -11,7 +11,8 @@ const jobFieldsSchema = {
     skills: joi.array().items(joi.string()),
     employerId: joi.string(),
     additionalQuestions: joi.array().items(joi.string().min(3).max(200)).max(10),
-    postedAt: joi.date().iso()
+    postedAt: joi.date().iso(),
+    isClosed: joi.boolean()
 };
 
 export const createJobSchema = joi.object({
