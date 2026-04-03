@@ -10,6 +10,9 @@ function RegisterForm() {
     lastName: '',
     email: '',
     password: '',
+    name: '',
+    location: '',
+    industry: '',
   })
   const [errorMessage, setErrorMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -29,12 +32,6 @@ function RegisterForm() {
     setIsSubmitting(true)
 
     try {
-      if (!formData.firstName.trim()) {
-        throw new Error('First name is required')
-      }
-      if (!formData.lastName.trim()) {
-        throw new Error('Last name is required')
-      }
       if (!formData.email.trim()) {
         throw new Error('Email is required')
       }
@@ -45,16 +42,46 @@ function RegisterForm() {
         throw new Error('Password must be at least 6 characters long')
       }
 
+      if (accountType === 'Applicant') {
+        if (!formData.firstName.trim()) {
+          throw new Error('First name is required')
+        }
+        if (!formData.lastName.trim()) {
+          throw new Error('Last name is required')
+        }
+      } else {
+        if (!formData.name.trim()) {
+          throw new Error('Company name is required')
+        }
+        if (!formData.location.trim()) {
+          throw new Error('Location is required')
+        }
+        if (!formData.industry.trim()) {
+          throw new Error('Industry is required')
+        }
+      }
+
       const endpoint = accountType === 'Applicant' ? '/api/applicants' : '/api/employers'
       
       const hashedPassword = await bcrypt.hash(formData.password, 10)
       
-      const payload = {
-        name: `${formData.firstName} ${formData.lastName}`,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: hashedPassword,
+      let payload
+      if (accountType === 'Applicant') {
+        payload = {
+          name: `${formData.firstName} ${formData.lastName}`,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: hashedPassword,
+        }
+      } else {
+        payload = {
+          name: formData.name,
+          email: formData.email,
+          location: formData.location,
+          industry: formData.industry,
+          password: hashedPassword,
+        }
       }
 
       const response = await fetch(endpoint, {
@@ -115,26 +142,58 @@ function RegisterForm() {
         <h1 className="text-3xl font-semibold mb-10 text-gray-800">Create an Account</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <input
-              type="text"
-              name="firstName"
-              placeholder="First Name"
-              value={formData.firstName}
-              onChange={handleInputChange}
-              required
-              className="px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
-            />
-            <input
-              type="text"
-              name="lastName"
-              placeholder="Last Name"
-              value={formData.lastName}
-              onChange={handleInputChange}
-              required
-              className="px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
-            />
-          </div>
+          {accountType === 'Applicant' ? (
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                type="text"
+                name="firstName"
+                placeholder="First Name"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                required
+                className="px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
+              />
+              <input
+                type="text"
+                name="lastName"
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                required
+                className="px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
+              />
+            </div>
+          ) : (
+            <>
+              <input
+                type="text"
+                name="name"
+                placeholder="Company Name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
+              />
+              <input
+                type="text"
+                name="location"
+                placeholder="Location"
+                value={formData.location}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
+              />
+              <input
+                type="text"
+                name="industry"
+                placeholder="Industry"
+                value={formData.industry}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
+              />
+            </>
+          )}
 
           <input
             type="email"
