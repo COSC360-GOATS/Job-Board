@@ -1,14 +1,18 @@
 import NavBar from './components/NavBar'
 import EmployerForm from './components/EmployerForm'
-import { Routes, Route } from 'react-router-dom'
+import RegisterForm from './components/RegisterForm'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import JobDashboard from './components/employers/JobDashboard'
 import JobOverview from './components/employers/JobDetails'
 import ApplicationList from './components/employers/ApplicationList'
 
 function App() {
+  const location = useLocation()
+  const hideNavbar = location.pathname === '/register'
+
   return (
     <main className="min-h-screen px-4 py-8">
-      <NavBar />
+      {!hideNavbar && <NavBar />}
       <Routes>
         {/* TEMPORARY Routes, once pages are implemented replace these with the correct component */}
         <Route path="/home" element={<h1>Home</h1>} />
@@ -17,6 +21,7 @@ function App() {
         <Route path="/listings" element={<h1>Listings</h1>} />
         <Route path="/signout" element={<h1>Sign Out</h1>} />
         <Route path="/employers" element={<EmployerForm />} />
+        <Route path="/register" element={<RegisterForm />} />
       </Routes>
     </main>
   )
