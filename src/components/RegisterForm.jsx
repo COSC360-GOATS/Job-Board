@@ -29,9 +29,24 @@ function RegisterForm() {
     setIsSubmitting(true)
 
     try {
+      if (!formData.firstName.trim()) {
+        throw new Error('First name is required')
+      }
+      if (!formData.lastName.trim()) {
+        throw new Error('Last name is required')
+      }
+      if (!formData.email.trim()) {
+        throw new Error('Email is required')
+      }
+      if (!formData.email.includes('@')) {
+        throw new Error('Please enter a valid email address')
+      }
+      if (formData.password.length < 6) {
+        throw new Error('Password must be at least 6 characters long')
+      }
+
       const endpoint = accountType === 'Applicant' ? '/api/applicants' : '/api/employers'
       
-      // Hash password
       const hashedPassword = await bcrypt.hash(formData.password, 10)
       
       const payload = {
@@ -57,18 +72,31 @@ function RegisterForm() {
         try {
           payload_response = JSON.parse(rawBody)
         } catch {
-          throw new Error('Server returned a non-JSON response.')
+          throw new Error('Server error: Invalid response format')
         }
       }
 
+      if (response.status === 400) {
+        throw new Error(payload_response?.message || 'Invalid input. Please check all fields are filled correctly.')
+      }
+      if (response.status === 409) {
+        throw new Error('Email already exists. Please use a different email or sign in.')
+      }
+      if (response.status === 500) {
+        throw new Error('Server error. Please try again later.')
+      }
       if (!response.ok) {
-        throw new Error(payload_response?.message || 'Registration failed')
+        throw new Error(payload_response?.message || `Registration failed (Error ${response.status})`)
       }
 
       localStorage.setItem('user', JSON.stringify(payload_response))
       navigate(accountType === 'Applicant' ? '/applicant' : '/employer')
     } catch (error) {
-      setErrorMessage(error.message || 'An error occurred during registration')
+      if (error instanceof TypeError) {
+        setErrorMessage('Network error. Please check your connection and try again.')
+      } else {
+        setErrorMessage(error.message || 'An error occurred during registration')
+      }
     } finally {
       setIsSubmitting(false)
     }

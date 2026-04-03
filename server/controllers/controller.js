@@ -27,7 +27,9 @@ export default function createController(service) {
                 return res.status(201).json(created);
             }
             catch (err) {
-                return res.status(500).json({ error: "Failed to create item" });
+                const statusCode = err.statusCode || 500;
+                const message = err.message || "Failed to create item";
+                return res.status(statusCode).json({ message });
             }
         },
 
