@@ -1,5 +1,4 @@
 import NavBar from './components/NavBar'
-import EmployerForm from './components/EmployerForm'
 import RegisterForm from './components/RegisterForm'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import JobDashboard from './components/employers/JobDashboard'
@@ -20,7 +19,6 @@ function App() {
         <Route path="/create" element={<h1>Create</h1>} />
         <Route path="/listings" element={<h1>Listings</h1>} />
         <Route path="/signout" element={<h1>Sign Out</h1>} />
-        <Route path="/employers" element={<EmployerForm />} />
         <Route path="/register" element={<RegisterForm />} />
       </Routes>
     </main>
