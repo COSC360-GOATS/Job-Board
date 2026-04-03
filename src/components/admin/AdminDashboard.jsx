@@ -11,44 +11,55 @@ function AdminDashboard() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const fetchApplicants = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
         setError('')
-        const response = await fetch('/api/applicants')
+        
+        let endpoint = '/api/applicants'
+        if (activeTab === 'Employers') {
+          endpoint = '/api/employers'
+        }
+        
+        const response = await fetch(endpoint)
         
         if (!response.ok) {
-          throw new Error('Failed to fetch applicants')
+          throw new Error(`Failed to fetch ${activeTab.toLowerCase()}`)
         }
         
         const data = await response.json()
         setItems(data)
       } catch (err) {
         setError(err.message)
-        console.error('Error fetching applicants:', err)
+        console.error(`Error fetching ${activeTab}:`, err)
       } finally {
         setLoading(false)
       }
     }
 
-    if (activeTab === 'Applicants') {
-      fetchApplicants()
+    if (activeTab === 'Applicants' || activeTab === 'Employers') {
+      fetchData()
     }
   }, [activeTab])
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`/api/applicants/${id}`, {
+      let endpoint = '/api/applicants'
+      if (activeTab === 'Employers') {
+        endpoint = '/api/employers'
+      }
+      
+      const response = await fetch(`${endpoint}/${id}`, {
         method: 'DELETE'
       })
       
       if (!response.ok) {
-        throw new Error('Failed to delete applicant')
+        throw new Error(`Failed to delete ${activeTab.toLowerCase().slice(0, -1)}`)
       }
       
       setItems(items.filter(item => item._id !== id))
     } catch (err) {
-      console.error('Error deleting applicant:', err)
+      console.error(`Error deleting item:`, err)
       setError(err.message)
     }
   }
@@ -58,26 +69,32 @@ function AdminDashboard() {
   }
 
   const filteredItems = items.filter(item => {
-    // Handle nested name objects like { first: "John", last: "Doe" }
-    let firstName = item.firstName
-    let lastName = item.lastName
+    let searchField = ''
     
-    if (typeof firstName === 'object' && firstName?.first) {
-      firstName = firstName.first
-    } else if (typeof firstName !== 'string') {
-      firstName = ''
+    if (activeTab === 'Employers') {
+      searchField = item.name || 'Unknown'
+    } else {
+      let firstName = item.firstName
+      let lastName = item.lastName
+      
+      if (typeof firstName === 'object' && firstName?.first) {
+        firstName = firstName.first
+      } else if (typeof firstName !== 'string') {
+        firstName = ''
+      }
+      
+      if (typeof lastName === 'object' && lastName?.last) {
+        lastName = lastName.last
+      } else if (typeof lastName !== 'string') {
+        lastName = ''
+      }
+      
+      searchField = firstName && lastName ? `${firstName} ${lastName}` : (firstName || lastName || 'Unknown')
     }
     
-    if (typeof lastName === 'object' && lastName?.last) {
-      lastName = lastName.last
-    } else if (typeof lastName !== 'string') {
-      lastName = ''
-    }
-    
-    const name = firstName && lastName ? `${firstName} ${lastName}` : (firstName || lastName || 'Unknown')
     const email = item.email || ''
     const searchLower = searchQuery.toLowerCase()
-    return name.toLowerCase().includes(searchLower) || email.toLowerCase().includes(searchLower)
+    return searchField.toLowerCase().includes(searchLower) || email.toLowerCase().includes(searchLower)
   })
 
   return (
@@ -142,6 +159,7 @@ function AdminDashboard() {
             <ItemCard
               key={item._id}
               item={item}
+              itemType={activeTab === 'Employers' ? 'employer' : 'applicant'}
               onDelete={handleDelete}
               onEdit={handleEdit}
             />
@@ -149,7 +167,7 @@ function AdminDashboard() {
 
           {!loading && !error && filteredItems.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No applicants found</p>
+              <p className="text-gray-500 text-lg">No {activeTab.toLowerCase()} found</p>
             </div>
           )}
         </div>

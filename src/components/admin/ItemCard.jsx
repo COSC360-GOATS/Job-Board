@@ -1,11 +1,19 @@
-function ItemCard({ item, onDelete, onEdit }) {
+function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
   const getFirstName = () => {
+    if (itemType === 'employer') {
+      return item.name || 'Unknown Company'
+    }
+    
     if (typeof item.firstName === 'string') return item.firstName
     if (typeof item.firstName === 'object' && item.firstName?.first) return String(item.firstName.first)
     return 'Unknown'
   }
 
   const getLastName = () => {
+    if (itemType === 'employer') {
+      return ''
+    }
+    
     if (typeof item.lastName === 'string') return item.lastName
     if (typeof item.lastName === 'object' && item.lastName?.last) return String(item.lastName.last)
     return ''
@@ -16,7 +24,9 @@ function ItemCard({ item, onDelete, onEdit }) {
   const name = lastName.trim() ? `${firstName} ${lastName}`.trim() : firstName.trim()
   
   const email = item.email || 'No email provided'
-  const description = item.description || `Applicant registering for job opportunities`
+  const description = itemType === 'employer' 
+    ? (item.location && item.industry ? `${item.location} • ${item.industry}` : item.industry || 'Employer account')
+    : item.description || 'Applicant registering for job opportunities'
   const firstInitial = firstName?.[0] || ''
   const lastInitial = lastName?.[0] || ''
 
