@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import bcrypt from 'bcryptjs'
 
 function RegisterForm() {
   const navigate = useNavigate()
@@ -30,12 +31,15 @@ function RegisterForm() {
     try {
       const endpoint = accountType === 'Applicant' ? '/api/applicants' : '/api/employers'
       
+      // Hash password
+      const hashedPassword = await bcrypt.hash(formData.password, 10)
+      
       const payload = {
         name: `${formData.firstName} ${formData.lastName}`,
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        password: formData.password,
+        password: hashedPassword,
       }
 
       const response = await fetch(endpoint, {
