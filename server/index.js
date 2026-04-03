@@ -9,6 +9,7 @@ import applicationRoutes from './routes/applicationRoutes.js';
 import ratingRoutes from './routes/ratingRoutes.js';
 import jobRoutes from './routes/jobRoutes.js';
 import employerRoutes from './routes/employerRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
 
@@ -22,16 +23,17 @@ app.listen(3000, () => console.log("Server running on port 3000"));
 async function db() {
     const uri = process.env.MONGO_URI;
     const client = new MongoClient(uri);
-    
+
     try {
         await client.connect();
-        const db = client.db("JobBoard");
+        const database = client.db("JobBoard");
 
-        app.use("/applicants", applicantRoutes(db));
-        app.use("/applications", applicationRoutes(db));
-        app.use("/jobs", jobRoutes(db));
-        app.use("/employers", employerRoutes(db));
-        app.use("/ratings", ratingRoutes(db));
+        app.use("/applicants", applicantRoutes(database));
+        app.use("/applications", applicationRoutes(database));
+        app.use("/jobs", jobRoutes(database));
+        app.use("/employers", employerRoutes(database));
+        app.use("/ratings", ratingRoutes(database));
+        app.use("/auth", authRoutes(database));
         console.log("MongoDB connected!");
     }
     catch (err) {

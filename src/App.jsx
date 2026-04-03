@@ -1,5 +1,6 @@
 import NavBar from './components/NavBar'
 import RegisterForm from './components/RegisterForm'
+import Login from './components/Login'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import JobDashboard from './components/employers/JobDashboard'
 import JobOverview from './components/employers/JobDetails'
@@ -8,7 +9,7 @@ import AdminDashboard from './components/admin/AdminDashboard'
 
 function App() {
   const location = useLocation()
-  const hideNavbar = location.pathname === '/register'
+  const hideNavbar = location.pathname === '/register' || location.pathname === '/login'
 
   return (
     <main className="min-h-screen px-4 py-8">
@@ -22,6 +23,7 @@ function App() {
         <Route path="/signout" element={<h1>Sign Out</h1>} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/register" element={<RegisterForm />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </main>
   )

@@ -1,0 +1,14 @@
+[
+    {
+      "id": 1,
+      "employerId": 1,
+      "title": "Software Engineer",
+      "company": "Tech Company A",
+      "location": "New York, NY",
+      "salary": "$100,000 - $120,000",
+      "description": "We are looking for a skilled software engineer to join our team. The ideal candidate will have experience with JavaScript, Node.js, and React. Responsibilities include developing and maintaining web applications, collaborating with cross-functional teams, and participating in code reviews.",
+      "skills": ["JavaScript", "Node.js", "React", "Git"],
+      "datePosted": "2024-06-01",
+      "additionalQuestions": []
+    }
+  ]
