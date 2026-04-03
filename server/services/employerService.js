@@ -1,5 +1,5 @@
-import bcrypt from 'bcryptjs';
 import createService from "./service.js";
+import { getNextId } from '../utils/idGenerator.js';
 
 export default function employerService(db) {
     const baseService = createService(db.collection('employers'));
@@ -9,20 +9,19 @@ export default function employerService(db) {
         ...baseService,
         
         async create(payload) {
-            if (payload.password) {
-                const saltRounds = 10;
-                payload.password = await bcrypt.hash(payload.password, saltRounds);
+            const existingEmployer = await collection.findOne({ email: payload.email });
+            if (existingEmployer) {
+                const error = new Error('Email already exists');
+                error.statusCode = 409;
+                throw error;
             }
+
+            payload.employerId = await getNextId(db, 'employerId');
             
             return await baseService.create(payload);
         },
         
         async update(id, payload) {
-            if (payload.password) {
-                const saltRounds = 10;
-                payload.password = await bcrypt.hash(payload.password, saltRounds);
-            }
-            
             return await baseService.update(id, payload);
         },
         
