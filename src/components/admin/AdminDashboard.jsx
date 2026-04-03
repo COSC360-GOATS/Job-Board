@@ -19,6 +19,8 @@ function AdminDashboard() {
         let endpoint = '/api/applicants'
         if (activeTab === 'Employers') {
           endpoint = '/api/employers'
+        } else if (activeTab === 'Listings') {
+          endpoint = '/api/jobs'
         }
         
         const response = await fetch(endpoint)
@@ -37,7 +39,7 @@ function AdminDashboard() {
       }
     }
 
-    if (activeTab === 'Applicants' || activeTab === 'Employers') {
+    if (activeTab === 'Applicants' || activeTab === 'Employers' || activeTab === 'Listings') {
       fetchData()
     }
   }, [activeTab])
@@ -47,6 +49,8 @@ function AdminDashboard() {
       let endpoint = '/api/applicants'
       if (activeTab === 'Employers') {
         endpoint = '/api/employers'
+      } else if (activeTab === 'Listings') {
+        endpoint = '/api/jobs'
       }
       
       const response = await fetch(`${endpoint}/${id}`, {
@@ -69,10 +73,12 @@ function AdminDashboard() {
   }
 
   const filteredItems = items.filter(item => {
-    let searchField = ''
+    let searchableText = ''
     
     if (activeTab === 'Employers') {
-      searchField = item.name || 'Unknown'
+      searchableText = item.name || 'Unknown'
+    } else if (activeTab === 'Listings') {
+      searchableText = `${item.title || ''} ${item.description || ''} ${item.location || ''}`
     } else {
       let firstName = item.firstName
       let lastName = item.lastName
@@ -89,12 +95,12 @@ function AdminDashboard() {
         lastName = ''
       }
       
-      searchField = firstName && lastName ? `${firstName} ${lastName}` : (firstName || lastName || 'Unknown')
+      searchableText = firstName && lastName ? `${firstName} ${lastName}` : (firstName || lastName || 'Unknown')
     }
     
     const email = item.email || ''
     const searchLower = searchQuery.toLowerCase()
-    return searchField.toLowerCase().includes(searchLower) || email.toLowerCase().includes(searchLower)
+    return searchableText.toLowerCase().includes(searchLower) || email.toLowerCase().includes(searchLower)
   })
 
   return (
@@ -159,7 +165,7 @@ function AdminDashboard() {
             <ItemCard
               key={item._id}
               item={item}
-              itemType={activeTab === 'Employers' ? 'employer' : 'applicant'}
+              itemType={activeTab === 'Employers' ? 'employer' : activeTab === 'Listings' ? 'listing' : 'applicant'}
               onDelete={handleDelete}
               onEdit={handleEdit}
             />
