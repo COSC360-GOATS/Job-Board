@@ -17,6 +17,7 @@ export default function employerService(db) {
             }
 
             payload.employerId = await getNextId(db, 'employerId');
+            payload.isDeactivated = false;
             
             return await baseService.create(payload);
         },

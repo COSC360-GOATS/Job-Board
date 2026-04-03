@@ -15,8 +15,8 @@ export default function applicantService(db) {
                 throw error;
             }
 
-            // Add incremental ID
             payload.applicantId = await getNextId(db, 'applicantId');
+            payload.isDeactivated = false;
 
             const result = await collection.insertOne(payload);
             return await collection.findOne({ _id: result.insertedId });
