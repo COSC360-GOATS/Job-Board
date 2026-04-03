@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import ItemCard from './ItemCard'
+import EditJobModal from './EditJobModal'
 
 const TABS = ['Applicants', 'Reviews', 'Employers', 'Listings']
 
@@ -9,6 +10,7 @@ function AdminDashboard() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [editingJob, setEditingJob] = useState(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -82,7 +84,34 @@ function AdminDashboard() {
   }
 
   const handleEdit = (id) => {
-    console.log('Edit item:', id)
+    if (activeTab === 'Listings') {
+      const job = items.find(item => item._id === id)
+      setEditingJob(job)
+    }
+  }
+
+  const handleSaveJob = async (jobData) => {
+    try {
+      const response = await fetch(`/api/jobs/${editingJob._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jobData)
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save job')
+      }
+
+      const updatedJob = await response.json()
+      setItems(items.map(item => item._id === editingJob._id ? updatedJob : item))
+      setEditingJob(null)
+      setError('')
+    } catch (err) {
+      console.error('Error saving job:', err)
+      setError(err.message)
+    }
   }
 
   const filteredItems = items.filter(item => {
@@ -191,6 +220,14 @@ function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {editingJob && (
+        <EditJobModal
+          job={editingJob}
+          onClose={() => setEditingJob(null)}
+          onSave={handleSaveJob}
+        />
+      )}
     </div>
   )
 }
