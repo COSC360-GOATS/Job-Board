@@ -164,7 +164,12 @@ function RegisterForm() {
           </button>
         </form>
 
-       
+        <p className="mt-6 text-sm text-gray-600">
+          Already have an account?{' '}
+          <a href="/login" className="text-purple-500 font-semibold hover:text-purple-700 hover:underline cursor-pointer transition-colors">
+            Sign in here
+          </a>
+        </p>
       </div>
     </div>
   )
