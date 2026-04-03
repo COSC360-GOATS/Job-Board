@@ -9,6 +9,13 @@ export default function employerService(db) {
         ...baseService,
         
         async create(payload) {
+            const existingEmployer = await collection.findOne({ email: payload.email });
+            if (existingEmployer) {
+                const error = new Error('Email already exists');
+                error.statusCode = 409;
+                throw error;
+            }
+
             if (payload.password) {
                 const saltRounds = 10;
                 payload.password = await bcrypt.hash(payload.password, saltRounds);
