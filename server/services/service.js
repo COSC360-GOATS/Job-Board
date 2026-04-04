@@ -10,7 +10,13 @@ export default function createService(collection) {
             return await collection.findOne({ _id: new ObjectId(id) });
         },
 
-        async create(payload) {
+        async create(payload, checkExists) {
+            if (checkExists && await collection.findOne(checkExists)) {
+                const error = new Error('Resource already exists');
+                error.statusCode = 409;
+                throw error;
+            }
+
             const result = await collection.insertOne(payload);
             return await collection.findOne({ _id: result.insertedId });
         },
