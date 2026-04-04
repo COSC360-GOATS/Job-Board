@@ -8,7 +8,7 @@ function ReviewList({ title = 'Reviews', reviews = [], className = '' }) {
                 <span className="text-xs text-slate-500">{reviews.length} total</span>
             </div>
 
-            <div className="space-y-4">
+            <div className="max-h-72 space-y-4 overflow-y-auto pr-2">
                 {reviews.length === 0 ? (
                     <p className="rounded-xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
                         No reviews yet.

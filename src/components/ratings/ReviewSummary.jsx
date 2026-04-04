@@ -16,11 +16,11 @@ function ReviewSummary({
                 <img
                     src={avatarSrc}
                     alt={avatarAlt}
-                    className="h-20 w-20 rounded-full border border-violet-200 bg-violet-50 object-cover"
+                    className="h-20 w-20 shrink-0 rounded-full border border-violet-200 bg-violet-50 object-cover"
                 />
             ) : (
                 <div
-                    className="flex h-20 w-20 items-center justify-center rounded-full border border-violet-200 bg-violet-50 text-2xl font-semibold text-violet-300"
+                    className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-violet-200 bg-violet-50 text-2xl font-semibold text-violet-300"
                     role="img"
                     aria-label={avatarAlt}
                 >
@@ -33,11 +33,20 @@ function ReviewSummary({
                 {averageRating !== null && (
                     <div className="mt-2 flex items-center gap-2">
                         <RatingStars value={Math.round(averageRating)} readOnly size="sm" />
-                        <span className="text-sm text-slate-600">{averageRating.toFixed(1)}</span>
+                        <span className="text-sm text-slate-600">{averageRating.toFixed(1)}/5</span>
                     </div>
                 )}
                 {description && (
-                    <p className="mt-1 text-sm leading-5 text-slate-600">
+                    <p
+                        className="mt-1 text-sm leading-5 text-slate-600"
+                        style={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                        }}
+                        title={description}
+                    >
                         {description}
                     </p>
                 )}
