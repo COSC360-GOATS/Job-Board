@@ -7,6 +7,10 @@ export default function ratingService(db) {
     return {
         ...service,
 
+        async create(payload) {
+            return await service.create(payload, { employerId: payload.employerId, applicantId: payload.applicantId });
+        },
+
         async getByEmployerId(employerId) {
             if (!ObjectId.isValid(employerId)) return [];
             return await collection.find({ employerId: employerId }).toArray();
