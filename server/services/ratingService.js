@@ -13,7 +13,24 @@ export default function ratingService(db) {
 
         async getByEmployerId(employerId) {
             if (!ObjectId.isValid(employerId)) return [];
-            return await collection.find({ employerId: employerId }).toArray();
+            const ratings = await collection.find({ employerId: employerId }).toArray();
+            
+            return await Promise.all(
+                ratings.map(async (rating) => {
+                    try {
+                        const applicant = await db.collection('applicants').findOne({ _id: new ObjectId(rating.applicantId) });
+                        return {
+                            ...rating,
+                            applicant: applicant || null
+                        };
+                    } catch (e) {
+                        return {
+                            ...rating,
+                            applicant: null
+                        };
+                    }
+                })
+            );
         },
 
         async getAvgRatingForEmployer(employerId) {

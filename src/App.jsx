@@ -6,6 +6,7 @@ import JobDashboard from './components/employers/JobDashboard'
 import JobOverview from './components/employers/JobDetails'
 import ApplicationList from './components/employers/ApplicationList'
 import AdminDashboard from './components/admin/AdminDashboard'
+import ReviewSection from './components/ratings/ReviewSection'
 
 function App() {
   const location = useLocation()
@@ -25,6 +26,8 @@ function App() {
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<Login />} />
       </Routes>
+
+      <ReviewSection employerId="69d0068336ee74f36bbf7685" />
     </main>
   )
 }
