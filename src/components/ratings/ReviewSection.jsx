@@ -3,6 +3,26 @@ import ReviewForm from './ReviewForm';
 import ReviewList from './ReviewList';
 import { useEffect, useState } from 'react';
 
+function getLoggedInUser() {
+    try {
+        const raw = localStorage.getItem('user');
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw);
+        const rawId = parsed?.id;
+        const id = typeof rawId === 'string' ? rawId : rawId?.$oid;
+
+        if (!id) return null;
+
+        return {
+            ...parsed,
+            id
+        };
+    } catch {
+        return null;
+    }
+}
+
 function ReviewSection({
     employerId,
     className = ''
@@ -13,6 +33,7 @@ function ReviewSection({
     const [averageRating, setAverageRating] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [submitError, setSubmitError] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [formRating, setFormRating] = useState(4);
     const [formComment, setFormComment] = useState('');
@@ -39,12 +60,20 @@ function ReviewSection({
                 }
                 
                 const formattedRatings = ratingsData.map((r) => {
-                    
-                    const applicant = r.applicant;                    
-                    const applicantName = applicant?.name ? `${applicant.name.first} ${applicant.name.last}` : 'Anonymous';
+                    const applicant = r.applicant;
+                    let applicantName = 'Anonymous';
+
+                    if (typeof applicant?.name === 'string' && applicant.name.trim()) {
+                        applicantName = applicant.name;
+                    } else if (applicant?.name?.first || applicant?.name?.last) {
+                        applicantName = `${applicant.name.first ?? ''} ${applicant.name.last ?? ''}`.trim();
+                    } else if (applicant?.firstName || applicant?.lastName) {
+                        applicantName = `${applicant.firstName ?? ''} ${applicant.lastName ?? ''}`.trim();
+                    }
                     
                     const review = {
                         id: r._id,
+                        applicantId: r.applicantId,
                         reviewerName: applicantName,
                         avatarSrc: applicant?.profile || '',
                         avatarAlt: applicantName,
@@ -70,6 +99,25 @@ function ReviewSection({
 
     const handleSubmitReview = async (e) => {
         e.preventDefault();
+        setSubmitError('');
+
+        const currentUser = getLoggedInUser();
+        if (!currentUser?.id) {
+            setSubmitError('Please log in to submit a review.');
+            return;
+        }
+
+        if (currentUser.role !== 'applicant') {
+            setSubmitError('Only applicants can submit reviews.');
+            return;
+        }
+
+        const alreadyReviewed = ratings.some((review) => review.applicantId === currentUser.id);
+        if (alreadyReviewed) {
+            setSubmitError('You have already reviewed this employer.');
+            return;
+        }
+
         setSubmitting(true);
 
         try {
@@ -78,14 +126,17 @@ function ReviewSection({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     employerId,
-                    applicantId: import.meta.env.VITE_TEMP_APPLICANT_ID,
+                    applicantId: currentUser.id,
                     rating: formRating,
                     comment: formComment
                 })
             });
 
             if (!res.ok) {
-                const errData = await res.json();
+                const errData = await res.json().catch(() => ({}));
+                if (res.status === 409) {
+                    throw new Error('You have already reviewed this employer.');
+                }
                 throw new Error(errData.message || 'Failed to submit review');
             }
 
@@ -94,7 +145,8 @@ function ReviewSection({
             setRatings([
                 {
                     id: newRating._id,
-                    reviewerName: 'You',
+                    applicantId: currentUser.id,
+                    reviewerName: currentUser.name || 'You',
                     avatarSrc: '',
                     avatarAlt: 'Your avatar',
                     rating: newRating.rating,
@@ -107,7 +159,7 @@ function ReviewSection({
             setFormComment('');
         } catch (err) {
             console.error('Error submitting review:', err);
-            setError(err.message || 'Failed to submit review');
+            setSubmitError(err.message || 'Failed to submit review');
         } finally {
             setSubmitting(false);
         }
@@ -151,6 +203,7 @@ function ReviewSection({
                     comment={formComment}
                     onCommentChange={setFormComment}
                     onSubmit={handleSubmitReview}
+                    errorMessage={submitError}
                     submitLabel="Submit"
                     placeholder="Write a review here..."
                     disabled={submitting}

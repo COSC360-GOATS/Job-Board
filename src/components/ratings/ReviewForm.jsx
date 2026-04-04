@@ -7,6 +7,7 @@ function ReviewForm({
     comment,
     onCommentChange,
     onSubmit,
+    errorMessage = '',
     submitLabel = 'Submit',
     placeholder = 'Write a review here...',
     disabled = false,
@@ -39,6 +40,10 @@ function ReviewForm({
                     className="min-h-24 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
                     disabled={disabled}
                 />
+
+                {errorMessage && (
+                    <p className="text-sm text-red-600">{errorMessage}</p>
+                )}
             </form>
         </section>
     );
