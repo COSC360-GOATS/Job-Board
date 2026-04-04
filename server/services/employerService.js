@@ -1,5 +1,4 @@
 import createService from "./service.js";
-import { getNextId } from '../utils/idGenerator.js';
 
 export default function employerService(db) {
     const baseService = createService(db.collection('employers'));
@@ -16,7 +15,6 @@ export default function employerService(db) {
                 throw error;
             }
 
-            payload.employerId = await getNextId(db, 'employerId');
             payload.isDeactivated = false;
             
             return await baseService.create(payload);

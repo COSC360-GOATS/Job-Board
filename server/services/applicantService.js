@@ -1,5 +1,4 @@
 import createService from './service.js';
-import { getNextId } from '../utils/idGenerator.js';
 
 export default function applicantService(db) {
     const baseService = createService(db.collection('applicants'));
@@ -7,6 +6,7 @@ export default function applicantService(db) {
 
     return {
         ...baseService,
+
         async create(payload) {
             const existingApplicant = await collection.findOne({ email: payload.email });
             if (existingApplicant) {
@@ -15,11 +15,9 @@ export default function applicantService(db) {
                 throw error;
             }
 
-            payload.applicantId = await getNextId(db, 'applicantId');
             payload.isDeactivated = false;
 
-            const result = await collection.insertOne(payload);
-            return await collection.findOne({ _id: result.insertedId });
+            return await baseService.create(payload);
         }
     };
 }
