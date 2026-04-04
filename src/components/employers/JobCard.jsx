@@ -26,7 +26,7 @@ function JobCard({ job = defaultJob, onDelete }) {
     const postedTimeAgo = formatTimeAgo(postedDate);
 
 
-    const buttonStyle = "cursor-pointer rounded-lg bg-gray-200 text-sm text-black px-2 py-1 hover:bg-gray-50";
+    const buttonStyle = "cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100";
 
     async function deleteJob() {
         confirm("Are you sure you want to delete this job? This action cannot be undone.") && await fetch(`${API_BASE}/jobs/${job._id}`, {
@@ -45,11 +45,11 @@ function JobCard({ job = defaultJob, onDelete }) {
     }
 
     return (
-        <div className="cursor-default text-white p-8 rounded-lg border border-gray-300 w-full h-full flex flex-col gap-3">
+        <div className="flex h-full w-full cursor-default flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm">
 
             <div className="flex justify-between items-start gap-3 grow">
                 <h3 
-                    className="text-3xl cursor-pointer font-semibold flex-1 min-w-0 wrap-break-word hover:underline"
+                    className="wrap-break-word min-w-0 flex-1 cursor-pointer text-2xl font-semibold hover:text-violet-700 hover:underline"
                     onClick={() => navigate(`/jobs/${job._id}/applications`, { state: { job } })}
                     title={`View applications for ${job.title}`}
                     >
@@ -64,7 +64,7 @@ function JobCard({ job = defaultJob, onDelete }) {
                         Edit
                     </button>
                     <button
-                        className={`${buttonStyle} bg-red-500 hover:bg-red-400`}
+                        className="cursor-pointer rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-100"
                         onClick={deleteJob}
                     >
                         Delete
@@ -73,14 +73,14 @@ function JobCard({ job = defaultJob, onDelete }) {
             </div>
 
             <div className="wrap-break-word">
-                <h6 className="text-lg">${job.payRange.low} - ${job.payRange.high}, <span className="text-gray-400">{job.location}</span></h6>
+                <h6 className="text-base font-medium text-slate-800">${job.payRange.low} - ${job.payRange.high}, <span className="text-slate-500">{job.location}</span></h6>
                 {postedTimeAgo && (
-                    <p className="text-sm text-gray-400">Posted {postedTimeAgo}</p>
+                    <p className="text-sm text-slate-500">Posted {postedTimeAgo}</p>
                 )}
             </div>
 
 
-            <p className="text-gray-400 line-clamp-3 min-h-18">{job.description}</p>
+            <p className="line-clamp-3 min-h-18 text-slate-600">{job.description}</p>
 
             <ul className="w-full mt-auto flex justify-start items-center flex-nowrap overflow-x-auto overflow-y-hidden [&>li]:shrink-0">
                 {(job.skills ?? []).map((skill, i) => (

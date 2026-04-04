@@ -100,7 +100,7 @@ function Skills({ skills = defaults, id, onChange, className = '', ...props }) {
                 value={newSkill}
                 title="Type a skill and press Enter to add it or Escape to cancel"
                 placeholder={placeholder}
-                className="bg-transparent border-0 p-0 outline-none w-32"
+                className="w-32 border-0 bg-transparent p-0 text-slate-100 placeholder:text-slate-300 outline-none"
                 style={{ fieldSizing: 'content' }}
                 onChange={(e) => { setNewSkill(e.target.value); }}
                 onBlur={resetCreateSkill}
@@ -126,7 +126,7 @@ function Skills({ skills = defaults, id, onChange, className = '', ...props }) {
             <button
                 type="button"
                 title="Add a New Skill"
-                className="inline-flex rounded-full border bg-[#404040] cursor-pointer px-3 py-0.5 mx-0.75 my-0.5"
+                className="mx-0.75 my-0.5 inline-flex cursor-pointer rounded-full border border-slate-500 bg-slate-700 px-3 py-0.5 text-sm font-medium text-white hover:bg-slate-600"
                 onClick={() => setIsCreatingSkill(true)}
             >
                 {isCreatingSkill ? createNewSkillInput() : 'Add Skill +'}

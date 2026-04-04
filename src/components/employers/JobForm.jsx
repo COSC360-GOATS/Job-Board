@@ -88,7 +88,7 @@ function JobForm({ job, onSave, onCancel, isModal }) {
     const loc = useLocation();
     const creating = !isModal && loc.pathname === "/jobs/new";
 
-    const inputStyle = "rounded-lg border border-gray-300 px-4 py-2";
+    const inputStyle = "rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100";
     const errors = validateJobForm({ title, description, payRangeLow, payRangeHigh, location, additionalQuestions });
 
     const shouldShow = (name) => Boolean((touched[name] || submitted) && errors[name]);
@@ -170,7 +170,7 @@ function JobForm({ job, onSave, onCancel, isModal }) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className={isModal ? "space-y-4" : "text-white p-8 rounded-lg border border-gray-300 max-w-lg flex flex-col gap-3 min-w-3/4 mx-auto"}>
+        <form onSubmit={handleSubmit} className={isModal ? "space-y-4" : "mx-auto flex min-w-3/4 max-w-2xl flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-8 text-slate-900 shadow-sm"}>
             {!isModal && (
                 <div className="flex items-center justify-between">
                     <legend className="text-2xl font-semibold mb-4">{creating ? "Create New Job" : `Editing "${job.title}"`}</legend>
@@ -194,7 +194,7 @@ function JobForm({ job, onSave, onCancel, isModal }) {
                 showError={touched.description || submitted}
                 labelContent={
                     <label htmlFor="job-description">
-                        Job Description <span className={description.length > 1500 ? "text-red-400" : "text-gray-400"}>({description.length}/1500)</span>
+                        Job Description <span className={description.length > 1500 ? "text-red-600" : "text-slate-500"}>({description.length}/1500)</span>
                     </label>
                 }
             >
@@ -209,7 +209,7 @@ function JobForm({ job, onSave, onCancel, isModal }) {
                 />
             </FormField>
 
-            <label htmlFor="pay-range">Pay Range</label>
+            <label htmlFor="pay-range" className="text-sm font-medium text-slate-700">Pay Range</label>
             <div className="flex gap-4" id="pay-range">
                 <FormField htmlFor="pay-range-low" error={errors.payRangeLow} showError={shouldShow("payRangeLow")}>
                     <input
@@ -258,7 +258,7 @@ function JobForm({ job, onSave, onCancel, isModal }) {
                         labelContent={(
                             <div className="inline-flex justify-between">
                                 <label htmlFor={`additional-question-${i}`}>Additional Question {i + 1}</label>
-                                <button type="button" onClick={() => removeQuestion(i)} className="cursor-pointer mr-1" title={`Remove Question ${i + 1}`}>✕</button>
+                                <button type="button" onClick={() => removeQuestion(i)} className="mr-1 cursor-pointer text-slate-500 hover:text-red-600" title={`Remove Question ${i + 1}`}>✕</button>
                             </div>
                         )}
                     >
@@ -278,7 +278,7 @@ function JobForm({ job, onSave, onCancel, isModal }) {
                     </FormField>
                 ))
             }
-            <button type="button" onClick={() => addQuestion()} className={`${inputStyle} cursor-pointer bg-gray-200 text-black hover:bg-gray-50`}>+ Add Additional Question</button>
+            <button type="button" onClick={() => addQuestion()} className="cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100">+ Add Additional Question</button>
 
             <div className="flex flex-col gap-1">
                 <label htmlFor="job-skills">Skills</label>
@@ -291,20 +291,20 @@ function JobForm({ job, onSave, onCancel, isModal }) {
                         type="button"
                         onClick={onCancel}
                         disabled={saving}
-                        className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium disabled:opacity-50"
+                        className="rounded-lg border border-slate-200 bg-slate-100 px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-200 disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={saving}
-                        className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium disabled:opacity-50"
+                        className="rounded-lg bg-violet-600 px-4 py-2 font-medium text-white transition hover:bg-violet-700 disabled:opacity-50"
                     >
                         {saving ? "Saving..." : "Save Changes"}
                     </button>
                 </div>
             ) : (
-                <button type="submit" disabled={saving} className="cursor-pointer rounded-lg text-black bg-gray-200 px-4 py-2 hover:bg-gray-50 mt-4 disabled:opacity-50">
+                <button type="submit" disabled={saving} className="mt-4 cursor-pointer rounded-lg bg-violet-600 px-4 py-2 font-medium text-white transition hover:bg-violet-700 disabled:opacity-50">
                     {saving ? "Saving..." : (creating ? "Create Job" : "Update Job")}
                 </button>
             )}

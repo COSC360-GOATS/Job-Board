@@ -79,39 +79,44 @@ function JobDashboard() {
   }, [API_BASE]);
 
   return (
-    <div className="px-6 py-3 text-white">
-      <div className="flex justify-between">
-        <button onClick={() => navigate('/jobs/new')} className="cursor-pointer rounded-lg text-black bg-gray-200 px-12 py-2 hover:bg-gray-50">Create Job</button>
+    <div className="mx-auto w-full max-w-7xl px-6 py-6 text-slate-900">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <button
+          onClick={() => navigate('/jobs/new')}
+          className="cursor-pointer rounded-lg bg-violet-600 px-6 py-2 text-sm font-medium text-white transition hover:bg-violet-700"
+        >
+          Create Job
+        </button>
 
         <div className="flex flex-wrap items-center gap-3">
-          <label htmlFor="job-sort-by">Sort by</label>
+          <label htmlFor="job-sort-by" className="text-sm font-medium text-slate-700">Sort by</label>
           <select
             id="job-sort-by"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-2 bg-transparent"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
           >
-            <option value="postedAt" className="text-black">Posted date</option>
-            <option value="location" className="text-black">Location</option>
-            <option value="payRange" className="text-black">Pay range</option>
+            <option value="postedAt">Posted date</option>
+            <option value="location">Location</option>
+            <option value="payRange">Pay range</option>
           </select>
 
-          <label htmlFor="job-sort-order">Order</label>
+          <label htmlFor="job-sort-order" className="text-sm font-medium text-slate-700">Order</label>
           <select
             id="job-sort-order"
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-2 bg-transparent"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
           >
-            <option value="desc" className="text-black">Descending</option>
-            <option value="asc" className="text-black">Ascending</option>
+            <option value="desc">Descending</option>
+            <option value="asc">Ascending</option>
           </select>
         </div>
       </div>
 
       <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] items-stretch gap-6 py-3">
-        {loading && <p className="text-white">Loading jobs...</p>}
-        {error && <p className="text-red-400">{error}</p>}
+        {loading && <p className="text-slate-600">Loading jobs...</p>}
+        {error && <p className="text-red-600">{error}</p>}
         {!loading && !error && sortedJobs.map((job) => (
           <div key={job._id || job.id} className="h-full">
             <JobCard

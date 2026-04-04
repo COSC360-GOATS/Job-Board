@@ -6,14 +6,13 @@ import JobDashboard from './components/employers/JobDashboard'
 import JobOverview from './components/employers/JobDetails'
 import ApplicationList from './components/employers/ApplicationList'
 import AdminDashboard from './components/admin/AdminDashboard'
-import ReviewSection from './components/ratings/ReviewSection'
 
 function App() {
   const location = useLocation()
   const hideNavbar = location.pathname === '/register' || location.pathname === '/login'
 
   return (
-    <main className="min-h-screen px-4 py-8">
+    <main className="min-h-screen bg-white px-4 py-8 text-slate-900">
       {!hideNavbar && <NavBar />}
       <Routes>
         {/* TEMPORARY Routes, once pages are implemented replace these with the correct component */}
@@ -25,9 +24,10 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/jobs" element={<JobDashboard />} />
+        <Route path="/jobs/:jobId" element={<JobOverview />} />
+        <Route path="/jobs/:jobId/applications" element={<ApplicationList />} />
       </Routes>
-
-      <ReviewSection employerId="69d0068336ee74f36bbf7685" />
     </main>
   )
 }

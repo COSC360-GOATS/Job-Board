@@ -6,9 +6,9 @@ function JobOverview() {
     const job = location.state?.job;
 
     return (
-        <>
+        <div className="mx-auto w-full max-w-7xl px-4 py-4">
             <JobForm job={job} />
-        </>
+        </div>
     )
 }
 

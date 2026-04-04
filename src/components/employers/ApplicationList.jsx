@@ -39,14 +39,14 @@ function ApplicantList() {
         };
     }, [job?._id, API_BASE]);
 
-    if (loading) return <p className="text-white">Loading applications...</p>;
+    if (loading) return <p>Loading applications...</p>;
     if (error) return <p className="text-red-400">{error}</p>;
 
     return (
         <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] gap-6 px-6 py-3 cursor-default">
             {
             applications.length === 0 ? (
-                <p className="text-white">No applications found for this job.</p>
+                <p>No applications found for this job.</p>
             ) : (
             applications.map((application) => (
                 <ApplicationCard key={application._id} application={application} job={job} />

@@ -5,13 +5,19 @@ export function ApplicationCard({ application, job }) {
     const applicant = application.applicant || {};
     const appliedDate = application.date || application['date:'] || application.appliedAt || application.createdAt;
 
+    const fullName = typeof applicant.name === 'string'
+        ? applicant.name
+        : `${applicant?.name?.first ?? applicant?.firstName ?? ''} ${applicant?.name?.last ?? applicant?.lastName ?? ''}`.trim();
+    const displayName = fullName || 'Unknown Applicant';
+    const displayInitial = displayName.trim()?.[0]?.toUpperCase() ?? '?';
+
     const applicantSkills = applicant.skills ?? [];
     const requiredSkillSet = new Set((job?.skills ?? []).map((skill) => skill.toLowerCase()));
     const nonMatchStyle = {
-        backgroundColor: 'hsl(0, 0%, 16%)',
-        borderColor: 'hsl(0, 0%, 60%)',
-        color: 'hsl(0, 0%, 78%)',
-        opacity: 0.5
+        backgroundColor: 'hsl(0, 0%, 95%)',
+        borderColor: 'hsl(0, 0%, 80%)',
+        color: 'hsl(0, 0%, 45%)',
+        opacity: 0.95
     };
 
     const matchedSkills = applicantSkills.filter((skill) => requiredSkillSet.has(skill.toLowerCase()));
@@ -21,31 +27,45 @@ export function ApplicationCard({ application, job }) {
     const appliedTimeAgo = formatTimeAgo(appliedDate);
 
     return (
-        <section className="text-white p-6 rounded-lg border border-gray-300 grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <section className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm xl:grid-cols-2">
             <div className="flex flex-col gap-2 min-w-0 overflow-hidden p-2">
                 <div className="flex justify-between items-start gap-3 flex-wrap">
                     <div className="flex items-center min-w-0">
-                        <img src={applicant.profile} alt={`${applicant.name.first} ${applicant.name.last}`} className="w-24 h-24 sm:w-36 sm:h-36 rounded-full border border-gray-300 object-cover text-center flex justify-center items-center text-gray-300 shrink-0" />
+                        {applicant.profile ? (
+                            <img
+                                src={applicant.profile}
+                                alt={displayName}
+                                className="h-24 w-24 shrink-0 rounded-full border border-violet-200 bg-violet-50 object-cover sm:h-36 sm:w-36"
+                            />
+                        ) : (
+                            <div
+                                className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-violet-200 bg-violet-50 text-3xl font-semibold text-violet-300 sm:h-36 sm:w-36"
+                                role="img"
+                                aria-label={displayName}
+                            >
+                                {displayInitial}
+                            </div>
+                        )}
                         <div className="ml-4 flex flex-col gap-1 min-w-0">
-                            <h3 className="text-2xl sm:text-3xl font-semibold wrap-break-word">{applicant.name.last}, {applicant.name.first}</h3>
+                            <h3 className="text-2xl sm:text-3xl font-semibold wrap-break-word">{displayName}</h3>
                             {appliedTimeAgo && (
-                                <p className="text-sm text-gray-400 inline-flex items-center gap-2 flex-wrap">
+                                <p className="inline-flex items-center gap-2 text-sm text-slate-500 flex-wrap">
                                     <span>Applied {appliedTimeAgo}</span>
                                 </p>
                             )}
-                            <a href={`mailto:${applicant.email}`} className="text-blue-500 hover:underline">
+                            <a href={`mailto:${applicant.email}`} className="text-violet-700 hover:underline">
                                 {applicant.email}
                             </a>
-                            <a href={`tel:${applicant.phone}`} className="text-blue-500 hover:underline">
+                            <a href={`tel:${applicant.phone}`} className="text-violet-700 hover:underline">
                                 {applicant.phone}
                             </a>
-                            <p>{applicant.location}</p>
+                            <p className="text-slate-600">{applicant.location}</p>
                         </div>
                     </div>
                     <button
                         type="button"
                         disabled={!applicant.resume}
-                        className="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-red-300/50 bg-red-950/30 px-3 py-2 text-sm font-medium text-red-200 hover:bg-red-900/40 disabled:cursor-not-allowed disabled:opacity-50 shrink-0"
+                        className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
                         title={applicant.resume ? 'Download resume PDF' : 'No resume uploaded'}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
@@ -64,14 +84,14 @@ export function ApplicationCard({ application, job }) {
                     ))}
                 </ul>
             </div>
-            <div className="min-w-0 wrap-break-word p-2">
+            <div className="min-w-0 wrap-break-word rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <h4 className="font-semibold text-xl mb-2">Additional Questions:</h4>
                 {job.additionalQuestions?.map((question, i) => (
                     <p key={`question-${application._id}-${i}`}>
                         <strong>{question}</strong> 
                         <br />
                         {application.additionalAnswers?.[i] ||
-                            <span className="text-gray-400">
+                            <span className="text-slate-500">
                                 Answer not provided.
                             </span>
                         }
