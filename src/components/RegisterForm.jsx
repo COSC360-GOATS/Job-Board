@@ -68,9 +68,10 @@ function RegisterForm() {
       let payload
       if (accountType === 'Applicant') {
         payload = {
-          name: `${formData.firstName} ${formData.lastName}`,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          name: {
+            first: formData.firstName,
+            last: formData.lastName,
+          },
           email: formData.email,
           password: hashedPassword,
         }
