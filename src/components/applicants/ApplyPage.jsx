@@ -4,23 +4,9 @@ import Skills, { Skill } from "../Skills";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
 import StarRating from "../StarRating";
 import ReviewSection from "../ratings/ReviewSection";
+import { getCurrentUser, getUserRole } from "../../utils/user";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
-function getCurrentUser() {
-    try {
-        const raw = localStorage.getItem("user") || "null";
-        const user = JSON.parse(raw);
-        if (!user) return null;
-
-        const id = user.id || user._id || user?.id?.$oid || user?._id?.$oid;
-        return id ? { ...user, id } : null;
-    } catch {
-        return null;
-    }
-}
-
-
 
 function ApplyPage() {
     const { jobId } = useParams();
@@ -38,9 +24,11 @@ function ApplyPage() {
     const [submitted, setSubmitted] = useState(false);
 
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem("user") || "null");
-        if (!user) navigate("/login", { replace: true });
-    }, []);
+        const user = getCurrentUser();
+        if (!user || getUserRole(user) !== 'applicant') {
+            navigate("/login", { replace: true, state: { from: `/jobs/${jobId}/apply` } });
+        }
+    }, [navigate, jobId]);
 
     useEffect(() => {
         if (job) return;
@@ -71,7 +59,7 @@ function ApplyPage() {
 
     useEffect(() => {
         const user = getCurrentUser();
-        if (!user || user.role !== 'applicant' || !user.id) return;
+        if (!user || getUserRole(user) !== 'applicant' || !user.id) return;
 
         let isMounted = true;
 
@@ -92,8 +80,8 @@ function ApplyPage() {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        const user = JSON.parse(localStorage.getItem("user") || "null");
-        if (!user) { navigate("/login"); return; }
+        const user = getCurrentUser();
+        if (!user || getUserRole(user) !== 'applicant') { navigate("/login"); return; }
 
         setSubmitting(true);
         try {
@@ -104,8 +92,8 @@ function ApplyPage() {
                     jobId,
                     applicantId: user.id,
                     skills,
-                    answers,
-                    appliedAt: new Date().toISOString(),
+                    additionalAnswers: answers,
+                    date: new Date().toISOString(),
                 }),
             });
             if (!res.ok) throw new Error("Submission failed");
