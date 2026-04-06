@@ -23,7 +23,7 @@ export default function authService(db) {
                 return {
                     user: {
                         id: applicant._id,
-                        name: `${applicant.firstName} ${applicant.lastName}`.trim() || applicant.name || email,
+                        name: `${applicant.name?.first ?? applicant.firstName ?? ''} ${applicant.name?.last ?? applicant.lastName ?? ''}`.trim() || email,
                         email: applicant.email,
                     },
                     role: 'applicant',
