@@ -1,20 +1,35 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { getCurrentUser, getUserDisplayName, getUserInitial } from '../utils/user'
+import { getCurrentUser, getUserDisplayName, getUserInitial, getUserRole } from '../utils/user'
 
-const navItems = [
-	{ page: 'Home', link: '/home' },
-	{ page: 'Jobs', link: '/jobs' },
-	{ page: 'Profile', link: '/profile' }
-]
+function getNavItems(user) {
+	const role = getUserRole(user);
+
+	const base = [
+		{ page: 'Home', link: '/home' },
+		{ page: `${role === 'employer' ? 'Manage' : 'Explore'} Jobs`, link: role === 'employer' ? '/jobs/employers' : '/jobs' },
+		{ page: 'Profile', link: '/profile' }
+	];
+
+	if (role === 'admin') {
+		return [
+			{ page: 'Home', link: '/home' },
+			{ page: 'Admin', link: '/admin' },
+			{ page: 'Profile', link: '/profile' }
+		];
+	}
+
+	return base;
+}
 
 function NavBar() {
 	const navigate = useNavigate();
 	const user = getCurrentUser();
 	const displayName = getUserDisplayName(user);
+	const navItems = getNavItems(user);
 
 	const handleSignOut = () => {
 		localStorage.removeItem('user');
-		navigate('/login', { replace: true });
+		navigate('/signout', { replace: true });
 	};
 
 	return (
@@ -47,13 +62,22 @@ function NavBar() {
 						{item.page}
 					</NavLink>
 				))}
-				<button
-					type="button"
-					onClick={handleSignOut}
-					className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-				>
-					Sign Out
-				</button>
+				{user ? (
+					<button
+						type="button"
+						onClick={handleSignOut}
+						className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+					>
+						Sign Out
+					</button>
+				) : (
+					<NavLink
+						to="/login"
+						className={({ isActive }) => `rounded-lg border px-3 py-2 text-sm font-medium transition ${isActive ? 'border-violet-200 bg-violet-50 text-violet-700' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'}`}
+					>
+						Login
+					</NavLink>
+				)}
 			</div>
 		</nav>
 	)

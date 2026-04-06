@@ -30,18 +30,17 @@ function App() {
         {/* TEMPORARY Routes, once pages are implemented replace these with the correct component */}
         <Route path="/home" element={<h1>Home</h1>} />
         <Route path="/profile" element={<h1>Profile</h1>} />
-        <Route path="/create" element={<h1>Create</h1>} />
 
-        
+
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signout" element={<SignOut />} />
-        <Route path="/listings" element={<JobListings />} />
-        <Route path="/listings/:jobId" element={<ApplyPage />} />
-        <Route path="/jobs" element={<JobDashboard />} />
-        <Route path="/jobs/:jobId" element={<JobOverview />} />
-        <Route path="/jobs/:jobId/applications" element={<ApplicationList />} />
+        <Route path="/jobs" element={<JobListings />} />
+        <Route path="/jobs/:jobId/apply" element={<ApplyPage />} />
+        <Route path="/jobs/employers" element={<JobDashboard />} />
+        <Route path="/jobs/employers/:jobId" element={<JobOverview />} />
+        <Route path="/jobs/employers/:jobId/applications" element={<ApplicationList />} />
       </Routes>
     </main>
   )
