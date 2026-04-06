@@ -40,7 +40,7 @@ function ApplicantJobCard({ job, employerName, avgRating }) {
                 )}
             </div>
 
-            <p className="line-clamp-3 min-h-[4.5rem] text-slate-600 text-sm">{job.description}</p>
+            <p className="line-clamp-3 text-slate-600 text-sm">{job.description}</p>
 
             <ul className="w-full flex justify-start items-center flex-nowrap overflow-x-auto overflow-y-hidden [&>li]:shrink-0">
                 {(job.skills ?? []).map((skill, i) => (

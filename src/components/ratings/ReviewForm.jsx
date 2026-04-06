@@ -1,4 +1,4 @@
-import RatingStars from './RatingStars';
+import StarRating from '../StarRating';
 
 function ReviewForm({
     heading = 'Tell Us About Your Experience',
@@ -21,7 +21,7 @@ function ReviewForm({
 
             <form onSubmit={onSubmit} className="flex flex-col gap-3">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                    <RatingStars value={rating} onChange={onRatingChange} />
+                    <StarRating value={rating} onChange={onRatingChange} />
 
                     <button
                         type="submit"

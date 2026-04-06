@@ -51,16 +51,10 @@ function JobDashboard() {
       try {
         setLoading(true);
 
-        // ###########################################
-        // TEMPORARY Test employer in database to 
-        // filter jobs by employer until authentication 
-        // is implemented.
+        const user = localStorage.getItem('user');
+        const employerId = user?.id;
 
-        const EMPLOYER_ID = import.meta.env.VITE_TEMP_EMPLOYER_ID;
-
-        // ###########################################
-
-        const res = await fetch(`${API_BASE}/jobs/employer/${EMPLOYER_ID}`);
+        const res = await fetch(`${API_BASE}/jobs/employer/${employerId}`);
         if (!res.ok) throw new Error('Failed to fetch jobs');
         const data = await res.json();
         if (isMounted) setJobs(Array.isArray(data) ? data : []);

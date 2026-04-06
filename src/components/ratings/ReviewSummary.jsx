@@ -1,4 +1,4 @@
-import RatingStars from './RatingStars';
+import StarRating from '../StarRating';
 
 function ReviewSummary({
     title,
@@ -32,7 +32,7 @@ function ReviewSummary({
                 <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
                 {averageRating !== null && (
                     <div className="mt-2 flex items-center gap-2">
-                        <RatingStars value={Math.round(averageRating)} readOnly size="sm" />
+                        <StarRating value={Math.round(averageRating)} readOnly size="sm" />
                         <span className="text-sm text-slate-600">{averageRating.toFixed(1)}/5</span>
                     </div>
                 )}

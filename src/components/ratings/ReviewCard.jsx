@@ -1,4 +1,4 @@
-import RatingStars from './RatingStars';
+import StarRating from '../StarRating';
 
 function ReviewCard({
     reviewerName,
@@ -28,7 +28,7 @@ function ReviewCard({
 
             <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-slate-900">{reviewerName}</h3>
-                <RatingStars value={rating} readOnly size="sm" className="mt-1" />
+                <StarRating value={rating} readOnly size="sm" className="mt-1" />
                 {comment && (
                     <p className="mt-2 text-sm leading-5 text-slate-700">{comment}</p>
                 )}

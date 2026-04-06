@@ -187,6 +187,7 @@ function ReviewSection({
 
     return (
         <section className={`w-full rounded-2xl bg-white text-slate-900 shadow-sm ${className}`.trim()}>
+            <h1 className="ml-4 pt-4 text-2xl font-bold">About the Employer</h1>
             <div className="grid gap-6 p-4 md:p-5 lg:grid-cols-[minmax(220px,1fr)_minmax(280px,1.2fr)_minmax(260px,1fr)] lg:items-start">
                 <ReviewSummary
                     title={employer?.name || 'Employer'}

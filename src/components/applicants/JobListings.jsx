@@ -38,7 +38,6 @@ function JobListings() {
                 }
                 setEmployerMap(map);
 
-                // Fetch avg ratings for each unique employer
                 const employerIds = [...new Set(openJobs.map((j) => j.employerId).filter(Boolean))];
                 const ratingResults = await Promise.all(
                     employerIds.map((id) =>
