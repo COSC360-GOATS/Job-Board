@@ -41,8 +41,9 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Log In</h2>
+      <div className="w-full max-w-sm">
+        <div className="bg-white p-8 rounded-lg shadow-md w-full">
+          <h1 className="mb-6 text-3xl font-bold text-slate-900 text-center">Log In</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             name="email"
@@ -75,6 +76,7 @@ export default function Login() {
           Don&apos;t have an account?{' '}
           <a href="/register" className="text-purple-600 hover:underline">Register</a>
         </p>
+        </div>
       </div>
     </div>
   );

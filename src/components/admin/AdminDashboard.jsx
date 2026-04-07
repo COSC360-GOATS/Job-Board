@@ -147,13 +147,9 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <h1 className="text-4xl font-bold text-gray-900">Admin Dashboard</h1>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-6 py-8">
+        <h1 className="mb-6 text-3xl font-bold text-slate-900">Admin Dashboard</h1>
+
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8">
           <div className="flex flex-wrap gap-2">
             {TABS.map((tab) => (

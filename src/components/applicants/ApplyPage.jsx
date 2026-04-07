@@ -116,7 +116,7 @@ function ApplyPage() {
                 <p className="mt-2 text-slate-500">Good luck with your application for <strong>{job.title}</strong>.</p>
                 <button
                     className="mt-6 rounded-lg bg-violet-600 px-6 py-2 text-sm font-medium text-white hover:bg-violet-700"
-                    onClick={() => navigate("/listings")}
+                    onClick={() => navigate("/jobs")}
                 >
                     Back to Job Listings
                 </button>
@@ -132,9 +132,9 @@ function ApplyPage() {
         <div className="mx-auto max-w-7xl px-4 py-8">
             <button
                 className="mb-6 text-sm text-violet-600 hover:underline"
-                onClick={() => navigate("/listings")}
+                onClick={() => navigate("/jobs")}
             >
-                ← Back to listings
+                ← Back to job listings
             </button>
 
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">

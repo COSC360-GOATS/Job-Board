@@ -1,9 +1,10 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ApplicationCard } from "./ApplicationCard";
 import { useEffect, useState } from "react";
 
 function ApplicantList() {
     const location = useLocation();
+    const navigate = useNavigate();
     const job = location.state?.job;
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -39,18 +40,33 @@ function ApplicantList() {
         };
     }, [job?._id, API_BASE]);
 
-    if (loading) return <p>Loading applications...</p>;
-    if (error) return <p className="text-red-400">{error}</p>;
-
     return (
-        <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] gap-6 px-6 py-3 cursor-default">
-            {
-            applications.length === 0 ? (
-                <p>No applications found for this job.</p>
-            ) : (
-            applications.map((application) => (
-                <ApplicationCard key={application._id} application={application} job={job} />
-            )))}
+        <div className="mx-auto w-full max-w-7xl px-6 py-6">
+            <button
+                className="mb-6 text-sm text-violet-600 hover:underline"
+                onClick={() => navigate('/jobs/employers')}
+            >
+                ← Back to dashboard
+            </button>
+
+            <h1 className="mb-6 text-3xl font-bold text-slate-900">
+                {job?.title ? `Applications for ${job.title}` : 'Applications'}
+            </h1>
+
+            {loading && <p className="text-slate-600">Loading applications...</p>}
+            {error && <p className="text-red-500">{error}</p>}
+
+            {!loading && !error && (
+                <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] gap-6 py-3 cursor-default">
+                    {applications.length === 0 ? (
+                        <p>No applications found for this job.</p>
+                    ) : (
+                        applications.map((application) => (
+                            <ApplicationCard key={application._id} application={application} job={job} />
+                        ))
+                    )}
+                </div>
+            )}
         </div>
     );
 }

@@ -132,7 +132,8 @@ function RegisterForm() {
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-white p-5">
-      <div className="bg-white rounded-2xl shadow-2xl p-12 w-full max-w-md text-center">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-2xl p-12 w-full text-center">
         <div className="flex justify-center mb-8">
           <svg className="w-16 h-16 text-purple-200 stroke-purple-300" viewBox="0 0 24 24" fill="none" strokeWidth="2">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -140,7 +141,7 @@ function RegisterForm() {
           </svg>
         </div>
 
-        <h1 className="text-3xl font-semibold mb-10 text-gray-800">Create an Account</h1>
+        <h1 className="mb-10 text-3xl font-bold text-slate-900">Create an Account</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {accountType === 'Applicant' ? (
@@ -262,6 +263,7 @@ function RegisterForm() {
             Sign in here
           </a>
         </p>
+        </div>
       </div>
     </div>
   )

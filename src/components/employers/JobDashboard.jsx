@@ -79,6 +79,8 @@ function JobDashboard() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-6 text-slate-900">
+      <h1 className="mb-6 text-3xl font-bold text-slate-900">Employer Dashboard</h1>
+
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <button
           onClick={() => navigate('/jobs/new')}
