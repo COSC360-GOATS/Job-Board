@@ -72,23 +72,28 @@ function RemoveSkillButton({ name, onClick }) {
 function Skills({ skills = defaults, id, onChange, className = '', ...props }) {
     const [skillList, setSkillList] = useState(skills);
 
+    useEffect(() => {
+        setSkillList(Array.isArray(skills) ? skills : []);
+    }, [skills]);
+
     const [isCreatingSkill, setIsCreatingSkill] = useState(false);
     const [newSkill, setNewSkill] = useState('');
 
-    const addToSkillList = (skill) => { setSkillList([skill, ...skillList]); };
+    const updateSkillList = (nextSkills) => {
+        setSkillList(nextSkills);
+        if (onChange) {
+            onChange({ target: { value: nextSkills } });
+        }
+    };
 
-    const removeFromSkillList = (indexToRemove) => { setSkillList(skillList.filter((_, i) => i !== indexToRemove)); };
+    const addToSkillList = (skill) => { updateSkillList([skill, ...skillList]); };
+
+    const removeFromSkillList = (indexToRemove) => { updateSkillList(skillList.filter((_, i) => i !== indexToRemove)); };
 
     const resetCreateSkill = () => {
         setNewSkill('');
         setIsCreatingSkill(false);
     };
-
-    useEffect(() => {
-        if (onChange) {
-            onChange({ target: { value: skillList } });
-        }
-    }, [skillList]);
 
     const createNewSkillInput = () => {
         const example = defaults[Math.floor(Math.random() * defaults.length)];
