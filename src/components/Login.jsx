@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ROLE_REDIRECTS = {
-  applicant: '/home',
-  employer: '/listings',
+  applicant: '/jobs',
+  employer: '/jobs/employers',
   admin: '/admin',
 };
 
@@ -31,7 +31,7 @@ export default function Login() {
       if (!res.ok) throw new Error(data.error);
 
       localStorage.setItem('user', JSON.stringify({ ...data.user, role: data.role }));
-      navigate(ROLE_REDIRECTS[data.role] ?? '/home');
+      navigate(ROLE_REDIRECTS[data.role] ?? '/');
     } catch (err) {
       setError(err.message);
     } finally {
