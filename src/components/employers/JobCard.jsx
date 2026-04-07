@@ -50,7 +50,7 @@ function JobCard({ job = defaultJob, onDelete }) {
             <div className="flex justify-between items-start gap-3 grow">
                 <h3 
                     className="wrap-break-word min-w-0 flex-1 cursor-pointer text-2xl font-semibold hover:text-violet-700 hover:underline"
-                    onClick={() => navigate(`/jobs/${job._id}/applications`, { state: { job } })}
+                    onClick={() => navigate(`/jobs/employers/${job._id}/applications`, { state: { job } })}
                     title={`View applications for ${job.title}`}
                     >
                         {job.title}
@@ -59,7 +59,7 @@ function JobCard({ job = defaultJob, onDelete }) {
                 <div className="flex justify-end gap-2 shrink-0">
                     <button
                         className={buttonStyle}
-                        onClick={() => navigate(`/jobs/${job._id}`, { state: { job } })}
+                        onClick={() => navigate(`/jobs/employers/${job._id}`, { state: { job } })}
                     >
                         Edit
                     </button>

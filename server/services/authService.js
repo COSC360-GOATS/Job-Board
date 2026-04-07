@@ -22,7 +22,7 @@ export default function authService(db) {
                 if (!match) throw new Error('Invalid email or password');
                 return {
                     user: {
-                        id: applicant._id,
+                        id: applicant._id?.toString?.() ?? applicant._id,
                         name: `${applicant.name?.first ?? applicant.firstName ?? ''} ${applicant.name?.last ?? applicant.lastName ?? ''}`.trim() || email,
                         email: applicant.email,
                     },
@@ -37,7 +37,7 @@ export default function authService(db) {
                 if (!match) throw new Error('Invalid email or password');
                 return {
                     user: {
-                        id: employer._id,
+                        id: employer._id?.toString?.() ?? employer._id,
                         name: employer.companyName || employer.name || email,
                         email: employer.email,
                     },

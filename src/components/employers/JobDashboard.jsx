@@ -1,6 +1,7 @@
 import JobCard from './JobCard';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentUser } from '../../utils/user';
 
 function JobDashboard() {
   const navigate = useNavigate();
@@ -51,8 +52,12 @@ function JobDashboard() {
       try {
         setLoading(true);
 
-        const user = localStorage.getItem('user');
+        const user = getCurrentUser();
         const employerId = user?.id;
+
+        if (!employerId) {
+          throw new Error('Missing employer id');
+        }
 
         const res = await fetch(`${API_BASE}/jobs/employer/${employerId}`);
         if (!res.ok) throw new Error('Failed to fetch jobs');
