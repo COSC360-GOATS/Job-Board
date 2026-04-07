@@ -118,7 +118,7 @@ function RegisterForm() {
       }
 
       localStorage.setItem('user', JSON.stringify(payload_response))
-      navigate(accountType === 'Applicant' ? '/applicant' : '/employer')
+      navigate(accountType === 'Applicant' ? '/jobs' : '/jobs/employers')
     } catch (error) {
       if (error instanceof TypeError) {
         setErrorMessage('Network error. Please check your connection and try again.')
