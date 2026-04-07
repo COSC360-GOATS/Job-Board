@@ -9,6 +9,7 @@ import AdminDashboard from './components/admin/AdminDashboard'
 import JobListings from './components/applicants/JobListings'
 import ApplyPage from './components/applicants/ApplyPage'
 import { useEffect } from 'react'
+import LandingPage from './components/LandingPage'
 
 function SignOut() {
   const navigate = useNavigate()
@@ -21,17 +22,21 @@ function SignOut() {
 
 function App() {
   const location = useLocation()
+  const isLandingPage = location.pathname === '/'
   const hideNavbar = location.pathname === '/register' || location.pathname === '/login'
 
   return (
-    <main className="min-h-screen bg-white px-4 py-8 text-slate-900">
-      {!hideNavbar && <NavBar />}
+    <main className={`relative min-h-screen text-slate-900 ${isLandingPage ? '' : 'bg-white px-4 py-8'}`}>
+      {!hideNavbar && isLandingPage && (
+        <div className="absolute inset-x-0 top-0 z-20 px-4 py-8">
+          <NavBar transparent />
+        </div>
+      )}
+
+      {!hideNavbar && !isLandingPage && <NavBar />}
+
       <Routes>
-        {/* TEMPORARY Routes, once pages are implemented replace these with the correct component */}
-        <Route path="/home" element={<h1>Home</h1>} />
-        <Route path="/profile" element={<h1>Profile</h1>} />
-
-
+        <Route path="/" element={<LandingPage />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<Login />} />

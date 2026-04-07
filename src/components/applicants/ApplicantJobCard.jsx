@@ -50,7 +50,7 @@ function ApplicantJobCard({ job, employerName, avgRating }) {
 
             <button
                 className="mt-auto w-full cursor-pointer rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-violet-700"
-                onClick={() => navigate(`/listings/${job._id}`, { state: { job, employerName } })}
+                onClick={() => navigate(`/jobs/${job._id}/apply`, { state: { job, employerName } })}
             >
                 Apply
             </button>
