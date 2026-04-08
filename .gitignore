@@ -12,6 +12,8 @@ lerna-debug.log*
 
 node_modules
 dist
+server/uploads/*
+!server/uploads/.gitkeep
 dist-ssr
 *.local
 

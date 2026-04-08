@@ -224,16 +224,30 @@ function ProfilePage() {
 
                         <div>
                             <label className={labelClass}>Profile Image (JPEG, PNG, GIF, WEBP — max 5MB)</label>
-                            <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={handleImageUpload} className="text-sm text-slate-600" />
-                            {profilePicture && (
-                                <img src={`${API_BASE}${profilePicture}`} alt="Preview" className="mt-2 h-16 w-16 rounded-full object-cover border border-slate-200" />
-                            )}
+                            <label className="mt-1 flex items-center gap-3 cursor-pointer">
+                                <span className="rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition">
+                                    Choose Image
+                                </span>
+                                <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={handleImageUpload} className="hidden" />
+                                {profilePicture
+                                    ? <img src={`${API_BASE}${profilePicture}`} alt="Preview" className="h-10 w-10 rounded-full object-cover border border-slate-200" />
+                                    : <span className="text-sm text-slate-400">No image chosen</span>
+                                }
+                            </label>
                         </div>
 
                         <div>
                             <label className={labelClass}>Resume (PDF — max 5MB)</label>
-                            <input type="file" accept="application/pdf" onChange={handleResumeUpload} className="text-sm text-slate-600" />
-                            {resume && <p className="mt-1 text-xs text-green-600">Resume uploaded ✓</p>}
+                            <label className="mt-1 flex items-center gap-3 cursor-pointer">
+                                <span className="rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition">
+                                    Choose PDF
+                                </span>
+                                <input type="file" accept="application/pdf" onChange={handleResumeUpload} className="hidden" />
+                                {resume
+                                    ? <span className="text-sm text-green-600 font-medium">Resume uploaded ✓</span>
+                                    : <span className="text-sm text-slate-400">No file chosen</span>
+                                }
+                            </label>
                         </div>
 
                         {uploadError && <p className="text-sm text-red-500">{uploadError}</p>}
