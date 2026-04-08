@@ -11,6 +11,13 @@ import ApplyPage from './components/applicants/ApplyPage'
 import { useEffect } from 'react'
 import LandingPage from './components/LandingPage'
 import ProfilePage from './components/applicants/ProfilePage'
+import EmployerProfile from './components/employers/EmployerProfile'
+
+function ProfileRouter() {
+  const user = JSON.parse(localStorage.getItem('user') || 'null')
+  if (user?.role === 'employer') return <EmployerProfile />
+  return <ProfilePage />
+}
 
 function SignOut() {
   const navigate = useNavigate()
@@ -42,7 +49,7 @@ function App() {
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signout" element={<SignOut />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile" element={<ProfileRouter />} />
         <Route path="/jobs" element={<JobListings />} />
         <Route path="/jobs/:jobId/apply" element={<ApplyPage />} />
         <Route path="/jobs/employers" element={<JobDashboard />} />
