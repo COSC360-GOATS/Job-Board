@@ -1,7 +1,7 @@
 import { Skill } from "../Skills";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
 
-export function ApplicationCard({ application, job }) {
+export function ApplicationCard({ application, job, isUnread = false }) {
     const applicant = application.applicant || {};
     const appliedDate = application.date || application['date:'] || application.appliedAt || application.createdAt;
 
@@ -27,7 +27,7 @@ export function ApplicationCard({ application, job }) {
     const appliedTimeAgo = formatTimeAgo(appliedDate);
 
     return (
-        <section className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm xl:grid-cols-2">
+        <section className={`grid grid-cols-1 gap-4 rounded-2xl border p-6 text-slate-900 shadow-sm xl:grid-cols-2 ${isUnread ? 'border-violet-300 bg-violet-50/30' : 'border-slate-200 bg-white'}`}>
             <div className="flex flex-col gap-2 min-w-0 overflow-hidden p-2">
                 <div className="flex justify-between items-start gap-3 flex-wrap">
                     <div className="flex items-center min-w-0">
@@ -47,7 +47,14 @@ export function ApplicationCard({ application, job }) {
                             </div>
                         )}
                         <div className="ml-4 flex flex-col gap-1 min-w-0">
-                            <h3 className="text-2xl sm:text-3xl font-semibold wrap-break-word">{displayName}</h3>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="text-2xl sm:text-3xl font-semibold wrap-break-word">{displayName}</h3>
+                                {isUnread && (
+                                    <span className="inline-flex items-center rounded-full bg-violet-600 px-2 py-0.5 text-xs font-semibold text-white">
+                                        New
+                                    </span>
+                                )}
+                            </div>
                             {appliedTimeAgo && (
                                 <p className="inline-flex items-center gap-2 text-sm text-slate-500 flex-wrap">
                                     <span>Applied {appliedTimeAgo}</span>

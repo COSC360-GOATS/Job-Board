@@ -16,6 +16,7 @@ export default function jobRoutes(db) {
     router.patch("/:id", validateRequest(updateJobSchema), controller.update);
     router.delete("/:id", controller.remove);
     router.get("/:id/applications", controller.getApplicationsForJob);
+    router.post("/:id/applications/read", controller.markApplicationsAsRead);
 
     return router;
 }

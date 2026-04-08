@@ -1,6 +1,16 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApplicationCard } from "./ApplicationCard";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+function toTimestamp(value) {
+    if (!value) return 0;
+    const timestamp = new Date(value).getTime();
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function getAppliedTimestamp(application) {
+    return toTimestamp(application?.submittedAt || application?.date || application?.['date:'] || application?.appliedAt || application?.createdAt);
+}
 
 function ApplicantList() {
     const location = useLocation();
@@ -10,6 +20,8 @@ function ApplicantList() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const lastViewedAt = job?.applicationInboxLastViewedAt || null;
+    const lastViewedTimestamp = toTimestamp(lastViewedAt);
 
     useEffect(() => {
         let isMounted = true;
@@ -17,6 +29,10 @@ function ApplicantList() {
         async function fetchApplications() {
             try {
                 setLoading(true);
+                await fetch(`${API_BASE}/jobs/${job._id}/applications/read`, {
+                    method: 'POST',
+                });
+
                 const res = await fetch(`${API_BASE}/jobs/${job._id}/applications`);
                 if (!res.ok) throw new Error('Failed to fetch applications');
                 const data = await res.json();
@@ -40,6 +56,31 @@ function ApplicantList() {
         };
     }, [job?._id, API_BASE]);
 
+    const decoratedApplications = useMemo(() => {
+        const list = Array.isArray(applications) ? applications : [];
+
+        return [...list]
+            .map((application) => {
+                const appliedTimestamp = getAppliedTimestamp(application);
+                const isUnread = lastViewedTimestamp === 0
+                    ? appliedTimestamp > 0
+                    : appliedTimestamp > lastViewedTimestamp;
+
+                return {
+                    ...application,
+                    __appliedTimestamp: appliedTimestamp,
+                    __isUnread: isUnread,
+                };
+            })
+            .sort((a, b) => {
+                if (a.__isUnread !== b.__isUnread) {
+                    return a.__isUnread ? -1 : 1;
+                }
+
+                return b.__appliedTimestamp - a.__appliedTimestamp;
+            });
+    }, [applications, lastViewedTimestamp]);
+
     return (
         <div className="mx-auto w-full max-w-7xl px-6 py-6">
             <button
@@ -61,8 +102,13 @@ function ApplicantList() {
                     {applications.length === 0 ? (
                         <p>No applications found for this job.</p>
                     ) : (
-                        applications.map((application) => (
-                            <ApplicationCard key={application._id} application={application} job={job} />
+                        decoratedApplications.map((application) => (
+                            <ApplicationCard
+                                key={application._id}
+                                application={application}
+                                job={job}
+                                isUnread={application.__isUnread}
+                            />
                         ))
                     )}
                 </div>
