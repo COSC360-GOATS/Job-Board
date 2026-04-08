@@ -10,6 +10,7 @@ import JobListings from './components/applicants/JobListings'
 import ApplyPage from './components/applicants/ApplyPage'
 import { useEffect } from 'react'
 import LandingPage from './components/LandingPage'
+import ProfilePage from './components/applicants/ProfilePage'
 
 function SignOut() {
   const navigate = useNavigate()
@@ -41,6 +42,7 @@ function App() {
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signout" element={<SignOut />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/jobs" element={<JobListings />} />
         <Route path="/jobs/:jobId/apply" element={<ApplyPage />} />
         <Route path="/jobs/employers" element={<JobDashboard />} />
