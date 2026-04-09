@@ -10,6 +10,15 @@ import JobListings from './components/applicants/JobListings'
 import ApplyPage from './components/applicants/ApplyPage'
 import { useEffect } from 'react'
 import LandingPage from './components/LandingPage'
+import ProfilePage from './components/applicants/ProfilePage'
+import EmployerProfile from './components/employers/EmployerProfile'
+import { getCurrentUser, getUserRole } from './utils/user'
+
+function ProfileRouter() {
+  const user = getCurrentUser()
+  if (getUserRole(user) === 'employer') return <EmployerProfile />
+  return <ProfilePage />
+}
 
 function SignOut() {
   const navigate = useNavigate()
@@ -41,6 +50,7 @@ function App() {
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signout" element={<SignOut />} />
+        <Route path="/profile" element={<ProfileRouter />} />
         <Route path="/jobs" element={<JobListings />} />
         <Route path="/jobs/:jobId/apply" element={<ApplyPage />} />
         <Route path="/jobs/employers" element={<JobDashboard />} />

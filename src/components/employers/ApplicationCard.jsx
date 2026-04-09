@@ -81,6 +81,7 @@ export function ApplicationCard({ application, job, isUnread = false }) {
                         <span>Resume.pdf</span>
                     </button>
                 </div>
+                <h4 className="mt-3 text-sm font-semibold text-slate-700">Matching Skills</h4>
                 <ul className="flex justify-start items-start flex-wrap mt-2">
                     {orderedSkills.map((skill, i) => (
                         <Skill

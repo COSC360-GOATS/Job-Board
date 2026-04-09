@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import { MongoClient } from 'mongodb';
 import process from 'process';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import 'dotenv/config';
 
 import applicantRoutes from './routes/applicantRoutes.js';
@@ -10,11 +12,16 @@ import ratingRoutes from './routes/ratingRoutes.js';
 import jobRoutes from './routes/jobRoutes.js';
 import employerRoutes from './routes/employerRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/upload', uploadRoutes());
 
 await db();
 

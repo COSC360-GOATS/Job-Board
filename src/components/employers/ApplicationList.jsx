@@ -19,9 +19,40 @@ function ApplicantList() {
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [searchName, setSearchName] = useState('');
+    const [sortOrder, setSortOrder] = useState('newest');
     const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
     const lastViewedAt = job?.applicationInboxLastViewedAt || null;
     const lastViewedTimestamp = toTimestamp(lastViewedAt);
+
+    const filteredApplications = useMemo(() => {
+        const q = searchName.trim().toLowerCase();
+
+        const getApplicantName = (application) => {
+            const applicant = application?.applicant || {};
+            if (typeof applicant.name === 'string') return applicant.name;
+
+            const first = applicant?.name?.first ?? applicant?.firstName ?? '';
+            const last = applicant?.name?.last ?? applicant?.lastName ?? '';
+            return `${first} ${last}`.trim();
+        };
+
+        const getAppliedTime = (application) => {
+            const value = application?.date || application?.['date:'] || application?.appliedAt || application?.createdAt;
+            const timestamp = new Date(value).getTime();
+            return Number.isNaN(timestamp) ? 0 : timestamp;
+        };
+
+        return [...applications]
+            .filter((application) => {
+                if (!q) return true;
+                return getApplicantName(application).toLowerCase().includes(q);
+            })
+            .sort((a, b) => {
+                const diff = getAppliedTime(b) - getAppliedTime(a);
+                return sortOrder === 'newest' ? diff : -diff;
+            });
+    }, [applications, searchName, sortOrder]);
 
     useEffect(() => {
         let isMounted = true;
@@ -94,21 +125,44 @@ function ApplicantList() {
                 {job?.title ? `Applications for ${job.title}` : 'Applications'}
             </h1>
 
+            {!loading && !error && (
+                <div className="mb-4 flex flex-wrap items-center gap-3">
+                    <input
+                        type="text"
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        placeholder="Search by applicant name…"
+                        className="min-w-64 flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900 outline-none focus:border-violet-500"
+                    />
+                    <select
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900 outline-none focus:border-violet-500"
+                    >
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+            )}
+
+            {!loading && !error && applications.length > 0 && (
+                <p className="mb-4 text-sm text-slate-500">
+                    Showing {filteredApplications.length} of {applications.length} {applications.length === 1 ? 'application' : 'applications'}
+                </p>
+            )}
+
             {loading && <p className="text-slate-600">Loading applications...</p>}
             {error && <p className="text-red-500">{error}</p>}
 
             {!loading && !error && (
-                <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] gap-6 py-3 cursor-default">
-                    {applications.length === 0 ? (
-                        <p>No applications found for this job.</p>
+                <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 py-3 cursor-default">
+                    {filteredApplications.length === 0 ? (
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-slate-600">
+                            {applications.length === 0 ? 'No applications found for this job.' : 'No applications match your search.'}
+                        </div>
                     ) : (
-                        decoratedApplications.map((application) => (
-                            <ApplicationCard
-                                key={application._id}
-                                application={application}
-                                job={job}
-                                isUnread={application.__isUnread}
-                            />
+                        filteredApplications.map((application) => (
+                            <ApplicationCard key={application._id} application={application} job={job} />
                         ))
                     )}
                 </div>
