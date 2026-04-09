@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Skills, { Skill } from "../Skills";
-import { getCurrentUser } from "../../utils/user";
+import { getCurrentUser, getUserRole } from "../../utils/user";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -27,7 +27,7 @@ function ProfilePage() {
 
     useEffect(() => {
         if (!user) { navigate("/login", { replace: true }); return; }
-        if (user.role !== "applicant") { navigate("/", { replace: true }); return; }
+        if (getUserRole(user) !== "applicant") { navigate("/", { replace: true }); return; }
 
         fetch(`${API_BASE}/applicants/${user.id}`)
             .then((r) => { if (!r.ok) throw new Error("Failed to load profile"); return r.json(); })
