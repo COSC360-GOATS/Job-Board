@@ -8,6 +8,27 @@ function resolveImageUrl(url) {
     return /^https?:\/\//i.test(url) ? url : `${API_BASE}${url}`;
 }
 
+function formatPhoneNumber(value) {
+    const digits = `${value ?? ''}`.replace(/\D/g, '');
+    if (digits.length === 10) {
+        return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+    if (digits.length === 11 && digits.startsWith('1')) {
+        return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+    }
+    return `${value ?? ''}`.trim();
+}
+
+function toTelHref(value) {
+    const trimmed = `${value ?? ''}`.trim();
+    if (!trimmed) return '';
+    const digits = trimmed.replace(/\D/g, '');
+    if (trimmed.startsWith('+')) {
+        return `tel:${trimmed.replace(/\s+/g, '')}`;
+    }
+    return `tel:${digits}`;
+}
+
 export function ApplicationCard({ application, job }) {
     const applicant = application.applicant || {};
     const appliedDate = application.date || application['date:'] || application.appliedAt || application.createdAt;
@@ -34,6 +55,8 @@ export function ApplicationCard({ application, job }) {
     const appliedTimeAgo = formatTimeAgo(appliedDate);
     const avatarSrc = resolveImageUrl(applicant.profilePicture || applicant.profile || applicant.logo);
     const resumeSrc = resolveImageUrl(applicant.resume);
+    const isUnread = Boolean(application.isUnread ?? application.unread ?? application.read === false);
+    const displayPhone = formatPhoneNumber(applicant.phone);
 
     const handleResumeDownload = async () => {
         if (!resumeSrc) return;
@@ -95,8 +118,8 @@ export function ApplicationCard({ application, job }) {
                                 {applicant.phone && (
                                     <>
                                         <span className="text-slate-300">•</span>
-                                        <a href={`tel:${applicant.phone}`} className="text-violet-700 hover:underline">
-                                            {applicant.phone}
+                                        <a href={toTelHref(applicant.phone)} className="text-violet-700 hover:underline">
+                                            {displayPhone}
                                         </a>
                                     </>
                                 )}

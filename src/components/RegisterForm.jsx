@@ -5,6 +5,17 @@ import Skills from './Skills'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
+function formatPhoneNumber(value) {
+  const digits = `${value ?? ''}`.replace(/\D/g, '')
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+  }
+  if (digits.length === 11 && digits.startsWith('1')) {
+    return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`
+  }
+  return `${value ?? ''}`.trim()
+}
+
 function RegisterForm() {
   const navigate = useNavigate()
   const [accountType, setAccountType] = useState('Applicant')
@@ -29,6 +40,13 @@ function RegisterForm() {
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handlePhoneBlur = () => {
+    setFormData((prev) => ({
+      ...prev,
+      phone: formatPhoneNumber(prev.phone),
+    }))
   }
 
   const handleSkillsChange = (e) => {
@@ -367,6 +385,8 @@ function RegisterForm() {
             placeholder="Phone Number"
             value={formData.phone}
             onChange={handleInputChange}
+            onBlur={handlePhoneBlur}
+            inputMode="tel"
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
           />
