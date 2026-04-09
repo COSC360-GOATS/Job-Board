@@ -92,7 +92,14 @@ function ProfilePage() {
 
             // Update localStorage name
             const stored = getCurrentUser() || {};
-            localStorage.setItem("user", JSON.stringify({ ...stored, name: `${firstName} ${lastName}`.trim() }));
+            localStorage.setItem("user", JSON.stringify({
+                ...stored,
+                name: `${firstName} ${lastName}`.trim(),
+                phone,
+                location,
+                skills,
+                profilePicture,
+            }));
 
             setEditing(false);
         } catch (err) {
