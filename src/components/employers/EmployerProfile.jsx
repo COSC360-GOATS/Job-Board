@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../../utils/user";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -17,7 +18,7 @@ function EmployerProfile() {
     const [industry, setIndustry] = useState("");
     const [logo, setLogo] = useState("");
 
-    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const user = getCurrentUser();
 
     useEffect(() => {
         if (!user) { navigate("/login", { replace: true }); return; }
