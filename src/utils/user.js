@@ -14,8 +14,8 @@ export function getCurrentUser() {
 export function getUserRole(user) {
     if (!user) return null;
     if (user.role) return user.role;
-    if (user.industry || user.companyName) return 'employer';
-    if (user.firstName || user.lastName || typeof user.name === 'object') return 'applicant';
+    if (user.industry || user.companyName || user.logo) return 'employer';
+    if (user.firstName || user.lastName || user.skills || user.profilePicture || typeof user.name === 'object') return 'applicant';
     return null;
 }
 

@@ -87,30 +87,6 @@ function ApplicantList() {
         };
     }, [job?._id, API_BASE]);
 
-    const decoratedApplications = useMemo(() => {
-        const list = Array.isArray(applications) ? applications : [];
-
-        return [...list]
-            .map((application) => {
-                const appliedTimestamp = getAppliedTimestamp(application);
-                const isUnread = lastViewedTimestamp === 0
-                    ? appliedTimestamp > 0
-                    : appliedTimestamp > lastViewedTimestamp;
-
-                return {
-                    ...application,
-                    __appliedTimestamp: appliedTimestamp,
-                    __isUnread: isUnread,
-                };
-            })
-            .sort((a, b) => {
-                if (a.__isUnread !== b.__isUnread) {
-                    return a.__isUnread ? -1 : 1;
-                }
-
-                return b.__appliedTimestamp - a.__appliedTimestamp;
-            });
-    }, [applications, lastViewedTimestamp]);
 
     return (
         <div className="mx-auto w-full max-w-7xl px-6 py-6">
