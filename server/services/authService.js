@@ -25,6 +25,10 @@ export default function authService(db) {
                         id: applicant._id?.toString?.() ?? applicant._id,
                         name: `${applicant.name?.first ?? applicant.firstName ?? ''} ${applicant.name?.last ?? applicant.lastName ?? ''}`.trim() || email,
                         email: applicant.email,
+                        phone: applicant.phone,
+                        skills: applicant.skills ?? [],
+                        profilePicture: applicant.profilePicture ?? applicant.profile ?? '',
+                        location: applicant.location,
                     },
                     role: 'applicant',
                 };
@@ -40,6 +44,10 @@ export default function authService(db) {
                         id: employer._id?.toString?.() ?? employer._id,
                         name: employer.companyName || employer.name || email,
                         email: employer.email,
+                        phone: employer.phone,
+                        location: employer.location,
+                        industry: employer.industry,
+                        logo: employer.logo ?? employer.profilePicture ?? '',
                     },
                     role: 'employer',
                 };

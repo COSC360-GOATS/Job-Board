@@ -1,6 +1,13 @@
 import { Skill } from "../Skills";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+function resolveImageUrl(url) {
+    if (!url) return "";
+    return /^https?:\/\//i.test(url) ? url : `${API_BASE}${url}`;
+}
+
 export function ApplicationCard({ application, job }) {
     const applicant = application.applicant || {};
     const appliedDate = application.date || application['date:'] || application.appliedAt || application.createdAt;
@@ -25,15 +32,36 @@ export function ApplicationCard({ application, job }) {
     const orderedSkills = [...matchedSkills, ...otherSkills];
 
     const appliedTimeAgo = formatTimeAgo(appliedDate);
+    const avatarSrc = resolveImageUrl(applicant.profilePicture || applicant.profile || applicant.logo);
+    const resumeSrc = resolveImageUrl(applicant.resume);
+
+    const handleResumeDownload = async () => {
+        if (!resumeSrc) return;
+
+        const response = await fetch(resumeSrc);
+        if (!response.ok) {
+            throw new Error('Resume download failed');
+        }
+
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = objectUrl;
+        link.download = `${displayName.replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'applicant'}-resume.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(objectUrl);
+    };
 
     return (
         <section className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm xl:grid-cols-2">
             <div className="flex flex-col gap-2 min-w-0 overflow-hidden p-2">
                 <div className="flex justify-between items-start gap-3 flex-wrap">
                     <div className="flex items-center min-w-0">
-                        {applicant.profile ? (
+                        {avatarSrc ? (
                             <img
-                                src={applicant.profile}
+                                src={avatarSrc}
                                 alt={displayName}
                                 className="h-24 w-24 shrink-0 rounded-full border border-violet-200 bg-violet-50 object-cover sm:h-36 sm:w-36"
                             />
@@ -53,20 +81,28 @@ export function ApplicationCard({ application, job }) {
                                     <span>Applied {appliedTimeAgo}</span>
                                 </p>
                             )}
-                            <a href={`mailto:${applicant.email}`} className="text-violet-700 hover:underline">
-                                {applicant.email}
-                            </a>
-                            <a href={`tel:${applicant.phone}`} className="text-violet-700 hover:underline">
-                                {applicant.phone}
-                            </a>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                                <a href={`mailto:${applicant.email}`} className="text-violet-700 hover:underline">
+                                    {applicant.email}
+                                </a>
+                                {applicant.phone && (
+                                    <>
+                                        <span className="text-slate-300">•</span>
+                                        <a href={`tel:${applicant.phone}`} className="text-violet-700 hover:underline">
+                                            {applicant.phone}
+                                        </a>
+                                    </>
+                                )}
+                            </div>
                             <p className="text-slate-600">{applicant.location}</p>
                         </div>
                     </div>
                     <button
                         type="button"
-                        disabled={!applicant.resume}
+                        onClick={handleResumeDownload}
+                        disabled={!resumeSrc}
                         className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
-                        title={applicant.resume ? 'Download resume PDF' : 'No resume uploaded'}
+                        title={resumeSrc ? 'Download resume PDF' : 'No resume uploaded'}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                             <path d="M14.25 2.25a.75.75 0 0 1 .53.22l4.75 4.75a.75.75 0 0 1 .22.53v11.5A2.75 2.75 0 0 1 17 22H7a2.75 2.75 0 0 1-2.75-2.75V4.75A2.75 2.75 0 0 1 7 2h7.25Zm-.75 1.81V8h3.94L13.5 4.06ZM8.5 13a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7Zm0 3.5a.75.75 0 0 0 0 1.5h4a.75.75 0 0 0 0-1.5h-4Z" />
