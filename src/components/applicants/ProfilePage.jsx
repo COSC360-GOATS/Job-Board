@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Skills, { Skill } from "../Skills";
+import { getCurrentUser, getUserRole } from "../../utils/user";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -22,11 +23,11 @@ function ProfilePage() {
     const [profilePicture, setProfilePicture] = useState("");
     const [resume, setResume] = useState("");
 
-    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const user = getCurrentUser();
 
     useEffect(() => {
         if (!user) { navigate("/login", { replace: true }); return; }
-        if (user.role !== "applicant") { navigate("/", { replace: true }); return; }
+        if (getUserRole(user) !== "applicant") { navigate("/", { replace: true }); return; }
 
         fetch(`${API_BASE}/applicants/${user.id}`)
             .then((r) => { if (!r.ok) throw new Error("Failed to load profile"); return r.json(); })
@@ -90,7 +91,7 @@ function ProfilePage() {
             setProfile(updated);
 
             // Update localStorage name
-            const stored = JSON.parse(localStorage.getItem("user") || "{}");
+            const stored = getCurrentUser() || {};
             localStorage.setItem("user", JSON.stringify({ ...stored, name: `${firstName} ${lastName}`.trim() }));
 
             setEditing(false);
