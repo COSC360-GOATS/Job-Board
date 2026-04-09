@@ -1,10 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import ApplicantJobCard from "./ApplicantJobCard";
+import { getCurrentUser, getUserRole } from "../../utils/user";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function JobListings() {
     const [jobs, setJobs] = useState([]);
+    const [recommendedJobs, setRecommendedJobs] = useState([]);
+    const [recommendationsLoaded, setRecommendationsLoaded] = useState(false);
     const [employerMap, setEmployerMap] = useState({});
     const [avgRatingMap, setAvgRatingMap] = useState({});
     const [loading, setLoading] = useState(true);
@@ -13,14 +16,22 @@ function JobListings() {
     const [search, setSearch] = useState("");
     const [location, setLocation] = useState("");
     const [sortOrder, setSortOrder] = useState("newest");
+    const currentUser = getCurrentUser();
+    const isApplicant = getUserRole(currentUser) === "applicant";
 
     useEffect(() => {
         async function load() {
             try {
-                const [jobsRes, employersRes] = await Promise.all([
+                const requests = [
                     fetch(`${API_BASE}/jobs`),
                     fetch(`${API_BASE}/employers`),
-                ]);
+                ];
+
+                if (isApplicant && currentUser?.id) {
+                    requests.push(fetch(`${API_BASE}/jobs/recommendations/${currentUser.id}`));
+                }
+
+                const [jobsRes, employersRes, recommendationsRes] = await Promise.all(requests);
 
                 if (!jobsRes.ok || !employersRes.ok) throw new Error("Failed to load data");
 
@@ -52,6 +63,14 @@ function JobListings() {
                     if (result?.avg != null) ratingMap[id] = result.avg;
                 });
                 setAvgRatingMap(ratingMap);
+
+                if (recommendationsRes?.ok) {
+                    const recommendationsData = await recommendationsRes.json();
+                    setRecommendedJobs(recommendationsData || []);
+                } else {
+                    setRecommendedJobs([]);
+                }
+                setRecommendationsLoaded(true);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -59,7 +78,7 @@ function JobListings() {
             }
         }
         load();
-    }, []);
+    }, [currentUser?.id, isApplicant]);
 
     const filteredJobs = useMemo(() => {
         const q = search.toLowerCase();
@@ -82,6 +101,32 @@ function JobListings() {
                 return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
             });
     }, [jobs, search, location, sortOrder]);
+
+    const filteredRecommendedJobs = useMemo(() => {
+        const q = search.toLowerCase();
+        const loc = location.toLowerCase();
+
+        return recommendedJobs.filter((job) => {
+            const matchesSearch =
+                !q ||
+                job.title?.toLowerCase().includes(q) ||
+                job.description?.toLowerCase().includes(q) ||
+                (job.skills ?? []).some((s) => s.toLowerCase().includes(q));
+            const matchesLocation =
+                !loc || job.location?.toLowerCase().includes(loc);
+            return matchesSearch && matchesLocation;
+        });
+    }, [recommendedJobs, search, location]);
+
+    const recommendedJobIds = useMemo(
+        () => new Set(filteredRecommendedJobs.map((job) => String(job._id))),
+        [filteredRecommendedJobs]
+    );
+
+    const otherJobs = useMemo(
+        () => filteredJobs.filter((job) => !recommendedJobIds.has(String(job._id))),
+        [filteredJobs, recommendedJobIds]
+    );
 
     if (loading) {
         return <p className="mt-12 text-center text-slate-500">Loading jobs…</p>;
@@ -121,20 +166,54 @@ function JobListings() {
                 </select>
             </div>
 
-            {filteredJobs.length === 0 ? (
-                <p className="mt-12 text-center text-slate-400">No jobs match your search.</p>
-            ) : (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {filteredJobs.map((job) => (
-                        <ApplicantJobCard
-                            key={job._id}
-                            job={job}
-                            employerName={employerMap[job.employerId]}
-                            avgRating={avgRatingMap[job.employerId]}
-                        />
-                    ))}
-                </div>
+            {isApplicant && recommendationsLoaded && (
+                <section className="mb-8">
+                    <div className="mb-4 border-b border-slate-200 pb-2">
+                        <h2 className="text-lg font-semibold text-slate-900">Recommended Jobs</h2>
+                        <p className="text-xs text-slate-500">Based on your skills and profile preferences</p>
+                    </div>
+                    {filteredRecommendedJobs.length > 0 ? (
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {filteredRecommendedJobs.map((job) => (
+                                <ApplicantJobCard
+                                    key={`recommended-${job._id}`}
+                                    job={job}
+                                    employerName={employerMap[job.employerId]}
+                                    avgRating={avgRatingMap[job.employerId]}
+                                    matchScore={job.matchScore}
+                                    matchReasons={job.matchReasons}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                            Add skills and preferences in your profile to get personalized recommendations.
+                        </p>
+                    )}
+                </section>
             )}
+
+            <section>
+                <div className="mb-4 border-b border-slate-200 pb-2">
+                    <h2 className="text-lg font-semibold text-slate-900">
+                        {isApplicant ? "Other Jobs" : "All Jobs"}
+                    </h2>
+                </div>
+                {otherJobs.length === 0 ? (
+                    <p className="mt-6 text-center text-slate-400">No jobs match your search.</p>
+                ) : (
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {otherJobs.map((job) => (
+                            <ApplicantJobCard
+                                key={job._id}
+                                job={job}
+                                employerName={employerMap[job.employerId]}
+                                avgRating={avgRatingMap[job.employerId]}
+                            />
+                        ))}
+                    </div>
+                )}
+            </section>
         </div>
     );
 }
