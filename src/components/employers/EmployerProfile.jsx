@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, getUserRole } from "../../utils/user";
+import { formatPhoneNumber } from "../../utils/phone";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -30,7 +31,7 @@ function EmployerProfile() {
             .then((data) => {
                 setProfile(data);
                 setCompanyName(data.companyName || data.name || "");
-                setPhone(data.phone ?? "");
+                setPhone(formatPhoneNumber(data.phone));
                 setLocation(data.location ?? "");
                 setIndustry(data.industry ?? "");
                 setLogo(data.logo ?? "");
@@ -86,7 +87,7 @@ function EmployerProfile() {
 
     function handleEdit() {
         setCompanyName(profile.companyName || profile.name || "");
-        setPhone(profile.phone ?? "");
+        setPhone(formatPhoneNumber(profile.phone));
         setLocation(profile.location ?? "");
         setIndustry(profile.industry ?? "");
         setLogo(profile.logo ?? "");
@@ -169,7 +170,14 @@ function EmployerProfile() {
 
                         <div>
                             <label className={labelClass}>Phone</label>
-                            <input className={inputClass} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. 250-555-1234" />
+                            <input
+                                className={inputClass}
+                                type="tel"
+                                inputMode="tel"
+                                value={phone}
+                                onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+                                placeholder="e.g. (250) 555-1234"
+                            />
                         </div>
 
                         <div>

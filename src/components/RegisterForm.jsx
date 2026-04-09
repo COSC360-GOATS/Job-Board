@@ -2,19 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import bcrypt from 'bcryptjs'
 import Skills from './Skills'
+import { formatPhoneNumber } from '../utils/phone'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-
-function formatPhoneNumber(value) {
-  const digits = `${value ?? ''}`.replace(/\D/g, '')
-  if (digits.length === 10) {
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
-  }
-  if (digits.length === 11 && digits.startsWith('1')) {
-    return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`
-  }
-  return `${value ?? ''}`.trim()
-}
 
 function RegisterForm() {
   const navigate = useNavigate()
@@ -39,6 +29,12 @@ function RegisterForm() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
+
+    if (name === 'phone') {
+      setFormData((prev) => ({ ...prev, phone: formatPhoneNumber(value) }))
+      return
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 

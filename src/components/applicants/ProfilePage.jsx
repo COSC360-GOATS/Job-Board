@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Skills, { Skill } from "../Skills";
 import { getCurrentUser, getUserRole } from "../../utils/user";
+import { formatPhoneNumber } from "../../utils/phone";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -35,7 +36,7 @@ function ProfilePage() {
                 setProfile(data);
                 setFirstName(data.name?.first ?? "");
                 setLastName(data.name?.last ?? "");
-                setPhone(data.phone ?? "");
+                setPhone(formatPhoneNumber(data.phone));
                 setLocation(data.location ?? "");
                 setSkills(data.skills ?? []);
                 setProfilePicture(data.profilePicture ?? "");
@@ -113,7 +114,7 @@ function ProfilePage() {
         // Reset form to current profile values
         setFirstName(profile.name?.first ?? "");
         setLastName(profile.name?.last ?? "");
-        setPhone(profile.phone ?? "");
+        setPhone(formatPhoneNumber(profile.phone));
         setLocation(profile.location ?? "");
         setSkills(profile.skills ?? []);
         setProfilePicture(profile.profilePicture ?? "");
@@ -213,7 +214,14 @@ function ProfilePage() {
 
                         <div>
                             <label className={labelClass}>Phone</label>
-                            <input className={inputClass} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. 250-555-1234" />
+                            <input
+                                className={inputClass}
+                                type="tel"
+                                inputMode="tel"
+                                value={phone}
+                                onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+                                placeholder="e.g. (250) 555-1234"
+                            />
                         </div>
 
                         <div>

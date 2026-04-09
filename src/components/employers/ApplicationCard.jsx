@@ -1,22 +1,12 @@
 import { Skill } from "../Skills";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
+import { formatPhoneNumber } from "../../utils/phone";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function resolveImageUrl(url) {
     if (!url) return "";
     return /^https?:\/\//i.test(url) ? url : `${API_BASE}${url}`;
-}
-
-function formatPhoneNumber(value) {
-    const digits = `${value ?? ''}`.replace(/\D/g, '');
-    if (digits.length === 10) {
-        return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-    }
-    if (digits.length === 11 && digits.startsWith('1')) {
-        return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
-    }
-    return `${value ?? ''}`.trim();
 }
 
 function toTelHref(value) {
