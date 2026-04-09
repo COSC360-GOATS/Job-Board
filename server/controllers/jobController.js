@@ -10,8 +10,17 @@ export default function jobController(service) {
             try {
                 const jobs = await service.getByEmployerId(req.params.employerId);
                 return res.status(200).json(jobs);
-            } catch (error) {
+            } catch {
                 return res.status(400).json({ error: "Invalid employer id format" });
+            }
+        },
+
+        async getRecommendationsForApplicant(req, res) {
+            try {
+                const jobs = await service.getRecommendationsForApplicant(req.params.applicantId);
+                return res.status(200).json(jobs);
+            } catch {
+                return res.status(400).json({ error: "Invalid applicant id format" });
             }
         },
 
@@ -19,7 +28,7 @@ export default function jobController(service) {
             try {
                 const applications = await service.getApplicationsForJob(req.params.id);
                 return res.status(200).json(applications);
-            } catch (error) {
+            } catch {
                 return res.status(400).json({ error: "Invalid job id format" });
             }
         },
@@ -33,7 +42,7 @@ export default function jobController(service) {
                     jobId: req.params.id,
                     applicationInboxLastViewedAt: updatedJob.applicationInboxLastViewedAt,
                 });
-            } catch (error) {
+            } catch {
                 return res.status(400).json({ error: "Invalid job id format" });
             }
         }
