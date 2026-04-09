@@ -2,6 +2,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ApplicationCard } from "./ApplicationCard";
 import { useEffect, useMemo, useState } from "react";
 
+function toTimestamp(value) {
+    if (!value) return 0;
+    const timestamp = new Date(value).getTime();
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function getAppliedTimestamp(application) {
+    return toTimestamp(application?.submittedAt || application?.date || application?.['date:'] || application?.appliedAt || application?.createdAt);
+}
+
 function ApplicantList() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -12,6 +22,8 @@ function ApplicantList() {
     const [searchName, setSearchName] = useState('');
     const [sortOrder, setSortOrder] = useState('newest');
     const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const lastViewedAt = job?.applicationInboxLastViewedAt || null;
+    const lastViewedTimestamp = toTimestamp(lastViewedAt);
 
     const filteredApplications = useMemo(() => {
         const q = searchName.trim().toLowerCase();
@@ -48,6 +60,10 @@ function ApplicantList() {
         async function fetchApplications() {
             try {
                 setLoading(true);
+                await fetch(`${API_BASE}/jobs/${job._id}/applications/read`, {
+                    method: 'POST',
+                });
+
                 const res = await fetch(`${API_BASE}/jobs/${job._id}/applications`);
                 if (!res.ok) throw new Error('Failed to fetch applications');
                 const data = await res.json();
@@ -70,6 +86,31 @@ function ApplicantList() {
             isMounted = false;
         };
     }, [job?._id, API_BASE]);
+
+    const decoratedApplications = useMemo(() => {
+        const list = Array.isArray(applications) ? applications : [];
+
+        return [...list]
+            .map((application) => {
+                const appliedTimestamp = getAppliedTimestamp(application);
+                const isUnread = lastViewedTimestamp === 0
+                    ? appliedTimestamp > 0
+                    : appliedTimestamp > lastViewedTimestamp;
+
+                return {
+                    ...application,
+                    __appliedTimestamp: appliedTimestamp,
+                    __isUnread: isUnread,
+                };
+            })
+            .sort((a, b) => {
+                if (a.__isUnread !== b.__isUnread) {
+                    return a.__isUnread ? -1 : 1;
+                }
+
+                return b.__appliedTimestamp - a.__appliedTimestamp;
+            });
+    }, [applications, lastViewedTimestamp]);
 
     return (
         <div className="mx-auto w-full max-w-7xl px-6 py-6">

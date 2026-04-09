@@ -24,6 +24,7 @@ function JobCard({ job = defaultJob, onDelete }) {
     const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
     const postedDate = job.postedAt || job.date || job.createdAt;
     const postedTimeAgo = formatTimeAgo(postedDate);
+    const unreadApplications = Number(job?.unreadApplications || 0);
 
 
     const buttonStyle = "cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100";
@@ -76,6 +77,11 @@ function JobCard({ job = defaultJob, onDelete }) {
                 <h6 className="text-base font-medium text-slate-800">${job.payRange.low} - ${job.payRange.high}, <span className="text-slate-500">{job.location}</span></h6>
                 {postedTimeAgo && (
                     <p className="text-sm text-slate-500">Posted {postedTimeAgo}</p>
+                )}
+                {unreadApplications > 0 && (
+                    <p className="mt-2 inline-flex w-fit items-center rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-700">
+                        {unreadApplications} unread application{unreadApplications === 1 ? '' : 's'}
+                    </p>
                 )}
             </div>
 

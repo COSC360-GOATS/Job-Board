@@ -22,6 +22,20 @@ export default function jobController(service) {
             } catch (error) {
                 return res.status(400).json({ error: "Invalid job id format" });
             }
+        },
+
+        async markApplicationsAsRead(req, res) {
+            try {
+                const updatedJob = await service.markApplicationsAsRead(req.params.id);
+                if (!updatedJob) return res.status(404).json({ error: "Job not found" });
+
+                return res.status(200).json({
+                    jobId: req.params.id,
+                    applicationInboxLastViewedAt: updatedJob.applicationInboxLastViewedAt,
+                });
+            } catch (error) {
+                return res.status(400).json({ error: "Invalid job id format" });
+            }
         }
     }
 }
