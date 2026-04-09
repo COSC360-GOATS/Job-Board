@@ -12,10 +12,11 @@ import { useEffect } from 'react'
 import LandingPage from './components/LandingPage'
 import ProfilePage from './components/applicants/ProfilePage'
 import EmployerProfile from './components/employers/EmployerProfile'
+import { getCurrentUser, getUserRole } from './utils/user'
 
 function ProfileRouter() {
-  const user = JSON.parse(localStorage.getItem('user') || 'null')
-  if (user?.role === 'employer') return <EmployerProfile />
+  const user = getCurrentUser()
+  if (getUserRole(user) === 'employer') return <EmployerProfile />
   return <ProfilePage />
 }
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "../../utils/user";
+import { getCurrentUser, getUserRole } from "../../utils/user";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -22,7 +22,7 @@ function EmployerProfile() {
 
     useEffect(() => {
         if (!user) { navigate("/login", { replace: true }); return; }
-        if (user.role !== "employer") { navigate("/", { replace: true }); return; }
+        if (getUserRole(user) !== "employer") { navigate("/", { replace: true }); return; }
 
         fetch(`${API_BASE}/employers/${user.id}`)
             .then((r) => { if (!r.ok) throw new Error("Failed to load profile"); return r.json(); })
