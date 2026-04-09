@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, getUserRole } from "../../utils/user";
+import { formatPhoneNumber } from "../../utils/phone";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -14,6 +15,7 @@ function EmployerProfile() {
     const [uploadError, setUploadError] = useState(null);
 
     const [companyName, setCompanyName] = useState("");
+    const [phone, setPhone] = useState("");
     const [location, setLocation] = useState("");
     const [industry, setIndustry] = useState("");
     const [logo, setLogo] = useState("");
@@ -29,6 +31,7 @@ function EmployerProfile() {
             .then((data) => {
                 setProfile(data);
                 setCompanyName(data.companyName || data.name || "");
+                setPhone(formatPhoneNumber(data.phone));
                 setLocation(data.location ?? "");
                 setIndustry(data.industry ?? "");
                 setLogo(data.logo ?? "");
@@ -57,14 +60,22 @@ function EmployerProfile() {
             const res = await fetch(`${API_BASE}/employers/${user.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: companyName, companyName, location, industry, logo }),
+                body: JSON.stringify({ name: companyName, companyName, phone, location, industry, logo }),
             });
             if (!res.ok) throw new Error("Save failed");
             const updated = await res.json();
             setProfile(updated);
 
             const stored = JSON.parse(localStorage.getItem("user") || "{}");
-            localStorage.setItem("user", JSON.stringify({ ...stored, name: companyName }));
+            localStorage.setItem("user", JSON.stringify({
+                ...stored,
+                name: companyName,
+                companyName,
+                phone,
+                location,
+                industry,
+                logo,
+            }));
 
             setEditing(false);
         } catch (err) {
@@ -76,6 +87,7 @@ function EmployerProfile() {
 
     function handleEdit() {
         setCompanyName(profile.companyName || profile.name || "");
+        setPhone(formatPhoneNumber(profile.phone));
         setLocation(profile.location ?? "");
         setIndustry(profile.industry ?? "");
         setLogo(profile.logo ?? "");
@@ -115,6 +127,7 @@ function EmployerProfile() {
                         <h2 className="text-xl font-semibold text-slate-900">{displayName}</h2>
                         <p className="text-sm text-slate-500">{profile.email}</p>
                         {profile.industry && <p className="text-sm text-slate-400">{profile.industry}</p>}
+                        {profile.phone && <p className="text-sm text-slate-400">{profile.phone}</p>}
                     </div>
                 </div>
 
@@ -125,6 +138,12 @@ function EmployerProfile() {
                             <div>
                                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Location</p>
                                 <p className="mt-0.5 text-slate-700">{profile.location}</p>
+                            </div>
+                        )}
+                        {profile.phone && (
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Phone</p>
+                                <p className="mt-0.5 text-slate-700">{profile.phone}</p>
                             </div>
                         )}
                         {profile.industry && (
@@ -147,6 +166,18 @@ function EmployerProfile() {
                         <div>
                             <label className={labelClass}>Company Name</label>
                             <input className={inputClass} value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
+                        </div>
+
+                        <div>
+                            <label className={labelClass}>Phone</label>
+                            <input
+                                className={inputClass}
+                                type="tel"
+                                inputMode="tel"
+                                value={phone}
+                                onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+                                placeholder="e.g. (250) 555-1234"
+                            />
                         </div>
 
                         <div>

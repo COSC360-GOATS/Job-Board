@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import bcrypt from 'bcryptjs'
+import Skills from './Skills'
+import { formatPhoneNumber } from '../utils/phone'
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 function RegisterForm() {
   const navigate = useNavigate()
@@ -10,16 +14,94 @@ function RegisterForm() {
     lastName: '',
     email: '',
     password: '',
+    phone: '',
+    skills: [],
+    profilePicture: '',
+    resume: '',
     name: '',
     location: '',
     industry: '',
+    logo: '',
   })
   const [errorMessage, setErrorMessage] = useState('')
+  const [uploadError, setUploadError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
+
+    if (name === 'phone') {
+      setFormData((prev) => ({ ...prev, phone: formatPhoneNumber(value) }))
+      return
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handlePhoneBlur = () => {
+    setFormData((prev) => ({
+      ...prev,
+      phone: formatPhoneNumber(prev.phone),
+    }))
+  }
+
+  const handleSkillsChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      skills: Array.isArray(e.target.value) ? e.target.value : [],
+    }))
+  }
+
+  const handleImageUpload = async (e, field) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadError('')
+
+    try {
+      const form = new FormData()
+      form.append('image', file)
+
+      const response = await fetch(`${API_BASE}/upload/image`, {
+        method: 'POST',
+        body: form,
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Image upload failed')
+      }
+
+      setFormData((prev) => ({ ...prev, [field]: data.url }))
+    } catch (error) {
+      setUploadError(error.message || 'Image upload failed')
+    }
+  }
+
+  const handleResumeUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadError('')
+
+    try {
+      const form = new FormData()
+      form.append('resume', file)
+
+      const response = await fetch(`${API_BASE}/upload/resume`, {
+        method: 'POST',
+        body: form,
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Resume upload failed')
+      }
+
+      setFormData((prev) => ({ ...prev, resume: data.url }))
+    } catch (error) {
+      setUploadError(error.message || 'Resume upload failed')
+    }
   }
 
   const handleAccountTypeChange = (type) => {
@@ -37,6 +119,9 @@ function RegisterForm() {
       }
       if (!formData.email.includes('@')) {
         throw new Error('Please enter a valid email address')
+      }
+      if (!formData.phone.trim()) {
+        throw new Error('Phone number is required')
       }
       if (formData.password.length < 6) {
         throw new Error('Password must be at least 6 characters long')
@@ -74,14 +159,21 @@ function RegisterForm() {
           },
           email: formData.email,
           password: hashedPassword,
+          phone: formData.phone,
+          skills: formData.skills,
+          profilePicture: formData.profilePicture,
+          resume: formData.resume,
         }
       } else {
         payload = {
           name: formData.name,
+          companyName: formData.name,
           email: formData.email,
           location: formData.location,
           industry: formData.industry,
           password: hashedPassword,
+          phone: formData.phone,
+          logo: formData.logo,
         }
       }
 
@@ -117,7 +209,7 @@ function RegisterForm() {
         throw new Error(payload_response?.message || `Registration failed (Error ${response.status})`)
       }
 
-      localStorage.setItem('user', JSON.stringify(payload_response))
+      localStorage.setItem('user', JSON.stringify({ ...payload_response, role: accountType.toLowerCase() }))
       navigate(accountType === 'Applicant' ? '/jobs' : '/jobs/employers')
     } catch (error) {
       if (error instanceof TypeError) {
@@ -144,27 +236,87 @@ function RegisterForm() {
         <h1 className="mb-10 text-3xl font-bold text-slate-900">Create an Account</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex gap-3 mt-6 mb-2">
+            <button
+              type="button"
+              onClick={() => handleAccountTypeChange('Applicant')}
+              className={`flex-1 px-4 py-3 rounded-lg font-semibold text-sm transition-all ${
+                accountType === 'Applicant'
+                  ? 'bg-gray-800 text-white border-2 border-gray-800'
+                  : 'bg-white text-gray-600 border-2 border-gray-300 hover:border-purple-500 hover:text-purple-500'
+              }`}
+            >
+              Applicant
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAccountTypeChange('Employer')}
+              className={`flex-1 px-4 py-3 rounded-lg font-semibold text-sm transition-all ${
+                accountType === 'Employer'
+                  ? 'bg-gray-800 text-white border-2 border-gray-800'
+                  : 'bg-white text-gray-600 border-2 border-gray-300 hover:border-purple-500 hover:text-purple-500'
+              }`}
+            >
+              Employer
+            </button>
+          </div>
+
           {accountType === 'Applicant' ? (
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                name="firstName"
-                placeholder="First Name"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                required
-                className="px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  name="firstName"
+                  placeholder="First Name"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  required
+                  className="px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
+                />
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder="Last Name"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                  className="px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
+                />
+              </div>
+              <div className="text-left">
+                <label className="mb-1 block text-sm font-medium text-gray-700">Profile Image</label>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  onChange={(e) => handleImageUpload(e, 'profilePicture')}
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-purple-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-purple-700"
+                />
+                {formData.profilePicture && (
+                  <img
+                    src={`${API_BASE}${formData.profilePicture}`}
+                    alt="Profile preview"
+                    className="mt-3 h-16 w-16 rounded-full object-cover border border-gray-200"
+                  />
+                )}
+              </div>
+              <Skills
+                skills={formData.skills}
+                onChange={handleSkillsChange}
+                className="border-gray-300 bg-white"
               />
-              <input
-                type="text"
-                name="lastName"
-                placeholder="Last Name"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                required
-                className="px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
-              />
-            </div>
+              <div className="text-left">
+                <label className="mb-1 block text-sm font-medium text-gray-700">Resume (PDF)</label>
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleResumeUpload}
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-purple-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-purple-700"
+                />
+                {formData.resume && (
+                  <p className="mt-2 text-sm font-medium text-green-600">Resume uploaded ✓</p>
+                )}
+              </div>
+            </>
           ) : (
             <>
               <input
@@ -194,6 +346,22 @@ function RegisterForm() {
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
               />
+              <div className="text-left">
+                <label className="mb-1 block text-sm font-medium text-gray-700">Company Logo</label>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  onChange={(e) => handleImageUpload(e, 'logo')}
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-purple-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-purple-700"
+                />
+                {formData.logo && (
+                  <img
+                    src={`${API_BASE}${formData.logo}`}
+                    alt="Logo preview"
+                    className="mt-3 h-16 w-16 rounded-full object-cover border border-gray-200"
+                  />
+                )}
+              </div>
             </>
           )}
 
@@ -208,6 +376,18 @@ function RegisterForm() {
           />
 
           <input
+            type="tel"
+            name="phone"
+            placeholder="Phone Number"
+            value={formData.phone}
+            onChange={handleInputChange}
+            onBlur={handlePhoneBlur}
+            inputMode="tel"
+            required
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
+          />
+
+          <input
             type="password"
             name="password"
             placeholder="Password"
@@ -217,34 +397,15 @@ function RegisterForm() {
             className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
           />
 
-          <div className="flex gap-3 mt-6 mb-6">
-            <button
-              type="button"
-              onClick={() => handleAccountTypeChange('Applicant')}
-              className={`flex-1 px-4 py-3 rounded-lg font-semibold text-sm transition-all ${
-                accountType === 'Applicant'
-                  ? 'bg-gray-800 text-white border-2 border-gray-800'
-                  : 'bg-white text-gray-600 border-2 border-gray-300 hover:border-purple-500 hover:text-purple-500'
-              }`}
-            >
-              Applicant
-            </button>
-            <button
-              type="button"
-              onClick={() => handleAccountTypeChange('Employer')}
-              className={`flex-1 px-4 py-3 rounded-lg font-semibold text-sm transition-all ${
-                accountType === 'Employer'
-                  ? 'bg-gray-800 text-white border-2 border-gray-800'
-                  : 'bg-white text-gray-600 border-2 border-gray-300 hover:border-purple-500 hover:text-purple-500'
-              }`}
-            >
-              Employer
-            </button>
-          </div>
-
           {errorMessage && (
             <div className="bg-red-100 text-red-600 px-4 py-3 rounded-lg text-sm">
               {errorMessage}
+            </div>
+          )}
+
+          {uploadError && (
+            <div className="bg-amber-100 text-amber-700 px-4 py-3 rounded-lg text-sm">
+              {uploadError}
             </div>
           )}
 

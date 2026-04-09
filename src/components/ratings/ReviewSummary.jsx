@@ -1,5 +1,12 @@
 import StarRating from '../StarRating';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+function resolveImageUrl(url) {
+    if (!url) return '';
+    return /^https?:\/\//i.test(url) ? url : `${API_BASE}${url}`;
+}
+
 function ReviewSummary({
     title,
     description,
@@ -8,13 +15,14 @@ function ReviewSummary({
     averageRating = null,
     className = ''
 }) {
+    const resolvedAvatarSrc = resolveImageUrl(avatarSrc);
 
 
     return (
         <section className={`flex items-start gap-4 ${className}`.trim()}>
-            {avatarSrc ? (
+            {resolvedAvatarSrc ? (
                 <img
-                    src={avatarSrc}
+                    src={resolvedAvatarSrc}
                     alt={avatarAlt}
                     className="h-20 w-20 shrink-0 rounded-full border border-violet-200 bg-violet-50 object-cover"
                 />
