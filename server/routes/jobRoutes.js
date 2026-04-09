@@ -10,6 +10,7 @@ export default function jobRoutes(db) {
     const router = Router();
 
     router.get("/", controller.getAll);
+    router.get("/recommendations/:applicantId", controller.getRecommendationsForApplicant);
     router.get("/employer/:employerId", controller.getByEmployerId);
     router.get("/:id", controller.getById);
     router.post("/", validateRequest(createJobSchema), controller.create);

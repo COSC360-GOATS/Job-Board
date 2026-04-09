@@ -15,7 +15,7 @@ function StarRating({ rating }) {
     );
 }
 
-function ApplicantJobCard({ job, employerName, avgRating }) {
+function ApplicantJobCard({ job, employerName, avgRating, matchScore, matchReasons = [] }) {
     const navigate = useNavigate();
     const postedTimeAgo = formatTimeAgo(job.postedAt || job.date || job.createdAt);
 
@@ -25,6 +25,11 @@ function ApplicantJobCard({ job, employerName, avgRating }) {
                 <h3 className="wrap-break-word min-w-0 flex-1 text-xl font-semibold">
                     {job.title}
                 </h3>
+                {typeof matchScore === "number" && (
+                    <span className="shrink-0 rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-700">
+                        {matchScore}% match
+                    </span>
+                )}
             </div>
 
             <div>
@@ -41,6 +46,12 @@ function ApplicantJobCard({ job, employerName, avgRating }) {
             </div>
 
             <p className="line-clamp-3 text-slate-600 text-sm">{job.description}</p>
+
+            {matchReasons.length > 0 && (
+                <p className="text-xs text-slate-500">
+                    {matchReasons.join(" • ")}
+                </p>
+            )}
 
             <ul className="w-full flex justify-start items-center flex-nowrap overflow-x-auto overflow-y-hidden [&>li]:shrink-0">
                 {(job.skills ?? []).map((skill, i) => (
