@@ -14,6 +14,7 @@ function RegisterForm() {
     lastName: '',
     email: '',
     password: '',
+    confirmPassword: '',
     phone: '',
     skills: [],
     profilePicture: '',
@@ -125,6 +126,9 @@ function RegisterForm() {
       }
       if (formData.password.length < 6) {
         throw new Error('Password must be at least 6 characters long')
+      }
+      if (formData.password !== formData.confirmPassword) {
+        throw new Error('Passwords do not match')
       }
 
       if (accountType === 'Applicant') {
@@ -392,6 +396,16 @@ function RegisterForm() {
             name="password"
             placeholder="Password"
             value={formData.password}
+            onChange={handleInputChange}
+            required
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
+          />
+
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
             onChange={handleInputChange}
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all"
