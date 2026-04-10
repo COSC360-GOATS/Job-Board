@@ -5,15 +5,16 @@ function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
     }
     if (itemType === 'listing') {
       return item.title || 'Untitled Job'
-    }
-    
+    }    if (itemType === 'review') {
+      return `Rating: ${item.rating}/5`
+    }    
     if (typeof item.firstName === 'string') return item.firstName
     if (typeof item.firstName === 'object' && item.firstName?.first) return String(item.firstName.first)
     return 'Unknown'
   }
 
   const getLastName = () => {
-    if (itemType === 'employer' || itemType === 'listing') {
+    if (itemType === 'employer' || itemType === 'listing' || itemType === 'review') {
       return ''
     }
     
@@ -36,21 +37,28 @@ function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
     const skillsList = item.skills?.slice(0, 3).join(', ') || 'No skills listed'
     description = `${item.location} • ${payRange} • ${skillsList}`
     email = 'Job Listing'
+  } else if (itemType === 'review') {
+    description = item.comment || 'No comment provided'
+    email = `Review by ${item.applicantName || item.applicantId || 'Unknown'} for ${item.employerName || item.employerId || 'Unknown'}`
   } else {
     description = item.description || 'Applicant registering for job opportunities'
   }
   
-  const firstInitial = firstName?.[0] || ''
-  const lastInitial = itemType === 'listing' ? item.location?.[0] || '' : lastName?.[0] || ''
+  const firstInitial = typeof firstName === 'string' ? firstName[0] || '' : ''
+  const lastInitial = itemType === 'listing' ? (typeof item.location === 'string' ? item.location[0] || '' : '') : (typeof lastName === 'string' ? lastName[0] || '' : '')
 
   return (
     <div className={`bg-white rounded-lg border border-gray-200 p-6 flex gap-6 hover:shadow-md transition ${(item.isDeactivated || item.isClosed) ? 'opacity-60' : ''}`}>
       {itemType !== 'listing' && (
         <div className="shrink-0">
           <div className="w-24 h-24 bg-gray-300 rounded-lg flex items-center justify-center">
-            <span className="text-gray-600 text-sm font-medium">
-              {firstInitial}{lastInitial}
-            </span>
+            {itemType === 'review' ? (
+              <span className="text-gray-600 text-3xl font-medium">★</span>
+            ) : (
+              <span className="text-gray-600 text-sm font-medium">
+                {firstInitial}{lastInitial}
+              </span>
+            )}
           </div>
         </div>
       )}
@@ -79,25 +87,31 @@ function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
           <button
             onClick={() => onDelete(item._id)}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
-              itemType === 'listing'
-                ? item.isClosed
-                  ? 'text-green-700 bg-green-100 hover:bg-green-200'
-                  : 'text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700'
-                : item.isDeactivated
-                  ? 'text-green-700 bg-green-100 hover:bg-green-200'
-                  : 'text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700'
+              itemType === 'review'
+                ? 'text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700'
+                : itemType === 'listing'
+                  ? item.isClosed
+                    ? 'text-green-700 bg-green-100 hover:bg-green-200'
+                    : 'text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700'
+                  : item.isDeactivated
+                    ? 'text-green-700 bg-green-100 hover:bg-green-200'
+                    : 'text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700'
             }`}
           >
-            {itemType === 'listing' 
-              ? item.isClosed ? 'Reopen' : 'Close'
-              : item.isDeactivated ? 'Reactivate' : 'Deactivate'}
+            {itemType === 'review' 
+              ? 'Delete Review'
+              : itemType === 'listing' 
+                ? item.isClosed ? 'Reopen' : 'Close'
+                : item.isDeactivated ? 'Reactivate' : 'Deactivate'}
           </button>
-          <button
-            onClick={() => onEdit(item._id)}
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
-          >
-            Edit
-          </button>
+          {itemType !== 'review' && (
+            <button
+              onClick={() => onEdit(item._id)}
+              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+            >
+              Edit
+            </button>
+          )}
         </div>
       </div>
     </div>

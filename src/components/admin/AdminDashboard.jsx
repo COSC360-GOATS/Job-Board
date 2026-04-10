@@ -23,6 +23,8 @@ function AdminDashboard() {
           endpoint = '/api/employers'
         } else if (activeTab === 'Listings') {
           endpoint = '/api/jobs'
+        } else if (activeTab === 'Reviews') {
+          endpoint = '/api/ratings'
         }
         
         const response = await fetch(endpoint)
@@ -41,7 +43,7 @@ function AdminDashboard() {
       }
     }
 
-    if (activeTab === 'Applicants' || activeTab === 'Employers' || activeTab === 'Listings') {
+    if (activeTab === 'Applicants' || activeTab === 'Employers' || activeTab === 'Listings' || activeTab === 'Reviews') {
       fetchData()
     }
   }, [activeTab])
@@ -57,6 +59,15 @@ function AdminDashboard() {
       } else if (activeTab === 'Listings') {
         endpoint = '/api/jobs'
         statusField = 'isClosed'
+      } else if (activeTab === 'Reviews') {
+        const response = await fetch(`/api/ratings/${id}`, {
+          method: 'DELETE'
+        })
+        if (!response.ok) {
+          throw new Error('Failed to delete review')
+        }
+        setItems(items.filter(item => item._id !== id))
+        return
       }
       
       const item = items.find(i => i._id === id)
@@ -121,6 +132,8 @@ function AdminDashboard() {
       searchableText = item.name || item.companyName || 'Unknown'
     } else if (activeTab === 'Listings') {
       searchableText = `${item.title || ''} ${item.description || ''} ${item.location || ''}`
+    } else if (activeTab === 'Reviews') {
+      searchableText = `${item.comment || ''} ${item.rating || ''} ${item.employerName || ''} ${item.applicantName || ''}`
     } else {
       let firstName = item.firstName
       let lastName = item.lastName
@@ -207,7 +220,11 @@ function AdminDashboard() {
             <ItemCard
               key={item._id}
               item={item}
-              itemType={activeTab === 'Employers' ? 'employer' : activeTab === 'Listings' ? 'listing' : 'applicant'}
+              itemType={
+                activeTab === 'Employers' ? 'employer' :
+                activeTab === 'Listings' ? 'listing' :
+                activeTab === 'Reviews' ? 'review' : 'applicant'
+              }
               onDelete={handleToggleStatus}
               onEdit={handleEdit}
             />
