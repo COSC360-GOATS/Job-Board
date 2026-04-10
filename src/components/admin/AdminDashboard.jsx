@@ -118,7 +118,7 @@ function AdminDashboard() {
     let searchableText = ''
     
     if (activeTab === 'Employers') {
-      searchableText = item.name || 'Unknown'
+      searchableText = item.name || item.companyName || 'Unknown'
     } else if (activeTab === 'Listings') {
       searchableText = `${item.title || ''} ${item.description || ''} ${item.location || ''}`
     } else {
@@ -140,9 +140,9 @@ function AdminDashboard() {
       searchableText = firstName && lastName ? `${firstName} ${lastName}` : (firstName || lastName || 'Unknown')
     }
     
-    const email = item.email || ''
-    const searchLower = searchQuery.toLowerCase()
-    return searchableText.toLowerCase().includes(searchLower) || email.toLowerCase().includes(searchLower)
+    const email = String(item.email || '')
+    const searchLower = String(searchQuery).toLowerCase()
+    return String(searchableText).toLowerCase().includes(searchLower) || email.toLowerCase().includes(searchLower)
   })
 
   return (
@@ -155,7 +155,11 @@ function AdminDashboard() {
             {TABS.map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => {
+                  setLoading(true)
+                  setItems([])
+                  setActiveTab(tab)
+                }}
                 className={`px-4 py-2 rounded-lg font-medium transition ${
                   activeTab === tab
                     ? 'bg-slate-800 text-white'
