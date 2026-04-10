@@ -1,4 +1,4 @@
-function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
+function ItemCard({ item, onDelete, onEdit, onExplore, itemType = 'applicant' }) {
   const getFirstName = () => {
     if (itemType === 'employer') {
       return item.name || 'Unknown Company'
@@ -8,6 +8,8 @@ function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
     }    if (itemType === 'review') {
       return `Rating: ${item.rating}/5`
     }    
+    if (typeof item.name === 'string') return item.name
+    if (item.name && typeof item.name === 'object' && item.name.first) return String(item.name.first)
     if (typeof item.firstName === 'string') return item.firstName
     if (typeof item.firstName === 'object' && item.firstName?.first) return String(item.firstName.first)
     return 'Unknown'
@@ -18,6 +20,7 @@ function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
       return ''
     }
     
+    if (item.name && typeof item.name === 'object' && item.name.last) return String(item.name.last)
     if (typeof item.lastName === 'string') return item.lastName
     if (typeof item.lastName === 'object' && item.lastName?.last) return String(item.lastName.last)
     return ''
@@ -81,9 +84,14 @@ function ItemCard({ item, onDelete, onEdit, itemType = 'applicant' }) {
         <p className="text-gray-500 text-sm mb-4">{description}</p>
 
         <div className="flex gap-2">
-          <button className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
-            Explore
-          </button>
+          {itemType === 'applicant' && (
+            <button 
+              onClick={() => onExplore && onExplore(item._id)}
+              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+            >
+              Explore
+            </button>
+          )}
           <button
             onClick={() => onDelete(item._id)}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${

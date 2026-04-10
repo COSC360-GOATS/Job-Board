@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import ItemCard from './ItemCard'
 import EditJobModal from './EditJobModal'
+import EditApplicantModal from './EditApplicantModal'
+import ApplicantApplicationsModal from './ApplicantApplicationsModal'
+import { useNavigate } from 'react-router-dom'
 
 const TABS = ['Applicants', 'Reviews', 'Employers', 'Listings']
 
@@ -11,6 +14,9 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [editingJob, setEditingJob] = useState(null)
+  const [editingApplicant, setEditingApplicant] = useState(null)
+  const [exploringApplicant, setExploringApplicant] = useState(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,10 +100,22 @@ function AdminDashboard() {
     }
   }
 
+  const handleExplore = (id) => {
+    if (activeTab === 'Applicants') {
+      const applicant = items.find(item => item._id === id)
+      setExploringApplicant(applicant)
+    } else if (activeTab === 'Employers') {
+      navigate('/jobs?employerId=' + id) 
+    }
+  }
+
   const handleEdit = (id) => {
     if (activeTab === 'Listings') {
       const job = items.find(item => item._id === id)
       setEditingJob(job)
+    } else if (activeTab === 'Applicants') {
+      const applicant = items.find(item => item._id === id)
+      setEditingApplicant(applicant)
     }
   }
 
@@ -227,6 +245,7 @@ function AdminDashboard() {
               }
               onDelete={handleToggleStatus}
               onEdit={handleEdit}
+              onExplore={handleExplore}
             />
           ))}
 
@@ -243,6 +262,24 @@ function AdminDashboard() {
           job={editingJob}
           onClose={() => setEditingJob(null)}
           onSave={handleSaveJob}
+        />
+      )}
+      
+      {editingApplicant && (
+        <EditApplicantModal
+          applicant={editingApplicant}
+          onClose={() => setEditingApplicant(null)}
+          onSave={(updatedApplicant) => {
+            setItems(items.map(item => item._id === editingApplicant._id ? updatedApplicant : item))
+            setEditingApplicant(null)
+          }}
+        />
+      )}
+
+      {exploringApplicant && (
+        <ApplicantApplicationsModal
+          applicant={exploringApplicant}
+          onClose={() => setExploringApplicant(null)}
         />
       )}
     </div>

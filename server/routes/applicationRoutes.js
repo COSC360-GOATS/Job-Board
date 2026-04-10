@@ -8,6 +8,7 @@ export default function applicationRoutes(db) {
     const router = Router();
 
     router.get("/", controller.getAll);
+    router.get("/applicant/:applicantId", controller.getByApplicantId);
     router.get("/:id", controller.getById);
     router.post("/", controller.create);
     router.patch("/:id", controller.update);
