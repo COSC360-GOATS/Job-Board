@@ -7,7 +7,7 @@ import process from 'process';
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const url = process.env.MONGO_URI
-const dbName = 'jobboard';
+const dbName = 'JobBoard';
 
 async function createAdmin() {
     const client = new MongoClient(url);
