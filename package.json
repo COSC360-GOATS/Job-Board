@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
-    "test:services": "NODE_OPTIONS=--experimental-vm-modules jest testing/backend/services --runInBand"
+    "test:validators": "NODE_OPTIONS=--experimental-vm-modules jest testing/backend/validators --runInBand"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.0",
