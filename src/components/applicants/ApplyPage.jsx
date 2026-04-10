@@ -23,12 +23,8 @@ function ApplyPage() {
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
-    useEffect(() => {
-        const user = getCurrentUser();
-        if (!user || getUserRole(user) !== 'applicant') {
-            navigate("/login", { replace: true, state: { from: `/jobs/${jobId}/apply` } });
-        }
-    }, [navigate, jobId]);
+    const user = getCurrentUser();
+    const isAuthenticated = user && getUserRole(user) === 'applicant';
 
     useEffect(() => {
         if (job) return;
@@ -58,8 +54,7 @@ function ApplyPage() {
     }, [job]);
 
     useEffect(() => {
-        const user = getCurrentUser();
-        if (!user || getUserRole(user) !== 'applicant' || !user.id) return;
+        if (!user || !user.id) return;
 
         let isMounted = true;
 
@@ -76,12 +71,15 @@ function ApplyPage() {
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [user?.id]);
 
     async function handleSubmit(e) {
         e.preventDefault();
-        const user = getCurrentUser();
-        if (!user || getUserRole(user) !== 'applicant') { navigate("/login"); return; }
+        
+        if (!isAuthenticated) {
+            navigate("/login", { replace: false, state: { from: `/jobs/${jobId}/apply` } });
+            return;
+        }
 
         setSubmitting(true);
         try {
@@ -136,6 +134,14 @@ function ApplyPage() {
             >
                 ← Back to job listings
             </button>
+
+            {!isAuthenticated && (
+                <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                    <p className="text-sm text-amber-900">
+                        <strong>Note:</strong> You must log in to interact with a job.
+                    </p>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
 
