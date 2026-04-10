@@ -1,26 +1,51 @@
 import ReviewSummary from './ReviewSummary';
 import ReviewForm from './ReviewForm';
 import ReviewList from './ReviewList';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { getCurrentUser, getUserRole } from '../../utils/user';
 
-function getLoggedInUser() {
-    try {
-        const raw = localStorage.getItem('user');
-        if (!raw) return null;
+function getApplicantName(applicant) {
+    if (typeof applicant?.name === 'string' && applicant.name.trim()) {
+        return applicant.name;
+    }
 
-        const parsed = JSON.parse(raw);
-        const rawId = parsed?.id;
-        const id = typeof rawId === 'string' ? rawId : rawId?.$oid;
+    if (applicant?.name?.first || applicant?.name?.last) {
+        return `${applicant.name.first ?? ''} ${applicant.name.last ?? ''}`.trim();
+    }
 
-        if (!id) return null;
+    if (applicant?.firstName || applicant?.lastName) {
+        return `${applicant.firstName ?? ''} ${applicant.lastName ?? ''}`.trim();
+    }
+
+    return 'Anonymous';
+}
+
+function formatRatings(ratingsData = []) {
+    return ratingsData.map((r) => {
+        const applicant = r.applicant;
+        const applicantName = getApplicantName(applicant);
 
         return {
-            ...parsed,
-            id
+            id: r._id,
+            applicantId: r.applicantId,
+            reviewerName: applicantName,
+            avatarSrc: applicant?.profile || '',
+            avatarAlt: applicantName,
+            rating: r.rating,
+            comment: r.comment,
         };
-    } catch {
-        return null;
+    });
+}
+
+function normalizeId(value) {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'object') {
+        if (typeof value.$oid === 'string') return value.$oid;
+        if (typeof value.id === 'string') return value.id;
+        if (typeof value._id === 'string') return value._id;
     }
+    return String(value);
 }
 
 function ReviewSection({
@@ -38,6 +63,22 @@ function ReviewSection({
     const [formRating, setFormRating] = useState(4);
     const [formComment, setFormComment] = useState('');
 
+    const fetchRatingsAndAverage = useCallback(async () => {
+        const ratingsRes = await fetch(`${API_BASE}/ratings/employer/${employerId}`);
+        if (!ratingsRes.ok) throw new Error('Failed to fetch ratings');
+        const ratingsData = await ratingsRes.json();
+
+        const avgRes = await fetch(`${API_BASE}/ratings/employer/${employerId}/avg`);
+        if (avgRes.ok) {
+            const avgData = await avgRes.json();
+            setAverageRating(avgData.avgRating);
+        } else {
+            setAverageRating(null);
+        }
+
+        setRatings(formatRatings(ratingsData));
+    }, [API_BASE, employerId]);
+
     useEffect(() => {
         async function fetchData() {
             try {
@@ -49,41 +90,7 @@ function ReviewSection({
                 const employerData = await employerRes.json();
                 setEmployer(employerData);
 
-                const ratingsRes = await fetch(`${API_BASE}/ratings/employer/${employerId}`);
-                if (!ratingsRes.ok) throw new Error('Failed to fetch ratings');
-                const ratingsData = await ratingsRes.json();
-                
-                const avgRes = await fetch(`${API_BASE}/ratings/employer/${employerId}/avg`);
-                if (avgRes.ok) {
-                    const avgData = await avgRes.json();
-                    setAverageRating(avgData.avgRating);
-                }
-                
-                const formattedRatings = ratingsData.map((r) => {
-                    const applicant = r.applicant;
-                    let applicantName = 'Anonymous';
-
-                    if (typeof applicant?.name === 'string' && applicant.name.trim()) {
-                        applicantName = applicant.name;
-                    } else if (applicant?.name?.first || applicant?.name?.last) {
-                        applicantName = `${applicant.name.first ?? ''} ${applicant.name.last ?? ''}`.trim();
-                    } else if (applicant?.firstName || applicant?.lastName) {
-                        applicantName = `${applicant.firstName ?? ''} ${applicant.lastName ?? ''}`.trim();
-                    }
-                    
-                    const review = {
-                        id: r._id,
-                        applicantId: r.applicantId,
-                        reviewerName: applicantName,
-                        avatarSrc: applicant?.profile || '',
-                        avatarAlt: applicantName,
-                        rating: r.rating,
-                        comment: r.comment
-                    };
-                    return review;
-                });
-
-                setRatings(formattedRatings);
+                await fetchRatingsAndAverage();
             } catch (err) {
                 console.error('Error fetching data:', err);
                 setError(err.message || 'Failed to load ratings');
@@ -95,19 +102,44 @@ function ReviewSection({
         if (employerId) {
             fetchData();
         }
-    }, [employerId, API_BASE]);
+    }, [employerId, API_BASE, fetchRatingsAndAverage]);
+
+    useEffect(() => {
+        if (!employerId) return;
+
+        const events = new EventSource(`${API_BASE}/events`);
+
+        const onRatingCreated = async (event) => {
+            try {
+                const payload = JSON.parse(event.data || '{}');
+                const payloadEmployerId = normalizeId(payload?.employerId);
+                const currentEmployerId = normalizeId(employerId);
+                if (payloadEmployerId && currentEmployerId && payloadEmployerId !== currentEmployerId) return;
+                await fetchRatingsAndAverage();
+            } catch (err) {
+                console.error('Failed to process realtime rating event:', err);
+            }
+        };
+
+        events.addEventListener('rating-created', onRatingCreated);
+
+        return () => {
+            events.removeEventListener('rating-created', onRatingCreated);
+            events.close();
+        };
+    }, [API_BASE, employerId, fetchRatingsAndAverage]);
 
     const handleSubmitReview = async (e) => {
         e.preventDefault();
         setSubmitError('');
 
-        const currentUser = getLoggedInUser();
+        const currentUser = getCurrentUser();
         if (!currentUser?.id) {
             setSubmitError('Please log in to submit a review.');
             return;
         }
 
-        if (currentUser.role !== 'applicant') {
+        if (getUserRole(currentUser) !== 'applicant') {
             setSubmitError('Only applicants can submit reviews.');
             return;
         }
@@ -140,20 +172,9 @@ function ReviewSection({
                 throw new Error(errData.message || 'Failed to submit review');
             }
 
-            const newRating = await res.json();
-            
-            setRatings([
-                {
-                    id: newRating._id,
-                    applicantId: currentUser.id,
-                    reviewerName: currentUser.name || 'You',
-                    avatarSrc: '',
-                    avatarAlt: 'Your avatar',
-                    rating: newRating.rating,
-                    comment: newRating.comment
-                },
-                ...ratings
-            ]);
+            await res.json();
+
+            await fetchRatingsAndAverage();
 
             setFormRating(4);
             setFormComment('');

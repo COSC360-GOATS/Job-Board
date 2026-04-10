@@ -13,15 +13,18 @@ import jobRoutes from './routes/jobRoutes.js';
 import employerRoutes from './routes/employerRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import createSseHub from './realtime/sseHub.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
+const sseHub = createSseHub();
 
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/upload', uploadRoutes());
+app.get('/events', sseHub.handler);
 
 await db();
 
@@ -39,7 +42,7 @@ async function db() {
         app.use("/applications", applicationRoutes(database));
         app.use("/jobs", jobRoutes(database));
         app.use("/employers", employerRoutes(database));
-        app.use("/ratings", ratingRoutes(database));
+        app.use("/ratings", ratingRoutes(database, sseHub.emit));
         app.use("/auth", authRoutes(database));
         console.log("MongoDB connected!");
     }

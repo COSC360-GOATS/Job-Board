@@ -2,9 +2,9 @@ import { Router } from "express";
 import ratingController from "../controllers/ratingController.js";
 import ratingService from "../services/ratingService.js";
 
-export default function ratingRoutes(db) {
+export default function ratingRoutes(db, emitEvent) {
     const service = ratingService(db);
-    const controller = ratingController(service);
+    const controller = ratingController(service, emitEvent);
     const router = Router();
 
     router.get("/", controller.getAll);
