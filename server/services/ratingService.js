@@ -24,8 +24,19 @@ export default function ratingService(db) {
 
                     let applicantName = rating.applicantId;
                     if (applicant) {
-                        const first = typeof applicant.firstName === 'object' ? applicant.firstName.first : applicant.firstName;
-                        const last = typeof applicant.lastName === 'object' ? applicant.lastName.last : applicant.lastName;
+                        let first = '';
+                        let last = '';
+                        
+                        if (applicant.name && typeof applicant.name === 'object') {
+                            first = applicant.name.first || '';
+                            last = applicant.name.last || '';
+                        } else if (applicant.firstName || applicant.lastName) {
+                            first = typeof applicant.firstName === 'object' ? applicant.firstName.first : applicant.firstName;
+                            last = typeof applicant.lastName === 'object' ? applicant.lastName.last : applicant.lastName;
+                        } else if (typeof applicant.name === 'string') {
+                            first = applicant.name;
+                        }
+                        
                         applicantName = `${first || ''} ${last || ''}`.trim() || applicant.email;
                     }
 
