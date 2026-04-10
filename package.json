@@ -10,6 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
+    "test:controllers": "NODE_OPTIONS=--experimental-vm-modules jest testing/backend/controllers --runInBand",
+    "test:routes": "NODE_OPTIONS=--experimental-vm-modules jest testing/backend/routes --runInBand",
     "test:validators": "NODE_OPTIONS=--experimental-vm-modules jest testing/backend/validators --runInBand"
   },
   "dependencies": {
@@ -22,6 +24,7 @@
     "joi": "^18.1.2",
     "mongodb": "^7.1.1",
     "multer": "^2.1.1",
+    "supertest": "^7.1.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.2",
