@@ -9,8 +9,10 @@ function EditEmployerModal({ employer, onClose, onSave }) {
   const [phone, setPhone] = useState('')
   const [location, setLocation] = useState('')
   const [industry, setIndustry] = useState('')
+  const [logo, setLogo] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+  const [uploadError, setUploadError] = useState(null)
 
   useEffect(() => {
     if (employer) {
@@ -19,8 +21,25 @@ function EditEmployerModal({ employer, onClose, onSave }) {
       setPhone(formatPhoneNumber(employer.phone) || '')
       setLocation(employer.location || '')
       setIndustry(employer.industry || '')
+      setLogo(employer.logo || '')
     }
   }, [employer])
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadError(null);
+    const form = new FormData();
+    form.append("image", file);
+    try {
+      const res = await fetch(`${API_BASE}/upload/image`, { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) { setUploadError(data.error || "Image upload failed"); return; }
+      setLogo(data.url);
+    } catch(err) {
+      setUploadError(err.message);
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -33,7 +52,8 @@ function EditEmployerModal({ employer, onClose, onSave }) {
       email,
       phone,
       location,
-      industry
+      industry,
+      logo
     }
 
     try {
@@ -69,8 +89,40 @@ function EditEmployerModal({ employer, onClose, onSave }) {
         </div>
 
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {uploadError && <p className="text-red-500 text-sm mb-4">{uploadError}</p>}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex items-center gap-4 mb-2">
+            {logo ? (
+              <img
+                  src={`${API_BASE}${logo}`}
+                  alt="Company Logo"
+                  className="h-16 w-16 rounded-lg object-contain border border-slate-200 bg-white"
+              />
+            ) : (
+                <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-100 text-xl font-bold text-gray-400">
+                    {(companyName.charAt(0) || 'C').toUpperCase()}
+                </div>
+            )}
+            <div className="flex flex-col gap-1">
+              <label className="cursor-pointer">
+                  <span className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 transition inline-block">
+                      Change Logo
+                  </span>
+                  <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={handleLogoUpload} className="hidden" />
+              </label>
+              {logo && (
+                <button
+                    type="button"
+                    onClick={() => setLogo('')}
+                    className="text-sm text-red-600 hover:text-red-700 text-left font-medium"
+                >
+                    Remove Logo
+                </button>
+              )}
+            </div>
+          </div>
+
           <div>
             <label className={labelClass}>Company Name</label>
             <input className={inputClass} value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />

@@ -12,8 +12,10 @@ function EditApplicantModal({ applicant, onClose, onSave }) {
   const [location, setLocation] = useState('')
   const [skills, setSkills] = useState([])
   const [description, setDescription] = useState('')
+  const [profilePicture, setProfilePicture] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+  const [uploadError, setUploadError] = useState(null)
 
   useEffect(() => {
     if (applicant) {
@@ -29,8 +31,25 @@ function EditApplicantModal({ applicant, onClose, onSave }) {
       setLocation(applicant.location || '')
       setSkills(applicant.skills || [])
       setDescription(applicant.description || '')
+      setProfilePicture(applicant.profilePicture || '')
     }
   }, [applicant])
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadError(null);
+    const form = new FormData();
+    form.append("image", file);
+    try {
+      const res = await fetch(`${API_BASE}/upload/image`, { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) { setUploadError(data.error || "Image upload failed"); return; }
+      setProfilePicture(data.url);
+    } catch(err) {
+      setUploadError(err.message);
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -43,7 +62,8 @@ function EditApplicantModal({ applicant, onClose, onSave }) {
       phone,
       location,
       skills,
-      description
+      description,
+      profilePicture
     }
 
     try {
@@ -77,8 +97,40 @@ function EditApplicantModal({ applicant, onClose, onSave }) {
         </div>
 
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {uploadError && <p className="text-red-500 text-sm mb-4">{uploadError}</p>}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex items-center gap-4 mb-2">
+            {profilePicture ? (
+              <img
+                  src={`${API_BASE}${profilePicture}`}
+                  alt="Profile"
+                  className="h-16 w-16 rounded-full object-cover border border-slate-200"
+              />
+            ) : (
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-100 text-xl font-bold text-violet-700">
+                    {(firstName.charAt(0) || 'A').toUpperCase()}
+                </div>
+            )}
+            <div className="flex flex-col gap-1">
+              <label className="cursor-pointer">
+                  <span className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 transition inline-block">
+                      Change Picture
+                  </span>
+                  <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={handleImageUpload} className="hidden" />
+              </label>
+              {profilePicture && (
+                <button
+                    type="button"
+                    onClick={() => setProfilePicture('')}
+                    className="text-sm text-red-600 hover:text-red-700 text-left font-medium"
+                >
+                    Remove Picture
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>First Name</label>
