@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { getCurrentUser, getUserDisplayName, getUserInitial, getUserRole } from '../utils/user'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
@@ -8,32 +9,41 @@ function resolveImageUrl(url) {
 	return /^https?:\/\//i.test(url) ? url : `${API_BASE}${url}`
 }
 
-function getNavItems(user) {
-	const role = getUserRole(user);
-
-	const base = [
-		{ page: 'Home', link: '/' },
-		{ page: `${role === 'employer' ? 'Manage' : 'Explore'} Jobs`, link: role === 'employer' ? '/jobs/employers' : '/jobs' },
-		{ page: 'Profile', link: '/profile' }
-	];
-
-	if (role === 'admin') {
-		return [
-			{ page: 'Home', link: '/' },
-			{ page: 'Admin', link: '/admin' },
-			{ page: 'Profile', link: '/profile' }
-		];
-	}
-
-	return base;
-}
-
 function NavBar({ transparent = false }) {
 	const navigate = useNavigate();
 	const user = getCurrentUser();
 	const displayName = getUserDisplayName(user);
-	const navItems = getNavItems(user);
 	const avatarSrc = resolveImageUrl(user?.profilePicture || user?.profile || user?.logo)
+	const [unreadCount, setUnreadCount] = useState(0);
+
+	useEffect(() => {
+		if (user?.role === 'employer') {
+			fetch(`${API_BASE}/jobs/employer/${user.id}`)
+				.then(res => res.json())
+				.then(jobs => {
+					const total = jobs.reduce((sum, job) => sum + (Number(job?.unreadApplications || 0)), 0);
+					setUnreadCount(total);
+				})
+				.catch(err => console.error('Failed to fetch unread applications count', err));
+		}
+	}, [user?.id]);
+
+	const role = getUserRole(user);
+	const navItems = role === 'admin'
+		? [
+			{ page: 'Home', link: '/' },
+			{ page: 'Admin', link: '/admin' },
+			{ page: 'Profile', link: '/profile' }
+		]
+		: [
+			{ page: 'Home', link: '/' },
+			{
+				page: `${role === 'employer' ? 'Manage' : 'Explore'} Jobs`,
+				link: role === 'employer' ? '/jobs/employers' : '/jobs',
+				badge: unreadCount > 0 ? unreadCount : null
+			},
+			{ page: 'Profile', link: '/profile' }
+		];
 
 	const navClassName = `ml-auto w-full rounded-2xl border px-5 py-4 ${transparent ? 'border-transparent bg-transparent shadow-none' : 'border-slate-200 bg-white shadow-sm'}`;
 	const navItemClassName = (isActive) =>
@@ -59,13 +69,20 @@ function NavBar({ transparent = false }) {
 
 				<div className="flex items-center gap-2 justify-self-center">
 					{navItems.map((item) => (
-						<NavLink
-							key={item.page}
-							to={item.link}
-							className={({ isActive }) => navItemClassName(isActive)}
-						>
-							{item.page}
-						</NavLink>
+						<div key={item.page} className="relative">
+							<NavLink
+								key={item.page}
+								to={item.link}
+								className={({ isActive }) => navItemClassName(isActive)}
+							>
+								{item.page}
+							</NavLink>
+							{item.badge && (
+								<span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-violet-300 text-xs font-bold text-violet-50">
+									{item.badge}
+								</span>
+							)}
+						</div>
 					))}
 				</div>
 
