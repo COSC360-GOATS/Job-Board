@@ -1,3 +1,5 @@
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
 function ItemCard({ item, onDelete, onEdit, onExplore, itemType = 'applicant' }) {
   const getFirstName = () => {
     if (itemType === 'employer') {
@@ -54,15 +56,21 @@ function ItemCard({ item, onDelete, onEdit, onExplore, itemType = 'applicant' })
     <div className={`bg-white rounded-lg border border-gray-200 p-6 flex gap-6 hover:shadow-md transition ${(item.isDeactivated || item.isClosed) ? 'opacity-60' : ''}`}>
       {itemType !== 'listing' && (
         <div className="shrink-0">
-          <div className="w-24 h-24 bg-gray-300 rounded-lg flex items-center justify-center">
-            {itemType === 'review' ? (
-              <span className="text-gray-600 text-3xl font-medium">★</span>
-            ) : (
-              <span className="text-gray-600 text-sm font-medium">
-                {firstInitial}{lastInitial}
-              </span>
-            )}
-          </div>
+          {(itemType === 'employer' && item.logo) ? (
+            <img src={`${API_BASE}${item.logo}`} alt="Logo" className="w-24 h-24 rounded-lg object-contain border border-gray-200 bg-white" />
+          ) : (itemType === 'applicant' && item.profilePicture) ? (
+            <img src={`${API_BASE}${item.profilePicture}`} alt="Profile" className="w-24 h-24 rounded-lg object-cover border border-gray-200" />
+          ) : (
+            <div className="w-24 h-24 bg-gray-300 rounded-lg flex items-center justify-center">
+              {itemType === 'review' ? (
+                <span className="text-gray-600 text-3xl font-medium">★</span>
+              ) : (
+                <span className="text-gray-600 text-sm font-medium">
+                  {firstInitial}{lastInitial}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       )}
 
