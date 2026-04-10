@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import ItemCard from './ItemCard'
 import EditJobModal from './EditJobModal'
 import EditApplicantModal from './EditApplicantModal'
+import EditEmployerModal from './EditEmployerModal'
 import ApplicantApplicationsModal from './ApplicantApplicationsModal'
 import { useNavigate } from 'react-router-dom'
 
@@ -15,6 +16,7 @@ function AdminDashboard() {
   const [error, setError] = useState('')
   const [editingJob, setEditingJob] = useState(null)
   const [editingApplicant, setEditingApplicant] = useState(null)
+  const [editingEmployer, setEditingEmployer] = useState(null)
   const [exploringApplicant, setExploringApplicant] = useState(null)
   const navigate = useNavigate()
 
@@ -116,6 +118,9 @@ function AdminDashboard() {
     } else if (activeTab === 'Applicants') {
       const applicant = items.find(item => item._id === id)
       setEditingApplicant(applicant)
+    } else if (activeTab === 'Employers') {
+      const employer = items.find(item => item._id === id)
+      setEditingEmployer(employer)
     }
   }
 
@@ -272,6 +277,17 @@ function AdminDashboard() {
           onSave={(updatedApplicant) => {
             setItems(items.map(item => item._id === editingApplicant._id ? updatedApplicant : item))
             setEditingApplicant(null)
+          }}
+        />
+      )}
+
+      {editingEmployer && (
+        <EditEmployerModal
+          employer={editingEmployer}
+          onClose={() => setEditingEmployer(null)}
+          onSave={(updatedEmployer) => {
+            setItems(items.map(item => item._id === editingEmployer._id ? updatedEmployer : item))
+            setEditingEmployer(null)
           }}
         />
       )}
