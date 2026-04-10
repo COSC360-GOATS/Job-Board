@@ -78,7 +78,7 @@ function NavBar({ transparent = false }) {
 								{item.page}
 							</NavLink>
 							{item.badge && (
-								<span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-violet-300 text-xs font-bold text-violet-50">
+								<span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-700 border border-violet-200">
 									{item.badge}
 								</span>
 							)}
