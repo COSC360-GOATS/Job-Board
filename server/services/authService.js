@@ -1,18 +1,25 @@
 import bcrypt from 'bcryptjs';
-import process from 'process';
 
 export default function authService(db) {
     const applicants = db.collection('applicants');
     const employers = db.collection('employers');
+    const admins = db.collection('admins');
 
     return {
         async login({ email, password }) {
-            // Check admin credentials from env vars
-            if (
-                email === process.env.ADMIN_EMAIL &&
-                password === process.env.ADMIN_PASSWORD
-            ) {
-                return { user: { id: 'admin', name: 'Admin', email }, role: 'admin' };
+            // Check admins collection
+            const admin = await admins.findOne({ email });
+            if (admin) {
+                const match = await bcrypt.compare(password, admin.password);
+                if (!match) throw new Error('Invalid email or password');
+                return {
+                    user: {
+                        id: admin._id?.toString?.() ?? admin._id,
+                        name: admin.name || 'Admin',
+                        email: admin.email,
+                    },
+                    role: 'admin',
+                };
             }
 
             // Check applicants collection
