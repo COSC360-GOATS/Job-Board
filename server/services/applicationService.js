@@ -14,7 +14,10 @@ export default function applicationService(db) {
                 createdAt: payload?.createdAt || nowIso,
             };
 
-            return await service.create(normalizedPayload, checkExists);
+            return await service.create(
+                normalizedPayload,
+                checkExists || { jobId: normalizedPayload.jobId, applicantId: normalizedPayload.applicantId }
+            );
         },
     };
 }
