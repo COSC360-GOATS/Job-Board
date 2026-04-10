@@ -10,6 +10,7 @@ export default function ratingRoutes(db) {
     router.get("/", controller.getAll);
     router.get("/employer/:employerId/avg", controller.getAvgRatingForEmployer);
     router.get("/employer/:employerId", controller.getByEmployerId);
+    router.get("/applicant/:applicantId", controller.getByApplicantId);
     router.get("/:id", controller.getById);
     router.post("/", controller.create);
     router.put("/:id", controller.update);

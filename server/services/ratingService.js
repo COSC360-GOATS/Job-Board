@@ -76,6 +76,27 @@ export default function ratingService(db) {
             );
         },
 
+        async getByApplicantId(applicantId) {
+            if (!ObjectId.isValid(applicantId)) return [];
+            const ratings = await collection.find({ applicantId: applicantId }).toArray();
+            
+            return await Promise.all(
+                ratings.map(async (rating) => {
+                    let employerName = rating.employerId;
+                    try {
+                        if (rating.employerId && ObjectId.isValid(rating.employerId)) {
+                            const employer = await db.collection('employers').findOne({ _id: new ObjectId(rating.employerId) });
+                            if (employer) {
+                                employerName = employer.name || employer.companyName || employer.email;
+                            }
+                        }
+                    } catch (e) {}
+
+                    return { ...rating, employerName };
+                })
+            );
+        },
+
         async getAvgRatingForEmployer(employerId) {
             const ratings = await this.getByEmployerId(employerId);
             if (ratings.length === 0) return null;
