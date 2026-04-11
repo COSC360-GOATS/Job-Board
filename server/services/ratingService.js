@@ -23,6 +23,7 @@ export default function ratingService(db) {
                     } catch (e) {}
 
                     let applicantName = rating.applicantId;
+                    let applicantEmail = null;
                     if (applicant) {
                         let first = '';
                         let last = '';
@@ -38,14 +39,17 @@ export default function ratingService(db) {
                         }
                         
                         applicantName = `${first || ''} ${last || ''}`.trim() || applicant.email;
+                        applicantEmail = applicant.email || null;
                     }
 
                     let employerName = rating.employerId;
+                    let employerEmail = null;
                     if (employer) {
                         employerName = employer.name || employer.companyName || employer.email;
+                        employerEmail = employer.email || null;
                     }
 
-                    return { ...rating, applicantName, employerName };
+                    return { ...rating, applicantName, employerName, applicantEmail, employerEmail };
                 })
             );
         },

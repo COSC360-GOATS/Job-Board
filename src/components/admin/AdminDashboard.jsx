@@ -170,25 +170,35 @@ function AdminDashboard() {
     } else if (activeTab === 'Reviews') {
       searchableText = `${item.comment || ''} ${item.rating || ''} ${item.employerName || ''} ${item.applicantName || ''}`
     } else {
-      let firstName = item.firstName
-      let lastName = item.lastName
+      let firstName = ''
+      let lastName = ''
       
-      if (typeof firstName === 'object' && firstName?.first) {
-        firstName = firstName.first
-      } else if (typeof firstName !== 'string') {
-        firstName = ''
-      }
-      
-      if (typeof lastName === 'object' && lastName?.last) {
-        lastName = lastName.last
-      } else if (typeof lastName !== 'string') {
-        lastName = ''
+      if (typeof item.name === 'string') {
+        firstName = item.name
+      } else if (item.name && typeof item.name === 'object') {
+        firstName = item.name.first || ''
+        lastName = item.name.last || ''
+      } else {
+        if (typeof item.firstName === 'object' && item.firstName?.first) {
+          firstName = item.firstName.first
+        } else if (typeof item.firstName === 'string') {
+          firstName = item.firstName
+        }
+        
+        if (typeof item.lastName === 'object' && item.lastName?.last) {
+          lastName = item.lastName.last
+        } else if (typeof item.lastName === 'string') {
+          lastName = item.lastName
+        }
       }
       
       searchableText = firstName && lastName ? `${firstName} ${lastName}` : (firstName || lastName || 'Unknown')
     }
     
-    const email = String(item.email || '')
+    let email = String(item.email || '')
+    if (activeTab === 'Reviews') {
+      email = String(`${item.applicantEmail || ''} ${item.employerEmail || ''}`)
+    }
     const searchLower = String(searchQuery).toLowerCase()
     return String(searchableText).toLowerCase().includes(searchLower) || email.toLowerCase().includes(searchLower)
   })
