@@ -29,7 +29,9 @@ export function ApplicationCard({ application, job }) {
     const displayName = fullName || 'Unknown Applicant';
     const displayInitial = displayName.trim()?.[0]?.toUpperCase() ?? '?';
 
-    const applicantSkills = applicant.skills ?? [];
+    const applicantSkills = Array.isArray(application.skills)
+        ? application.skills
+        : (applicant.skills ?? []);
     const requiredSkillSet = new Set((job?.skills ?? []).map((skill) => skill.toLowerCase()));
     const nonMatchStyle = {
         backgroundColor: 'hsl(0, 0%, 95%)',

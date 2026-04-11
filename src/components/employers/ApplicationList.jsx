@@ -1,15 +1,16 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApplicationCard } from "./ApplicationCard";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-function toTimestamp(value) {
-    if (!value) return 0;
-    const timestamp = new Date(value).getTime();
-    return Number.isNaN(timestamp) ? 0 : timestamp;
-}
-
-function getAppliedTimestamp(application) {
-    return toTimestamp(application?.submittedAt || application?.date || application?.['date:'] || application?.appliedAt || application?.createdAt);
+function normalizeId(value) {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'object') {
+        if (typeof value.$oid === 'string') return value.$oid;
+        if (typeof value.id === 'string') return value.id;
+        if (typeof value._id === 'string') return value._id;
+    }
+    return String(value);
 }
 
 function ApplicantList() {
@@ -22,8 +23,30 @@ function ApplicantList() {
     const [searchName, setSearchName] = useState('');
     const [sortOrder, setSortOrder] = useState('newest');
     const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-    const lastViewedAt = job?.applicationInboxLastViewedAt || null;
-    const lastViewedTimestamp = toTimestamp(lastViewedAt);
+    const jobId = normalizeId(job?._id);
+
+    const fetchApplications = useCallback(async () => {
+        if (!jobId) return;
+
+        setLoading(true);
+        setError('');
+
+        try {
+            await fetch(`${API_BASE}/jobs/${jobId}/applications/read`, {
+                method: 'POST',
+            });
+
+            const res = await fetch(`${API_BASE}/jobs/${jobId}/applications`);
+            if (!res.ok) throw new Error('Failed to fetch applications');
+            const data = await res.json();
+            setApplications(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error("Failed to fetch applications", err);
+            setError('Could not load applications');
+        } finally {
+            setLoading(false);
+        }
+    }, [API_BASE, jobId]);
 
     const filteredApplications = useMemo(() => {
         const q = searchName.trim().toLowerCase();
@@ -55,37 +78,31 @@ function ApplicantList() {
     }, [applications, searchName, sortOrder]);
 
     useEffect(() => {
-        let isMounted = true;
+        fetchApplications();
+    }, [fetchApplications]);
 
-        async function fetchApplications() {
+    useEffect(() => {
+        if (!jobId) return;
+
+        const events = new EventSource(`${API_BASE}/events`);
+
+        const onApplicationCreated = async (event) => {
             try {
-                setLoading(true);
-                await fetch(`${API_BASE}/jobs/${job._id}/applications/read`, {
-                    method: 'POST',
-                });
-
-                const res = await fetch(`${API_BASE}/jobs/${job._id}/applications`);
-                if (!res.ok) throw new Error('Failed to fetch applications');
-                const data = await res.json();
-                if (isMounted) setApplications(Array.isArray(data) ? data : []);
+                const payload = JSON.parse(event.data || '{}');
+                if (normalizeId(payload?.jobId) !== jobId) return;
+                await fetchApplications();
             } catch (err) {
-                if (isMounted) {
-                    console.error("Failed to fetch applications", err);
-                    setError('Could not load applications');
-                }
-            } finally {
-                if (isMounted) setLoading(false);
+                console.error('Failed to process realtime application event:', err);
             }
-        }
+        };
 
-        if (job?._id) {
-            fetchApplications();
-        }
+        events.addEventListener('application-created', onApplicationCreated);
 
         return () => {
-            isMounted = false;
+            events.removeEventListener('application-created', onApplicationCreated);
+            events.close();
         };
-    }, [job?._id, API_BASE]);
+    }, [API_BASE, jobId, fetchApplications]);
 
 
     return (

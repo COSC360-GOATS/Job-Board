@@ -39,7 +39,7 @@ async function db() {
         const database = client.db("JobBoard");
 
         app.use("/applicants", applicantRoutes(database));
-        app.use("/applications", applicationRoutes(database));
+        app.use("/applications", applicationRoutes(database, sseHub.emit));
         app.use("/jobs", jobRoutes(database));
         app.use("/employers", employerRoutes(database));
         app.use("/ratings", ratingRoutes(database, sseHub.emit));
