@@ -43,6 +43,7 @@ function NavBar({ transparent = false }) {
 				link: role === 'employer' ? '/jobs/employers' : '/jobs',
 				badge: unreadCount > 0 ? unreadCount : null
 			},
+			...(role === 'applicant' ? [{ page: 'Applied Jobs', link: '/my-applications' }] : []),
 			{ page: 'Profile', link: '/profile' }
 		];
 

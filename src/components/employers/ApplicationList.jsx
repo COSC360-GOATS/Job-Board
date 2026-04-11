@@ -160,7 +160,12 @@ function ApplicantList() {
                         </div>
                     ) : (
                         filteredApplications.map((application) => (
-                            <ApplicationCard key={application._id} application={application} job={job} />
+                            <ApplicationCard
+                                key={application._id}
+                                application={application}
+                                job={job}
+                                onStatusUpdated={fetchApplications}
+                            />
                         ))
                     )}
                 </div>

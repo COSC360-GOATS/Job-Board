@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { ApplicationStatusBadge } from '../applicants/ApplicationStatusBadge'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -59,15 +60,6 @@ function ApplicantActivityPage() {
       alert('Failed to delete review');
     }
   };
-
-  const formatStatus = (status) => {
-    switch (status) {
-      case 'rejected': return <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded font-medium">Rejected</span>
-      case 'accepted': return <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded font-medium">Accepted</span>
-      case 'interview': return <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded font-medium">Interview</span>
-      default: return <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded font-medium capitalize">{status || 'Pending'}</span>
-    }
-  }
 
   const getApplicantName = () => {
     if (!applicant) return 'Applicant'
@@ -131,7 +123,7 @@ function ApplicantActivityPage() {
                           Applied On: {new Date(app.submittedAt || app.createdAt || app.date || Date.now()).toLocaleDateString()}
                         </p>
                       </div>
-                      {formatStatus(app.status)}
+                      <ApplicationStatusBadge status={app.status} />
                     </div>
                     {app.skills && app.skills.length > 0 && (
                       <div className="mt-3">

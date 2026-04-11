@@ -11,6 +11,7 @@ import ApplyPage from './components/applicants/ApplyPage'
 import { useEffect } from 'react'
 import LandingPage from './components/LandingPage'
 import ProfilePage from './components/applicants/ProfilePage'
+import MyApplicationsPage from './components/applicants/MyApplicationsPage'
 import EmployerProfile from './components/employers/EmployerProfile'
 import ApplicantActivityPage from './components/admin/ApplicantActivityPage'
 import { Navigate } from 'react-router-dom'
@@ -70,6 +71,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signout" element={<SignOut />} />
         <Route path="/profile" element={<ProfileRouter />} />
+        <Route path="/my-applications" element={<MyApplicationsPage />} />
         <Route path="/jobs" element={<JobListings />} />
         <Route path="/jobs/:jobId/apply" element={<ApplyPage />} />
         <Route path="/jobs/employers" element={<JobDashboard />} />
