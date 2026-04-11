@@ -7,6 +7,8 @@ import ApplicantApplicationsModal from './ApplicantApplicationsModal'
 import ListingApplicationsModal from './ListingApplicationsModal'
 import { useNavigate } from 'react-router-dom'
 
+import JobCard from '../employers/JobCard'
+
 const TABS = ['Applicants', 'Reviews', 'Employers', 'Listings']
 
 function AdminDashboard() {
@@ -251,13 +253,12 @@ function AdminDashboard() {
             </div>
           )}
 
-          {!loading && !error && filteredItems.map((item) => (
+          {!loading && !error && activeTab !== 'Listings' && filteredItems.map((item) => (
             <ItemCard
               key={item._id}
               item={item}
               itemType={
                 activeTab === 'Employers' ? 'employer' :
-                activeTab === 'Listings' ? 'listing' :
                 activeTab === 'Reviews' ? 'review' : 'applicant'
               }
               onDelete={handleToggleStatus}
@@ -265,6 +266,21 @@ function AdminDashboard() {
               onExplore={handleExplore}
             />
           ))}
+
+          {!loading && !error && activeTab === 'Listings' && (
+            <div className="grid w-full mx-auto grid-cols-[repeat(auto-fit,minmax(max(300px,calc((100%-3rem)/3)),1fr))] items-stretch gap-6 py-3">
+              {filteredItems.map((item) => (
+                <div key={item._id} className="h-full">
+                  <JobCard
+                    job={item}
+                    onDelete={() => handleToggleStatus(item._id)}
+                    onEdit={() => handleEdit(item._id)}
+                    onExplore={() => handleExplore(item._id)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
           {!loading && !error && filteredItems.length === 0 && (
             <div className="text-center py-12">
