@@ -4,9 +4,9 @@ import jobService from '../services/jobService.js';
 import validateRequest from '../middleware/validateRequest.js';
 import { createJobSchema, updateJobSchema } from '../validators/jobValidator.js';
 
-export default function jobRoutes(db) {
+export default function jobRoutes(db, emitEvent) {
     const service = jobService(db);
-    const controller = jobController(service);
+    const controller = jobController(service, emitEvent);
     const router = Router();
 
     router.get("/", controller.getAll);

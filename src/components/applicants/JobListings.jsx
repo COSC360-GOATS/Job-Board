@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import ApplicantJobCard from "./ApplicantJobCard";
 import { getCurrentUser, getUserRole } from "../../utils/user";
 
@@ -19,66 +19,85 @@ function JobListings() {
     const currentUser = getCurrentUser();
     const isApplicant = getUserRole(currentUser) === "applicant";
 
-    useEffect(() => {
-        async function load() {
-            try {
-                const requests = [
-                    fetch(`${API_BASE}/jobs`),
-                    fetch(`${API_BASE}/employers`),
-                ];
+    const loadJobs = useCallback(async () => {
+        try {
+            setLoading(true);
 
-                if (isApplicant && currentUser?.id) {
-                    requests.push(fetch(`${API_BASE}/jobs/recommendations/${currentUser.id}`));
-                }
+            const requests = [
+                fetch(`${API_BASE}/jobs`),
+                fetch(`${API_BASE}/employers`),
+            ];
 
-                const [jobsRes, employersRes, recommendationsRes] = await Promise.all(requests);
-
-                if (!jobsRes.ok || !employersRes.ok) throw new Error("Failed to load data");
-
-                const [jobsData, employersData] = await Promise.all([
-                    jobsRes.json(),
-                    employersRes.json(),
-                ]);
-
-                const openJobs = jobsData.filter((j) => !j.isClosed);
-                setJobs(openJobs);
-
-                const map = {};
-                for (const emp of employersData) {
-                    map[emp._id] = emp.companyName || emp.name || "Unknown Employer";
-                }
-                setEmployerMap(map);
-
-                const employerIds = [...new Set(openJobs.map((j) => j.employerId).filter(Boolean))];
-                const ratingResults = await Promise.all(
-                    employerIds.map((id) =>
-                        fetch(`${API_BASE}/ratings/employer/${id}/avg`)
-                            .then((r) => (r.ok ? r.json() : null))
-                            .catch(() => null)
-                    )
-                );
-                const ratingMap = {};
-                employerIds.forEach((id, i) => {
-                    const result = ratingResults[i];
-                    if (result?.avg != null) ratingMap[id] = result.avg;
-                });
-                setAvgRatingMap(ratingMap);
-
-                if (recommendationsRes?.ok) {
-                    const recommendationsData = await recommendationsRes.json();
-                    setRecommendedJobs(recommendationsData || []);
-                } else {
-                    setRecommendedJobs([]);
-                }
-                setRecommendationsLoaded(true);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
+            if (isApplicant && currentUser?.id) {
+                requests.push(fetch(`${API_BASE}/jobs/recommendations/${currentUser.id}`));
             }
+
+            const [jobsRes, employersRes, recommendationsRes] = await Promise.all(requests);
+
+            if (!jobsRes.ok || !employersRes.ok) throw new Error("Failed to load data");
+
+            const [jobsData, employersData] = await Promise.all([
+                jobsRes.json(),
+                employersRes.json(),
+            ]);
+
+            const openJobs = jobsData.filter((j) => !j.isClosed);
+            setJobs(openJobs);
+
+            const map = {};
+            for (const emp of employersData) {
+                map[emp._id] = emp.companyName || emp.name || "Unknown Employer";
+            }
+            setEmployerMap(map);
+
+            const employerIds = [...new Set(openJobs.map((j) => j.employerId).filter(Boolean))];
+            const ratingResults = await Promise.all(
+                employerIds.map((id) =>
+                    fetch(`${API_BASE}/ratings/employer/${id}/avg`)
+                        .then((r) => (r.ok ? r.json() : null))
+                        .catch(() => null)
+                )
+            );
+            const ratingMap = {};
+            employerIds.forEach((id, i) => {
+                const result = ratingResults[i];
+                if (result?.avg != null) ratingMap[id] = result.avg;
+            });
+            setAvgRatingMap(ratingMap);
+
+            if (recommendationsRes?.ok) {
+                const recommendationsData = await recommendationsRes.json();
+                setRecommendedJobs(recommendationsData || []);
+            } else {
+                setRecommendedJobs([]);
+            }
+            setRecommendationsLoaded(true);
+            setError(null);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
-        load();
     }, [currentUser?.id, isApplicant]);
+
+    useEffect(() => {
+        loadJobs();
+    }, [loadJobs]);
+
+    useEffect(() => {
+        const events = new EventSource(`${API_BASE}/events`);
+
+        const onJobCreated = async () => {
+            await loadJobs();
+        };
+
+        events.addEventListener('job-created', onJobCreated);
+
+        return () => {
+            events.removeEventListener('job-created', onJobCreated);
+            events.close();
+        };
+    }, [loadJobs]);
 
     const filteredJobs = useMemo(() => {
         const q = search.toLowerCase();

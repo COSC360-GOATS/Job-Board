@@ -1,10 +1,27 @@
 import createController from "./controller.js";
 
-export default function jobController(service) {
+export default function jobController(service, emitEvent = () => {}) {
     const controller = createController(service);
 
     return {
         ...controller,
+
+        async create(req, res) {
+            try {
+                const created = await service.create(req.body);
+                emitEvent('job-created', {
+                    jobId: created?._id,
+                    employerId: created?.employerId,
+                    postedAt: created?.postedAt || created?.createdAt || new Date().toISOString(),
+                });
+                return res.status(201).json(created);
+            }
+            catch (err) {
+                const statusCode = err.statusCode || 500;
+                const message = err.message || "Failed to create item";
+                return res.status(statusCode).json({ message });
+            }
+        },
 
         async getByEmployerId(req, res) {
             try {

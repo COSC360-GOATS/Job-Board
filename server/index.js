@@ -40,7 +40,7 @@ async function db() {
 
         app.use("/applicants", applicantRoutes(database));
         app.use("/applications", applicationRoutes(database, sseHub.emit));
-        app.use("/jobs", jobRoutes(database));
+        app.use("/jobs", jobRoutes(database, sseHub.emit));
         app.use("/employers", employerRoutes(database));
         app.use("/ratings", ratingRoutes(database, sseHub.emit));
         app.use("/auth", authRoutes(database));
