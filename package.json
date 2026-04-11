@@ -12,6 +12,8 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
     "test:controllers": "NODE_OPTIONS=--experimental-vm-modules jest testing/backend/controllers --runInBand",
     "test:routes": "NODE_OPTIONS=--experimental-vm-modules jest testing/backend/routes --runInBand",
+    "test:services": "NODE_OPTIONS=--experimental-vm-modules jest testing/backend/services --runInBand",
+    "test:utils": "NODE_OPTIONS=--experimental-vm-modules jest testing/frontend/utils --runInBand",
     "test:validators": "NODE_OPTIONS=--experimental-vm-modules jest testing/backend/validators --runInBand"
   },
   "dependencies": {

@@ -9,7 +9,7 @@ describe('jobValidator', () => {
       location: 'Saskatoon',
       payRange: { low: 25, high: 40 },
       skills: ['React', 'JavaScript'],
-      employerId: 'emp-123',
+      employerId: '507f1f77bcf86cd799439011',
       additionalQuestions: ['Do you have React experience?'],
     };
 
@@ -37,7 +37,7 @@ describe('jobValidator', () => {
       location: 'Saskatoon',
       payRange: { low: 50, high: 40 },
       skills: ['React', 'JavaScript'],
-      employerId: 'emp-123',
+      employerId: '507f1f77bcf86cd799439011',
       additionalQuestions: ['Do you have React experience?'],
     };
 
