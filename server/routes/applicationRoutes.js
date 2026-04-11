@@ -11,6 +11,7 @@ export default function applicationRoutes(db, emitEvent) {
     const router = Router();
 
     router.get("/", controller.getAll);
+    router.get("/applicant/:applicantId", controller.getByApplicantId);
     router.get("/:id", validateParams(applicationIdParamSchema), controller.getById);
     router.post("/", validateRequest(createApplicationSchema), controller.create);
     router.patch("/:id", validateParams(applicationIdParamSchema), validateRequest(updateApplicationSchema), controller.update);

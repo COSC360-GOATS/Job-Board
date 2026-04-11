@@ -6,6 +6,15 @@ export default function applicationController(service, emitEvent = () => {}) {
     return {
         ...baseController,
 
+        async getByApplicantId(req, res) {
+            try {
+                const applications = await service.getByApplicantId(req.params.applicantId);
+                return res.status(200).json(applications);
+            } catch {
+                return res.status(400).json({ error: "Invalid applicant id format" });
+            }
+        },
+
         async create(req, res) {
             try {
                 const created = await service.create(req.body);

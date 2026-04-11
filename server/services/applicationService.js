@@ -7,6 +7,24 @@ export default function applicationService(db) {
     return {
         ...service,
 
+        async getByApplicantId(applicantId) {
+            const applications = await db.collection('applications')
+                .find({ applicantId: applicantId })
+                .sort({ createdAt: -1 })
+                .toArray();
+
+            return await Promise.all(
+                applications.map(async (app) => {
+                    try {
+                        const job = await db.collection('jobs').findOne({ _id: new ObjectId(app.jobId) });
+                        return { ...app, job: job || null };
+                    } catch {
+                        return { ...app, job: null };
+                    }
+                })
+            );
+        },
+
         async create(payload, checkExists) {
             const nowIso = new Date().toISOString();
             const normalizedPayload = {
