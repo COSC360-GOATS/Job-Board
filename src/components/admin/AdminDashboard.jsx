@@ -4,6 +4,7 @@ import EditJobModal from './EditJobModal'
 import EditApplicantModal from './EditApplicantModal'
 import EditEmployerModal from './EditEmployerModal'
 import ApplicantApplicationsModal from './ApplicantApplicationsModal'
+import ListingApplicationsModal from './ListingApplicationsModal'
 import { useNavigate } from 'react-router-dom'
 
 const TABS = ['Applicants', 'Reviews', 'Employers', 'Listings']
@@ -18,6 +19,7 @@ function AdminDashboard() {
   const [editingApplicant, setEditingApplicant] = useState(null)
   const [editingEmployer, setEditingEmployer] = useState(null)
   const [exploringApplicant, setExploringApplicant] = useState(null)
+  const [exploringListing, setExploringListing] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -108,6 +110,9 @@ function AdminDashboard() {
       setExploringApplicant(applicant)
     } else if (activeTab === 'Employers') {
       navigate('/jobs?employerId=' + id) 
+    } else if (activeTab === 'Listings') {
+      const job = items.find(item => item._id === id)
+      setExploringListing(job)
     }
   }
 
@@ -298,8 +303,16 @@ function AdminDashboard() {
           onClose={() => setExploringApplicant(null)}
         />
       )}
+
+      {exploringListing && (
+        <ListingApplicationsModal
+          listing={exploringListing}
+          onClose={() => setExploringListing(null)}
+        />
+      )}
     </div>
   )
 }
+
 
 export default AdminDashboard

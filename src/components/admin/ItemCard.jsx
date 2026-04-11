@@ -100,6 +100,14 @@ function ItemCard({ item, onDelete, onEdit, onExplore, itemType = 'applicant' })
               Explore
             </button>
           )}
+          {itemType === 'listing' && (
+            <button 
+              onClick={() => onExplore && onExplore(item._id)}
+              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+            >
+              View Applicants
+            </button>
+          )}
           <button
             onClick={() => onDelete(item._id)}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
