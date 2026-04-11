@@ -78,17 +78,47 @@ function ListingApplicationsModal({ listing, onClose }) {
                   <div key={app._id} className="border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm flex flex-col gap-2">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-semibold text-gray-900 text-lg">Applicant: {getApplicantName(app)}</h3>
+                        <h3 className="font-semibold text-gray-900 text-lg">Job: {listing?.title || 'Job'}</h3>
+                        <h4 className="font-medium text-gray-800 mt-1">Applicant: {getApplicantName(app)}</h4>
                         <p className="text-xs text-gray-500 font-medium tracking-wide uppercase mt-1">
                           Applied {getAppliedTime(app)}
                         </p>
                       </div>
                       {formatStatus(app.status)}
                     </div>
-                    {app.coverLetter && (
-                      <div className="mt-2 bg-white p-3 rounded border border-gray-100 text-sm text-gray-600">
-                        <span className="font-semibold text-gray-700 block mb-1">Cover Letter:</span>
-                        {app.coverLetter}
+                    {app.skills && app.skills.length > 0 && (
+                      <div className="mt-3">
+                        <span className="font-semibold text-gray-700 text-sm block mb-1">Applicant Skills:</span>
+                        <div className="flex flex-wrap gap-2">
+                          {app.skills.map((skill, i) => (
+                            <span key={i} className="px-2 py-1 bg-violet-50 text-violet-700 text-xs rounded-md font-medium border border-violet-100">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {app.additionalAnswers && app.additionalAnswers.length > 0 && (
+                      <div className="flex flex-col gap-2 mt-3">
+                        <span className="font-semibold text-gray-700 text-sm">Additional Answers:</span>
+                        {app.additionalAnswers.map((answer, i) => (
+                          <div key={i} className="bg-white p-3 rounded border border-gray-200 text-sm text-gray-600">
+                            {answer || <span className="text-gray-400 italic">No answer provided</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {(app.resume || app.applicant?.resume) && (
+                      <div className="mt-4 border-t border-gray-100 pt-3">
+                        <a
+                          href={`${API_BASE}${app.resume || app.applicant?.resume}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 text-sm font-medium rounded-lg hover:bg-indigo-100 transition"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                          View Resume
+                        </a>
                       </div>
                     )}
                   </div>
