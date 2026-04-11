@@ -6,6 +6,8 @@ const objectIdSchema = Joi.string().pattern(objectIdPattern).messages({
     'string.pattern.base': 'must be a valid id',
 });
 
+export const APPLICATION_STATUSES = ['pending', 'interview', 'accepted', 'rejected'];
+
 const applicationFields = {
     jobId: objectIdSchema,
     applicantId: objectIdSchema,
@@ -15,6 +17,8 @@ const applicationFields = {
     submittedAt: Joi.date().iso(),
     createdAt: Joi.date().iso(),
 };
+
+const applicationStatusSchema = Joi.string().valid(...APPLICATION_STATUSES);
 
 export const createApplicationSchema = Joi.object({
     ...applicationFields,
@@ -28,7 +32,10 @@ export const updateApplicationSchema = Joi.object({
     date: applicationFields.date,
     submittedAt: applicationFields.submittedAt,
     createdAt: applicationFields.createdAt,
-}).unknown(false);
+    status: applicationStatusSchema,
+})
+    .or('skills', 'additionalAnswers', 'date', 'submittedAt', 'createdAt', 'status')
+    .unknown(false);
 
 export const applicationIdParamSchema = Joi.object({
     id: objectIdSchema.required(),
