@@ -108,6 +108,15 @@ export default function jobController(service, emitEvent = () => {}) {
             } catch {
                 return res.status(400).json({ error: "Invalid job id format" });
             }
+        },
+
+        async getWeeklyApplicationsByEmployer(req, res) {
+            try {
+                const data = await service.getWeeklyApplicationsByEmployer(req.params.employerId);
+                return res.status(200).json(data);
+            } catch {
+                return res.status(400).json({ error: "Invalid employer id" });
+            }
         }
     }
 }

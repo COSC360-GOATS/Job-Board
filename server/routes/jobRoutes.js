@@ -13,6 +13,7 @@ export default function jobRoutes(db, emitEvent) {
     router.get("/", controller.getAll);
     router.get("/recommendations/:applicantId", validateParams(applicantIdParamSchema), controller.getRecommendationsForApplicant);
     router.get("/employer/:employerId", validateParams(employerIdParamSchema), controller.getByEmployerId);
+    router.get("/employer/:employerId/applications/weekly", validateParams(employerIdParamSchema), controller.getWeeklyApplicationsByEmployer);
     router.get("/:id", validateParams(jobIdParamSchema), controller.getById);
     router.post("/", validateRequest(createJobSchema), controller.create);
     router.patch("/:id", validateParams(jobIdParamSchema), validateRequest(updateJobSchema), controller.update);
