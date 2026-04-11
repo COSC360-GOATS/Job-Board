@@ -67,8 +67,15 @@ function AdminDashboard() {
         endpoint = '/api/employers'
         statusField = 'isDeactivated'
       } else if (activeTab === 'Listings') {
-        endpoint = '/api/jobs'
-        statusField = 'isClosed'
+        if (!window.confirm('Are you sure you want to permanently delete this job listing?')) return
+        const response = await fetch(`/api/jobs/${id}`, {
+          method: 'DELETE'
+        })
+        if (!response.ok) {
+          throw new Error('Failed to delete job listing')
+        }
+        setItems(items.filter(item => item._id !== id))
+        return
       } else if (activeTab === 'Reviews') {
         const response = await fetch(`/api/ratings/${id}`, {
           method: 'DELETE'

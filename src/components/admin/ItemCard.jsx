@@ -111,21 +111,17 @@ function ItemCard({ item, onDelete, onEdit, onExplore, itemType = 'applicant' })
           <button
             onClick={() => onDelete(item._id)}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
-              itemType === 'review'
+              (itemType === 'review' || itemType === 'listing')
                 ? 'text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700'
-                : itemType === 'listing'
-                  ? item.isClosed
-                    ? 'text-green-700 bg-green-100 hover:bg-green-200'
-                    : 'text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700'
-                  : item.isDeactivated
-                    ? 'text-green-700 bg-green-100 hover:bg-green-200'
-                    : 'text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700'
+                : item.isDeactivated
+                  ? 'text-green-700 bg-green-100 hover:bg-green-200'
+                  : 'text-gray-700 bg-gray-100 hover:bg-red-100 hover:text-red-700'
             }`}
           >
             {itemType === 'review' 
               ? 'Delete Review'
               : itemType === 'listing' 
-                ? item.isClosed ? 'Reopen' : 'Close'
+                ? 'Delete Listing'
                 : item.isDeactivated ? 'Reactivate' : 'Deactivate'}
           </button>
           {itemType !== 'review' && (
