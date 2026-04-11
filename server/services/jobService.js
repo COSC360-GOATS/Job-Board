@@ -30,6 +30,30 @@ export default function jobService(db) {
             return await service.create(payload);
         },
 
+        async getAll() {
+            const jobs = await collection.find({}).toArray();
+
+            return await Promise.all(
+                jobs.map(async (job) => {
+                    const applications = await applicationsCollection.find({ jobId: job._id?.toString?.() || job._id }).toArray();
+                    const lastViewedAt = job.applicationInboxLastViewedAt || null;
+                    const lastViewedTimestamp = toTimestamp(lastViewedAt);
+
+                    const unreadApplications = applications.filter((application) => {
+                        const submittedAt = application?.submittedAt || application?.date || application?.createdAt;
+                        return toTimestamp(submittedAt) > lastViewedTimestamp;
+                    }).length;
+
+                    return {
+                        ...job,
+                        unreadApplications,
+                        totalApplications: applications.length,
+                        views: job.views || 0,
+                    };
+                })
+            );
+        },
+
         async getByEmployerId(employerId) {
             if (!ObjectId.isValid(employerId)) return [];
             const jobs = await collection.find({ employerId: employerId }).toArray();
@@ -48,6 +72,8 @@ export default function jobService(db) {
                     return {
                         ...job,
                         unreadApplications,
+                        totalApplications: applications.length,
+                        views: job.views || 0,
                     };
                 })
             );
@@ -147,6 +173,14 @@ export default function jobService(db) {
                 { $set: { applicationInboxLastViewedAt: nowIso } }
             );
 
+            return await collection.findOne({ _id: new ObjectId(jobId) });
+        },
+
+        async incrementViews(jobId) {
+            await collection.updateOne(
+                { _id: new ObjectId(jobId) },
+                { $inc: { views: 1 } }
+            );
             return await collection.findOne({ _id: new ObjectId(jobId) });
         }
     }

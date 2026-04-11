@@ -99,6 +99,15 @@ export default function jobController(service, emitEvent = () => {}) {
             } catch {
                 return res.status(400).json({ error: "Invalid job id format" });
             }
+        },
+
+        async incrementViews(req, res) {
+            try {
+                await service.incrementViews(req.params.id);
+                return res.status(200).json({ success: true });
+            } catch {
+                return res.status(400).json({ error: "Invalid job id format" });
+            }
         }
     }
 }
