@@ -52,7 +52,7 @@ function ReviewSection({
     employerId,
     className = ''
 }) {
-    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
     const [employer, setEmployer] = useState(null);
     const [ratings, setRatings] = useState([]);
     const [averageRating, setAverageRating] = useState(null);

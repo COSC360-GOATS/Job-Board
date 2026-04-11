@@ -21,7 +21,7 @@ const defaultJob = {
 
 function JobCard({ job = defaultJob, onDelete, onEdit, onExplore, isAdmin }) {
     const navigate = useNavigate();
-    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
     const postedDate = job.postedAt || job.date || job.createdAt;
     const postedTimeAgo = formatTimeAgo(postedDate);
     const unreadApplications = Number(job?.unreadApplications || 0);
