@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import Skills, { Skill } from "../Skills";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
@@ -25,6 +25,7 @@ function ApplyPage() {
 
     const user = getCurrentUser();
     const isAuthenticated = user && getUserRole(user) === 'applicant';
+    const hasViewed = useRef(false);
 
     useEffect(() => {
         if (job) return;
@@ -37,6 +38,11 @@ function ApplyPage() {
 
     useEffect(() => {
         if (!job?.employerId) return;
+
+        if (!hasViewed.current) {
+            hasViewed.current = true;
+            fetch(`${API_BASE}/jobs/${jobId}/view`, { method: 'POST' }).catch(() => {});
+        }
 
         Promise.all([
             fetch(`${API_BASE}/employers/${job.employerId}`).then((r) => r.ok ? r.json() : null),

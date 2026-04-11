@@ -19,6 +19,7 @@ export default function jobRoutes(db, emitEvent) {
     router.delete("/:id", validateParams(jobIdParamSchema), controller.remove);
     router.get("/:id/applications", validateParams(jobIdParamSchema), controller.getApplicationsForJob);
     router.post("/:id/applications/read", validateParams(jobIdParamSchema), controller.markApplicationsAsRead);
+    router.post("/:id/view", validateParams(jobIdParamSchema), controller.incrementViews);
 
     return router;
 }

@@ -19,12 +19,14 @@ const defaultJob = {
     skills: ['JavaScript', 'React', 'Node.js']
 };
 
-function JobCard({ job = defaultJob, onDelete, onEdit, onExplore }) {
+function JobCard({ job = defaultJob, onDelete, onEdit, onExplore, isAdmin }) {
     const navigate = useNavigate();
     const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
     const postedDate = job.postedAt || job.date || job.createdAt;
     const postedTimeAgo = formatTimeAgo(postedDate);
     const unreadApplications = Number(job?.unreadApplications || 0);
+    const totalApplications = Number(job?.totalApplications || 0);
+    const views = Number(job?.views || 0);
 
 
     const buttonStyle = "cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100";
@@ -70,21 +72,23 @@ function JobCard({ job = defaultJob, onDelete, onEdit, onExplore }) {
                     title={`View applications for ${job.title}`}
                     >
                         {job.title}
-                    </h3>
+                </h3>
 
-                <div className="flex justify-end gap-2 shrink-0">
-                    <button
-                        className={buttonStyle}
-                        onClick={editClickParams}
-                    >
-                        Edit
-                    </button>
-                    <button
-                        className="cursor-pointer rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-100"
-                        onClick={deleteJob}
-                    >
-                        Delete
-                    </button>
+                <div className="flex flex-col items-end gap-3 shrink-0">
+                    <div className="flex justify-end gap-2">
+                        <button
+                            className={buttonStyle}
+                            onClick={editClickParams}
+                        >
+                            Edit
+                        </button>
+                        <button
+                            className="cursor-pointer rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-100"
+                            onClick={deleteJob}
+                        >
+                            Delete
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -93,11 +97,20 @@ function JobCard({ job = defaultJob, onDelete, onEdit, onExplore }) {
                 {postedTimeAgo && (
                     <p className="text-sm text-slate-500">Posted {postedTimeAgo}</p>
                 )}
-                {unreadApplications > 0 && (
-                    <p className="mt-2 inline-flex w-fit items-center rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-700">
-                        {unreadApplications} unread application{unreadApplications === 1 ? '' : 's'}
+                
+                <div className="mt-2 flex flex-wrap gap-2">
+                    {!isAdmin && unreadApplications > 0 && (
+                        <p className="inline-flex w-fit items-center rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-700">
+                            {unreadApplications} unread application{unreadApplications === 1 ? '' : 's'}
+                        </p>
+                    )}
+                    <p className="inline-flex w-fit items-center rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-700">
+                        {totalApplications} application{totalApplications === 1 ? '' : 's'}
                     </p>
-                )}
+                    <p className="inline-flex w-fit items-center rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-700">
+                        {views} view{views === 1 ? '' : 's'}
+                    </p>
+                </div>
             </div>
 
 

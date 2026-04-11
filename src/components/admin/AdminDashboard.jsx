@@ -269,6 +269,7 @@ function AdminDashboard() {
               {filteredItems.map((item) => (
                 <div key={item._id} className="h-full">
                   <JobCard
+                    isAdmin={true}
                     job={item}
                     onDelete={() => handleToggleStatus(item._id)}
                     onEdit={() => handleEdit(item._id)}
