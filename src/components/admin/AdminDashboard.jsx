@@ -5,14 +5,15 @@ import EditApplicantModal from './EditApplicantModal'
 import EditEmployerModal from './EditEmployerModal'
 import ApplicantApplicationsModal from './ApplicantApplicationsModal'
 import ListingApplicationsModal from './ListingApplicationsModal'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import JobCard from '../employers/JobCard'
 
 const TABS = ['Applicants', 'Reviews', 'Employers', 'Listings']
 
 function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('Applicants')
+  const location = useLocation()
+  const [activeTab, setActiveTab] = useState(location.state?.tab || 'Applicants')
   const [searchQuery, setSearchQuery] = useState('')
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -121,7 +122,7 @@ function AdminDashboard() {
       navigate('/jobs?employerId=' + id) 
     } else if (activeTab === 'Listings') {
       const job = items.find(item => item._id === id)
-      navigate(`/jobs/employers/${id}/applications`, { state: { job } })
+      navigate(`/jobs/employers/${id}/applications`, { state: { job, fromAdmin: true } })
     }
   }
 
