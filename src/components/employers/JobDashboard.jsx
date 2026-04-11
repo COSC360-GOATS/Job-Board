@@ -1,7 +1,18 @@
 import JobCard from './JobCard';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../utils/user';
+
+function normalizeId(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object') {
+    if (typeof value.$oid === 'string') return value.$oid;
+    if (typeof value.id === 'string') return value.id;
+    if (typeof value._id === 'string') return value._id;
+  }
+  return String(value);
+}
 
 function JobDashboard() {
   const navigate = useNavigate();
@@ -11,6 +22,28 @@ function JobDashboard() {
   const [sortBy, setSortBy] = useState('postedAt');
   const [sortOrder, setSortOrder] = useState('desc');
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const user = getCurrentUser();
+  const employerId = user?.id;
+
+  const fetchJobs = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      if (!employerId) {
+        throw new Error('Missing employer id');
+      }
+
+      const res = await fetch(`${API_BASE}/jobs/employer/${employerId}`);
+      if (!res.ok) throw new Error('Failed to fetch jobs');
+      const data = await res.json();
+      setJobs(Array.isArray(data) ? data : []);
+      setError('');
+    } catch {
+      setError('Could not load jobs');
+    } finally {
+      setLoading(false);
+    }
+  }, [API_BASE, employerId]);
 
   const sortedJobs = useMemo(() => {
     const normalizedOrder = sortOrder === 'asc' ? 1 : -1;
@@ -46,36 +79,46 @@ function JobDashboard() {
   }, [jobs, sortBy, sortOrder]);
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function fetchJobs() {
-      try {
-        setLoading(true);
-
-        const user = getCurrentUser();
-        const employerId = user?.id;
-
-        if (!employerId) {
-          throw new Error('Missing employer id');
-        }
-
-        const res = await fetch(`${API_BASE}/jobs/employer/${employerId}`);
-        if (!res.ok) throw new Error('Failed to fetch jobs');
-        const data = await res.json();
-        if (isMounted) setJobs(Array.isArray(data) ? data : []);
-      } catch (err) {
-        if (isMounted) setError('Could not load jobs');
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-
     fetchJobs();
+  }, [fetchJobs]);
+
+  useEffect(() => {
+    if (!employerId) return;
+
+    const events = new EventSource(`${API_BASE}/events`);
+
+    const onApplicationChanged = async () => {
+      await fetchJobs();
+    };
+
+    events.addEventListener('application-created', onApplicationChanged);
+    events.addEventListener('application-updated', onApplicationChanged);
+    events.addEventListener('application-deleted', onApplicationChanged);
+
+    const onJobChanged = async (event) => {
+      try {
+        const payload = JSON.parse(event.data || '{}');
+        if (normalizeId(payload?.employerId) !== normalizeId(employerId)) return;
+        await fetchJobs();
+      } catch {
+        await fetchJobs();
+      }
+    };
+
+    events.addEventListener('job-created', onJobChanged);
+    events.addEventListener('job-updated', onJobChanged);
+    events.addEventListener('job-deleted', onJobChanged);
 
     return () => {
-      isMounted = false;
+      events.removeEventListener('application-created', onApplicationChanged);
+      events.removeEventListener('application-updated', onApplicationChanged);
+      events.removeEventListener('application-deleted', onApplicationChanged);
+      events.removeEventListener('job-created', onJobChanged);
+      events.removeEventListener('job-updated', onJobChanged);
+      events.removeEventListener('job-deleted', onJobChanged);
+      events.close();
     };
-  }, [API_BASE]);
+  }, [API_BASE, employerId, fetchJobs]);
 
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-6 text-slate-900">

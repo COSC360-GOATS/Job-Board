@@ -161,7 +161,7 @@ function JobForm({ job, onSave, onCancel, isModal }) {
             const saved = await res.json();
             console.log("Saved job", saved);
 
-            navigate('/jobs');
+            navigate('/jobs/employers');
         } catch (err) {
             console.error("Request failed", err);
         } finally {

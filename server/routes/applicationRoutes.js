@@ -2,9 +2,9 @@ import { Router } from "express";
 import applicationController from "../controllers/applicationController.js";
 import applicationService from "../services/applicationService.js";
 
-export default function applicationRoutes(db) {
+export default function applicationRoutes(db, emitEvent) {
     const service = applicationService(db);
-    const controller = applicationController(service);
+    const controller = applicationController(service, emitEvent);
     const router = Router();
 
     router.get("/", controller.getAll);
