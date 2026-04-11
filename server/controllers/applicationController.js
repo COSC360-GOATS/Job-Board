@@ -62,12 +62,7 @@ export default function applicationController(service, emitEvent = () => {}) {
                 return res.status(400).json({ error: "Invalid id format" });
             }
         },
-    };
-export default function applicationController(service) {
-    const baseController = createController(service);
-
-    return {
-        ...baseController,
+        
         async getByApplicantId(req, res) {
             try {
                 const items = await service.getByApplicantId(req.params.applicantId);
