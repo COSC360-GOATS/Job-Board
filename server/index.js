@@ -21,7 +21,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const sseHub = createSseHub();
 
-app.use(cors());
+app.use(cors({
+    origin: ['https://job-board-production-165b.up.railway.app', 'http://localhost:4000'],
+    credentials: true
+}));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/upload', uploadRoutes());
