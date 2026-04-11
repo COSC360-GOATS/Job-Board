@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Skills from "../Skills";
 import FormField from "./FormField";
+import { getCurrentUser } from "../../utils/user";
 
 function validateJobForm({ title, description, payRangeLow, payRangeHigh, location, additionalQuestions }) {
     const errors = {};
@@ -83,6 +84,7 @@ function JobForm({ job, onSave, onCancel, isModal }) {
     const [submitted, setSubmitted] = useState(false);
     const [saving, setSaving] = useState(false);
     const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const currentUser = getCurrentUser();
 
     const navigate = useNavigate();
     const loc = useLocation();
@@ -122,6 +124,13 @@ function JobForm({ job, onSave, onCancel, isModal }) {
             return;
         }
 
+        const employerId = (creating ? currentUser?.id : (job?.employerId || currentUser?.id));
+
+        if (!employerId) {
+            console.error("Missing employer id");
+            return;
+        }
+
         const payload = {
             title,
             description,
@@ -132,7 +141,7 @@ function JobForm({ job, onSave, onCancel, isModal }) {
             },
             additionalQuestions: additionalQuestions.map((q) => q.trim()).filter((q) => q !== ""),
             skills,
-            employerId: import.meta.env.VITE_TEMP_EMPLOYER_ID,
+            employerId,
             postedAt: creating ? new Date().toISOString() : job.postedAt
         }
 
