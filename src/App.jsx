@@ -12,7 +12,16 @@ import { useEffect } from 'react'
 import LandingPage from './components/LandingPage'
 import ProfilePage from './components/applicants/ProfilePage'
 import EmployerProfile from './components/employers/EmployerProfile'
+import { Navigate } from 'react-router-dom'
 import { getCurrentUser, getUserRole } from './utils/user'
+
+function AdminRoute({ children }) {
+  const user = getCurrentUser()
+  if (getUserRole(user) !== 'admin') {
+    return <Navigate to="/login" replace />
+  }
+  return children
+}
 
 function ProfileRouter() {
   const user = getCurrentUser()
@@ -46,7 +55,11 @@ function App() {
 
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        } />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signout" element={<SignOut />} />

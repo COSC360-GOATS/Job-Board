@@ -34,6 +34,16 @@ export default function ratingController(service, emitEvent = () => {}) {
                 return res.status(500).json({ error: "Failed to fetch ratings" });
             }
         },
+
+        async getByApplicantId(req, res) {
+            try {
+                const ratings = await service.getByApplicantId(req.params.applicantId);
+                return res.status(200).json(ratings);
+            }
+            catch (err) {
+                return res.status(500).json({ error: "Failed to fetch reviews" });
+            }
+        },
         
         async getAvgRatingForEmployer(req, res) {
             try {

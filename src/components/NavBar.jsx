@@ -33,7 +33,8 @@ function NavBar({ transparent = false }) {
 		? [
 			{ page: 'Home', link: '/' },
 			{ page: 'Admin', link: '/admin' },
-			{ page: 'Profile', link: '/profile' }
+			{ page: 'Explore Jobs', link: '/jobs' },
+			{ page: 'Manage Jobs', link: '/jobs/employers' }
 		]
 		: [
 			{ page: 'Home', link: '/' },
@@ -73,6 +74,7 @@ function NavBar({ transparent = false }) {
 							<NavLink
 								key={item.page}
 								to={item.link}
+								end
 								className={({ isActive }) => navItemClassName(isActive)}
 							>
 								{item.page}

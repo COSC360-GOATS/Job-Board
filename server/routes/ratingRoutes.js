@@ -13,6 +13,7 @@ export default function ratingRoutes(db, emitEvent) {
     router.get("/", controller.getAll);
     router.get("/employer/:employerId/avg", validateParams(employerIdParamSchema), controller.getAvgRatingForEmployer);
     router.get("/employer/:employerId", validateParams(employerIdParamSchema), controller.getByEmployerId);
+    router.get("/applicant/:applicantId", controller.getByApplicantId);
     router.get("/:id", validateParams(ratingIdParamSchema), controller.getById);
     router.post("/", validateRequest(createRatingSchema), controller.create);
     router.put("/:id", validateParams(ratingIdParamSchema), validateRequest(updateRatingSchema), controller.update);

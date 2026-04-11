@@ -62,5 +62,14 @@ export default function applicationController(service, emitEvent = () => {}) {
                 return res.status(400).json({ error: "Invalid id format" });
             }
         },
+        
+        async getByApplicantId(req, res) {
+            try {
+                const items = await service.getByApplicantId(req.params.applicantId);
+                return res.status(200).json(items);
+            } catch (err) {
+                return res.status(500).json({ error: "Failed to fetch applications" });
+            }
+        }
     };
 }

@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import ItemCard from './ItemCard'
 import EditJobModal from './EditJobModal'
+import EditApplicantModal from './EditApplicantModal'
+import EditEmployerModal from './EditEmployerModal'
+import ApplicantApplicationsModal from './ApplicantApplicationsModal'
+import ListingApplicationsModal from './ListingApplicationsModal'
+import { useNavigate } from 'react-router-dom'
 
 const TABS = ['Applicants', 'Reviews', 'Employers', 'Listings']
 
@@ -11,6 +16,11 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [editingJob, setEditingJob] = useState(null)
+  const [editingApplicant, setEditingApplicant] = useState(null)
+  const [editingEmployer, setEditingEmployer] = useState(null)
+  const [exploringApplicant, setExploringApplicant] = useState(null)
+  const [exploringListing, setExploringListing] = useState(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,6 +33,8 @@ function AdminDashboard() {
           endpoint = '/api/employers'
         } else if (activeTab === 'Listings') {
           endpoint = '/api/jobs'
+        } else if (activeTab === 'Reviews') {
+          endpoint = '/api/ratings'
         }
         
         const response = await fetch(endpoint)
@@ -41,7 +53,7 @@ function AdminDashboard() {
       }
     }
 
-    if (activeTab === 'Applicants' || activeTab === 'Employers' || activeTab === 'Listings') {
+    if (activeTab === 'Applicants' || activeTab === 'Employers' || activeTab === 'Listings' || activeTab === 'Reviews') {
       fetchData()
     }
   }, [activeTab])
@@ -55,8 +67,24 @@ function AdminDashboard() {
         endpoint = '/api/employers'
         statusField = 'isDeactivated'
       } else if (activeTab === 'Listings') {
-        endpoint = '/api/jobs'
-        statusField = 'isClosed'
+        if (!window.confirm('Are you sure you want to permanently delete this job listing?')) return
+        const response = await fetch(`/api/jobs/${id}`, {
+          method: 'DELETE'
+        })
+        if (!response.ok) {
+          throw new Error('Failed to delete job listing')
+        }
+        setItems(items.filter(item => item._id !== id))
+        return
+      } else if (activeTab === 'Reviews') {
+        const response = await fetch(`/api/ratings/${id}`, {
+          method: 'DELETE'
+        })
+        if (!response.ok) {
+          throw new Error('Failed to delete review')
+        }
+        setItems(items.filter(item => item._id !== id))
+        return
       }
       
       const item = items.find(i => i._id === id)
@@ -83,10 +111,28 @@ function AdminDashboard() {
     }
   }
 
+  const handleExplore = (id) => {
+    if (activeTab === 'Applicants') {
+      const applicant = items.find(item => item._id === id)
+      setExploringApplicant(applicant)
+    } else if (activeTab === 'Employers') {
+      navigate('/jobs?employerId=' + id) 
+    } else if (activeTab === 'Listings') {
+      const job = items.find(item => item._id === id)
+      setExploringListing(job)
+    }
+  }
+
   const handleEdit = (id) => {
     if (activeTab === 'Listings') {
       const job = items.find(item => item._id === id)
       setEditingJob(job)
+    } else if (activeTab === 'Applicants') {
+      const applicant = items.find(item => item._id === id)
+      setEditingApplicant(applicant)
+    } else if (activeTab === 'Employers') {
+      const employer = items.find(item => item._id === id)
+      setEditingEmployer(employer)
     }
   }
 
@@ -118,9 +164,11 @@ function AdminDashboard() {
     let searchableText = ''
     
     if (activeTab === 'Employers') {
-      searchableText = item.name || 'Unknown'
+      searchableText = item.name || item.companyName || 'Unknown'
     } else if (activeTab === 'Listings') {
       searchableText = `${item.title || ''} ${item.description || ''} ${item.location || ''}`
+    } else if (activeTab === 'Reviews') {
+      searchableText = `${item.comment || ''} ${item.rating || ''} ${item.employerName || ''} ${item.applicantName || ''}`
     } else {
       let firstName = item.firstName
       let lastName = item.lastName
@@ -140,9 +188,9 @@ function AdminDashboard() {
       searchableText = firstName && lastName ? `${firstName} ${lastName}` : (firstName || lastName || 'Unknown')
     }
     
-    const email = item.email || ''
-    const searchLower = searchQuery.toLowerCase()
-    return searchableText.toLowerCase().includes(searchLower) || email.toLowerCase().includes(searchLower)
+    const email = String(item.email || '')
+    const searchLower = String(searchQuery).toLowerCase()
+    return String(searchableText).toLowerCase().includes(searchLower) || email.toLowerCase().includes(searchLower)
   })
 
   return (
@@ -155,7 +203,11 @@ function AdminDashboard() {
             {TABS.map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => {
+                  setLoading(true)
+                  setItems([])
+                  setActiveTab(tab)
+                }}
                 className={`px-4 py-2 rounded-lg font-medium transition ${
                   activeTab === tab
                     ? 'bg-slate-800 text-white'
@@ -203,9 +255,14 @@ function AdminDashboard() {
             <ItemCard
               key={item._id}
               item={item}
-              itemType={activeTab === 'Employers' ? 'employer' : activeTab === 'Listings' ? 'listing' : 'applicant'}
+              itemType={
+                activeTab === 'Employers' ? 'employer' :
+                activeTab === 'Listings' ? 'listing' :
+                activeTab === 'Reviews' ? 'review' : 'applicant'
+              }
               onDelete={handleToggleStatus}
               onEdit={handleEdit}
+              onExplore={handleExplore}
             />
           ))}
 
@@ -224,8 +281,45 @@ function AdminDashboard() {
           onSave={handleSaveJob}
         />
       )}
+      
+      {editingApplicant && (
+        <EditApplicantModal
+          applicant={editingApplicant}
+          onClose={() => setEditingApplicant(null)}
+          onSave={(updatedApplicant) => {
+            setItems(items.map(item => item._id === editingApplicant._id ? updatedApplicant : item))
+            setEditingApplicant(null)
+          }}
+        />
+      )}
+
+      {editingEmployer && (
+        <EditEmployerModal
+          employer={editingEmployer}
+          onClose={() => setEditingEmployer(null)}
+          onSave={(updatedEmployer) => {
+            setItems(items.map(item => item._id === editingEmployer._id ? updatedEmployer : item))
+            setEditingEmployer(null)
+          }}
+        />
+      )}
+
+      {exploringApplicant && (
+        <ApplicantApplicationsModal
+          applicant={exploringApplicant}
+          onClose={() => setExploringApplicant(null)}
+        />
+      )}
+
+      {exploringListing && (
+        <ListingApplicationsModal
+          listing={exploringListing}
+          onClose={() => setExploringListing(null)}
+        />
+      )}
     </div>
   )
 }
+
 
 export default AdminDashboard
