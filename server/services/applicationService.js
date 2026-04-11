@@ -13,6 +13,7 @@ export default function applicationService(db) {
                 ...payload,
                 submittedAt: payload?.submittedAt || payload?.date || payload?.createdAt || nowIso,
                 createdAt: payload?.createdAt || nowIso,
+                status: 'pending',
             };
 
             if (!ObjectId.isValid(normalizedPayload.jobId)) {
@@ -47,17 +48,35 @@ export default function applicationService(db) {
 
         async getByApplicantId(applicantId) {
             const applications = await db.collection('applications').find({ applicantId }).toArray();
-            
+            const jobsCol = db.collection('jobs');
+            const employersCol = db.collection('employers');
+
             return await Promise.all(
                 applications.map(async (app) => {
+                    const status = app.status || 'pending';
                     try {
-                        if (app.jobId) {
-                            const { ObjectId } = await import('mongodb');
-                            const job = await db.collection('jobs').findOne({ _id: new ObjectId(app.jobId) });
-                            return { ...app, jobTitle: job ? job.title : 'Deleted Job' };
+                        if (app.jobId && ObjectId.isValid(app.jobId)) {
+                            const job = await jobsCol.findOne({ _id: new ObjectId(app.jobId) });
+                            if (!job) {
+                                return { ...app, jobTitle: 'Deleted Job', employerName: null, jobLocation: null, status };
+                            }
+                            let employerName = null;
+                            if (job.employerId && ObjectId.isValid(job.employerId)) {
+                                const employer = await employersCol.findOne({ _id: new ObjectId(job.employerId) });
+                                employerName = employer?.companyName || employer?.name || null;
+                            }
+                            return {
+                                ...app,
+                                jobTitle: job.title,
+                                jobLocation: job.location ?? null,
+                                employerName,
+                                status,
+                            };
                         }
-                    } catch(e) {}
-                    return { ...app, jobTitle: 'Unknown Job' };
+                    } catch {
+                        // fall through
+                    }
+                    return { ...app, jobTitle: 'Unknown Job', employerName: null, jobLocation: null, status };
                 })
             );
         },
