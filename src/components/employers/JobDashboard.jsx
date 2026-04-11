@@ -21,7 +21,7 @@ function JobDashboard() {
   const [error, setError] = useState('');
   const [sortBy, setSortBy] = useState('postedAt');
   const [sortOrder, setSortOrder] = useState('desc');
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
   const user = getCurrentUser();
   const employerId = user?.id;
 

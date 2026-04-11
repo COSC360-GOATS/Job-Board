@@ -28,7 +28,16 @@ app.get('/events', sseHub.handler);
 
 await db();
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+const PORT = process.env.PORT || 4000;
+app.use(express.static(path.join(__dirname, '../dist')));
+app.get(/^(.*)$/, (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/upload') || req.path.startsWith('/events') || req.path.startsWith('/applicants') || req.path.startsWith('/applications') || req.path.startsWith('/jobs') || req.path.startsWith('/employers') || req.path.startsWith('/ratings') || req.path.startsWith('/auth')) {
+        return next();
+    }
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 async function db() {
     const uri = process.env.MONGO_URI;

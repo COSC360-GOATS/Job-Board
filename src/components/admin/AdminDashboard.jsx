@@ -1,3 +1,4 @@
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 import { useState, useEffect } from 'react'
 import ItemCard from './ItemCard'
 import EditJobModal from './EditJobModal'
@@ -27,13 +28,13 @@ function AdminDashboard() {
         setLoading(true)
         setError('')
         
-        let endpoint = '/api/applicants'
+        let endpoint = `${API_BASE}/applicants`
         if (activeTab === 'Employers') {
-          endpoint = '/api/employers'
+          endpoint = `${API_BASE}/employers`
         } else if (activeTab === 'Listings') {
-          endpoint = '/api/jobs'
+          endpoint = `${API_BASE}/jobs`
         } else if (activeTab === 'Reviews') {
-          endpoint = '/api/ratings'
+          endpoint = `${API_BASE}/ratings`
         }
         
         const response = await fetch(endpoint)
@@ -59,15 +60,15 @@ function AdminDashboard() {
 
   const handleToggleStatus = async (id) => {
     try {
-      let endpoint = '/api/applicants'
+      let endpoint = `${API_BASE}/applicants`
       let statusField = 'isDeactivated'
       
       if (activeTab === 'Employers') {
-        endpoint = '/api/employers'
+        endpoint = `${API_BASE}/employers`
         statusField = 'isDeactivated'
       } else if (activeTab === 'Listings') {
         if (!window.confirm('Are you sure you want to permanently delete this job listing?')) return
-        const response = await fetch(`/api/jobs/${id}`, {
+        const response = await fetch(`${API_BASE}/jobs/${id}`, {
           method: 'DELETE'
         })
         if (!response.ok) {
@@ -76,7 +77,7 @@ function AdminDashboard() {
         setItems(items.filter(item => item._id !== id))
         return
       } else if (activeTab === 'Reviews') {
-        const response = await fetch(`/api/ratings/${id}`, {
+        const response = await fetch(`${API_BASE}/ratings/${id}`, {
           method: 'DELETE'
         })
         if (!response.ok) {
@@ -137,7 +138,7 @@ function AdminDashboard() {
 
   const handleSaveJob = async (jobData) => {
     try {
-      const response = await fetch(`/api/jobs/${editingJob._id}`, {
+      const response = await fetch(`${API_BASE}/jobs/${editingJob._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'

@@ -23,7 +23,7 @@ function ApplicantList() {
     const [error, setError] = useState('');
     const [searchName, setSearchName] = useState('');
     const [sortOrder, setSortOrder] = useState('newest');
-    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
     const jobId = normalizeId(job?._id);
 
     const fetchApplications = useCallback(async () => {
