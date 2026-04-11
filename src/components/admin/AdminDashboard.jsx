@@ -121,7 +121,7 @@ function AdminDashboard() {
       navigate('/jobs?employerId=' + id) 
     } else if (activeTab === 'Listings') {
       const job = items.find(item => item._id === id)
-      setExploringListing(job)
+      navigate(`/jobs/employers/${id}/applications`, { state: { job } })
     }
   }
 
@@ -327,12 +327,6 @@ function AdminDashboard() {
         />
       )}
 
-      {exploringListing && (
-        <ListingApplicationsModal
-          listing={exploringListing}
-          onClose={() => setExploringListing(null)}
-        />
-      )}
     </div>
   )
 }
