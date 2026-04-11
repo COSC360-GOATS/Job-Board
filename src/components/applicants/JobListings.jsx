@@ -16,8 +16,64 @@ function JobListings() {
     const [search, setSearch] = useState("");
     const [location, setLocation] = useState("");
     const [sortOrder, setSortOrder] = useState("newest");
+    const [savedJobIds, setSavedJobIds] = useState(() => new Set());
+    const [saveBusyJobId, setSaveBusyJobId] = useState(null);
     const currentUser = getCurrentUser();
     const isApplicant = getUserRole(currentUser) === "applicant";
+    const applicantId = currentUser?.id;
+
+    const refreshSavedJobIds = useCallback(async () => {
+        if (!isApplicant || !applicantId) {
+            setSavedJobIds(new Set());
+            return;
+        }
+        try {
+            const res = await fetch(`${API_BASE}/saved/ids/${applicantId}`);
+            if (!res.ok) return;
+            const ids = await res.json();
+            setSavedJobIds(new Set((Array.isArray(ids) ? ids : []).map(String)));
+        } catch {
+            // ignore
+        }
+    }, [isApplicant, applicantId]);
+
+    const handleToggleSave = useCallback(
+        async (job, nextSaved) => {
+            const jobId = String(job._id);
+            if (!isApplicant || !applicantId || !jobId) return;
+
+            setSaveBusyJobId(jobId);
+            let snapshot = null;
+            setSavedJobIds((prev) => {
+                snapshot = new Set(prev);
+                const next = new Set(prev);
+                if (nextSaved) next.add(jobId);
+                else next.delete(jobId);
+                return next;
+            });
+
+            try {
+                if (nextSaved) {
+                    const res = await fetch(`${API_BASE}/saved`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ applicantId, jobId }),
+                    });
+                    if (!res.ok) throw new Error("save failed");
+                } else {
+                    const res = await fetch(`${API_BASE}/saved/${applicantId}/${jobId}`, {
+                        method: "DELETE",
+                    });
+                    if (!res.ok && res.status !== 404) throw new Error("unsave failed");
+                }
+            } catch {
+                if (snapshot) setSavedJobIds(snapshot);
+            } finally {
+                setSaveBusyJobId(null);
+            }
+        },
+        [isApplicant, applicantId]
+    );
 
     const loadJobs = useCallback(async () => {
         try {
@@ -73,12 +129,13 @@ function JobListings() {
             }
             setRecommendationsLoaded(true);
             setError(null);
+            await refreshSavedJobIds();
         } catch (err) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
-    }, [currentUser?.id, isApplicant]);
+    }, [currentUser?.id, isApplicant, refreshSavedJobIds]);
 
     useEffect(() => {
         loadJobs();
@@ -205,6 +262,9 @@ function JobListings() {
                                     avgRating={avgRatingMap[job.employerId]}
                                     matchScore={job.matchScore}
                                     matchReasons={job.matchReasons}
+                                    isSaved={savedJobIds.has(String(job._id))}
+                                    onToggleSave={handleToggleSave}
+                                    saveBusy={saveBusyJobId === String(job._id)}
                                 />
                             ))}
                         </div>
@@ -232,6 +292,9 @@ function JobListings() {
                                 job={job}
                                 employerName={employerMap[job.employerId]}
                                 avgRating={avgRatingMap[job.employerId]}
+                                isSaved={savedJobIds.has(String(job._id))}
+                                onToggleSave={handleToggleSave}
+                                saveBusy={saveBusyJobId === String(job._id)}
                             />
                         ))}
                     </div>
