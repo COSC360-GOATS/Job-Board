@@ -2,7 +2,14 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import bcrypt from 'bcryptjs';
 import authService from '../../../server/services/authService.js';
 
-function buildDb({ applicant = null, employer = null } = {}) {
+function buildDb({ admin = null, applicant = null, employer = null } = {}) {
+  const adminsCollection = {
+    findOne: jest.fn(async (query) => {
+      if (query.email && admin?.email === query.email) return admin;
+      return null;
+    }),
+  };
+
   const applicantsCollection = {
     findOne: jest.fn(async (query) => {
       if (query.email && applicant?.email === query.email) return applicant;
@@ -19,10 +26,12 @@ function buildDb({ applicant = null, employer = null } = {}) {
 
   return {
     collection: jest.fn((name) => {
+      if (name === 'admins') return adminsCollection;
       if (name === 'applicants') return applicantsCollection;
       if (name === 'employers') return employersCollection;
       throw new Error(`Unexpected collection ${name}`);
     }),
+    adminsCollection,
     applicantsCollection,
     employersCollection,
   };
@@ -35,15 +44,21 @@ describe('authService', () => {
   });
 
   it('logs in admin from env credentials', async () => {
-    process.env.ADMIN_EMAIL = 'admin@test.com';
-    process.env.ADMIN_PASSWORD = 'secret';
+    const hashed = await bcrypt.hash('secret', 4);
 
-    const db = buildDb();
+    const db = buildDb({
+      admin: {
+        _id: { toString: () => 'admin-1' },
+        name: 'Admin',
+        email: 'admin@test.com',
+        password: hashed,
+      },
+    });
     const service = authService(db);
     const result = await service.login({ email: 'admin@test.com', password: 'secret' });
 
     expect(result).toEqual({
-      user: { id: 'admin', name: 'Admin', email: 'admin@test.com' },
+      user: { id: 'admin-1', name: 'Admin', email: 'admin@test.com' },
       role: 'admin',
     });
   });

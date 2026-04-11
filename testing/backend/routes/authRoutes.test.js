@@ -4,7 +4,14 @@ import request from 'supertest';
 import bcrypt from 'bcryptjs';
 import authRoutes from '../../../server/routes/authRoutes.js';
 
-function buildDb({ applicant = null, employer = null } = {}) {
+function buildDb({ admin = null, applicant = null, employer = null } = {}) {
+  const adminsCollection = {
+    findOne: jest.fn(async (query) => {
+      if (admin && query.email === admin.email) return admin;
+      return null;
+    }),
+  };
+
   const applicantsCollection = {
     findOne: jest.fn(async (query) => {
       if (applicant && query.email === applicant.email) return applicant;
@@ -21,6 +28,7 @@ function buildDb({ applicant = null, employer = null } = {}) {
 
   return {
     collection: jest.fn((name) => {
+      if (name === 'admins') return adminsCollection;
       if (name === 'applicants') return applicantsCollection;
       if (name === 'employers') return employersCollection;
       throw new Error(`Unexpected collection ${name}`);

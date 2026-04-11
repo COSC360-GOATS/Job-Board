@@ -21,7 +21,7 @@ describe('ItemCard', () => {
     expect(screen.getByRole('heading', { name: 'Frontend Developer' })).toBeInTheDocument();
     expect(screen.getByText('Job Listing')).toBeInTheDocument();
     expect(screen.getByText('Closed')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Reopen' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete Listing' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
   });
 });
