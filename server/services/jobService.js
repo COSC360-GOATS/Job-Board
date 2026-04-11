@@ -15,6 +15,15 @@ function toSkillSet(skills) {
     return new Set((skills || []).map((skill) => normalizeText(skill)).filter(Boolean));
 }
 
+function getISOWeekLabel(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const day = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - day);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return `${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
 export default function jobService(db) {
     const collection = db.collection('jobs');
     const applicationsCollection = db.collection('applications');
@@ -182,6 +191,30 @@ export default function jobService(db) {
                 { $inc: { views: 1 } }
             );
             return await collection.findOne({ _id: new ObjectId(jobId) });
+        },
+
+        async getWeeklyApplicationsByEmployer(employerId) {
+            if (!ObjectId.isValid(employerId)) return [];
+
+            const jobs = await collection.find({ employerId }).toArray();
+            const jobIds = jobs.map(j => j._id.toString());
+            if (jobIds.length === 0) return [];
+
+            const applications = await applicationsCollection
+                .find({ jobId: { $in: jobIds } })
+                .toArray();
+
+            const weekMap = {};
+            for (const app of applications) {
+                const date = new Date(app.submittedAt || app.date || app.createdAt);
+                if (isNaN(date)) continue;
+                const week = getISOWeekLabel(date);
+                weekMap[week] = (weekMap[week] || 0) + 1;
+            }
+
+            return Object.entries(weekMap)
+                .map(([week, count]) => ({ week, count }))
+                .sort((a, b) => a.week.localeCompare(b.week));
         }
     }
 }

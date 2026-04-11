@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 import Skills from './Skills'
 import { formatPhoneNumber } from '../utils/phone'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
 function RegisterForm() {
   const navigate = useNavigate()
@@ -150,7 +150,7 @@ function RegisterForm() {
         }
       }
 
-      const endpoint = accountType === 'Applicant' ? '/api/applicants' : '/api/employers'
+      const endpoint = accountType === 'Applicant' ? `${API_BASE}/applicants` : `${API_BASE}/employers`
       
       const hashedPassword = await bcrypt.hash(formData.password, 10)
       

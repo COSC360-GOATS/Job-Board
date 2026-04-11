@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { formatPhoneNumber } from '../../utils/phone'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
 function EditEmployerModal({ employer, onClose, onSave }) {
   const [companyName, setCompanyName] = useState('')

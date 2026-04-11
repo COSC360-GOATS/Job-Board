@@ -14,6 +14,7 @@ import employerRoutes from './routes/employerRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import savedJobsRoutes from './routes/savedJobsRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import createSseHub from './realtime/sseHub.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -21,7 +22,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const sseHub = createSseHub();
 
-app.use(cors());
+app.use(cors({
+    origin: ['https://job-board-production-165b.up.railway.app', 'http://localhost:4000'],
+    credentials: true
+}));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/upload', uploadRoutes());
@@ -29,7 +33,16 @@ app.get('/events', sseHub.handler);
 
 await db();
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+const PORT = process.env.PORT || 4000;
+app.use(express.static(path.join(__dirname, '../dist')));
+app.get(/^(.*)$/, (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/upload') || req.path.startsWith('/events') || req.path.startsWith('/applicants') || req.path.startsWith('/applications') || req.path.startsWith('/jobs') || req.path.startsWith('/employers') || req.path.startsWith('/ratings') || req.path.startsWith('/auth')) {
+        return next();
+    }
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 async function db() {
     const uri = process.env.MONGO_URI;
@@ -46,6 +59,7 @@ async function db() {
         app.use("/ratings", ratingRoutes(database, sseHub.emit));
         app.use("/auth", authRoutes(database));
         app.use("/saved", savedJobsRoutes(database));
+        app.use("/admin", adminRoutes(database));
         console.log("MongoDB connected!");
     }
     catch (err) {
