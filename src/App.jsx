@@ -67,6 +67,7 @@ function App() {
         <Route path="/jobs" element={<JobListings />} />
         <Route path="/jobs/:jobId/apply" element={<ApplyPage />} />
         <Route path="/jobs/employers" element={<JobDashboard />} />
+        <Route path="/jobs/new" element={<JobOverview />} />
         <Route path="/jobs/employers/:jobId" element={<JobOverview />} />
         <Route path="/jobs/employers/:jobId/applications" element={<ApplicationList />} />
       </Routes>

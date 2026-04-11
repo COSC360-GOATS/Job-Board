@@ -51,6 +51,40 @@ export default function ratingService(db) {
         },
 
         async create(payload) {
+            if (!ObjectId.isValid(payload.employerId)) {
+                const error = new Error('Invalid employer id');
+                error.statusCode = 400;
+                throw error;
+            }
+            const employer = await db.collection('employers').findOne({ _id: new ObjectId(payload.employerId) });
+            if (!employer) {
+                const error = new Error('Employer not found');
+                error.statusCode = 404;
+                throw error;
+            }
+
+            if (!ObjectId.isValid(payload.applicantId)) {
+                const error = new Error('Invalid applicant id');
+                error.statusCode = 400;
+                throw error;
+            }
+            const applicant = await db.collection('applicants').findOne({ _id: new ObjectId(payload.applicantId) });
+            if (!applicant) {
+                const error = new Error('Applicant not found');
+                error.statusCode = 404;
+                throw error;
+            }
+
+            const existingRating = await collection.findOne({
+                employerId: payload.employerId,
+                applicantId: payload.applicantId
+            });
+            if (existingRating) {
+                const error = new Error('You have already rated this employer');
+                error.statusCode = 409;
+                throw error;
+            }
+
             return await service.create(payload, { employerId: payload.employerId, applicantId: payload.applicantId });
         },
 

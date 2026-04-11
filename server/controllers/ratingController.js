@@ -1,10 +1,29 @@
 import createController from "./controller.js";
 
-export default function ratingController(service) {
+export default function ratingController(service, emitEvent = () => {}) {
     const baseController = createController(service);
     
     return {
         ...baseController,
+
+        async create(req, res) {
+            try {
+                const created = await service.create(req.body);
+                emitEvent('rating-created', {
+                    ratingId: created?._id,
+                    employerId: created?.employerId,
+                    applicantId: created?.applicantId,
+                    rating: created?.rating,
+                    comment: created?.comment,
+                });
+                return res.status(201).json(created);
+            }
+            catch (err) {
+                const statusCode = err.statusCode || 500;
+                const message = err.message || "Failed to create item";
+                return res.status(statusCode).json({ message });
+            }
+        },
         
         async getByEmployerId(req, res) {
             try {
