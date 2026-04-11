@@ -11,15 +11,21 @@ const nameSchema = Joi.object({
     last: Joi.string().trim().min(1).max(50).required(),
 }).required();
 
+const updateNameSchema = Joi.object({
+    first: Joi.string().trim().min(1).max(50).required(),
+    last: Joi.string().trim().max(50).allow(''),
+});
+
 const baseFields = {
     name: nameSchema,
     email: Joi.string().trim().email().max(254),
     password: Joi.string().min(6).max(128),
     phone: Joi.string().trim().min(7).max(30),
     skills: Joi.array().items(Joi.string().trim().min(1).max(100)).max(50),
-    profilePicture: Joi.string().trim().max(500),
-    resume: Joi.string().trim().max(500),
+    profilePicture: Joi.string().trim().max(500).allow(''),
+    resume: Joi.string().trim().max(500).allow(''),
     location: Joi.string().trim().min(2).max(100),
+    description: Joi.string().trim().max(2000).allow(''),
 };
 
 export const createApplicantSchema = Joi.object({
@@ -31,14 +37,15 @@ export const createApplicantSchema = Joi.object({
 }).unknown(false);
 
 export const updateApplicantSchema = Joi.object({
-    name: nameSchema,
+    name: updateNameSchema,
     email: baseFields.email,
     password: baseFields.password,
-    phone: baseFields.phone,
+    phone: Joi.string().trim().min(7).max(30).allow(''),
     skills: baseFields.skills,
     profilePicture: baseFields.profilePicture,
     resume: baseFields.resume,
-    location: baseFields.location,
+    location: Joi.string().trim().min(2).max(100).allow(''),
+    description: baseFields.description,
 }).unknown(false);
 
 export const applicantIdParamSchema = Joi.object({
