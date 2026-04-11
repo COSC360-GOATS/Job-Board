@@ -17,6 +17,7 @@ function ApplicantList() {
     const location = useLocation();
     const navigate = useNavigate();
     const job = location.state?.job;
+    const fromAdmin = location.state?.fromAdmin;
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -113,7 +114,7 @@ function ApplicantList() {
         <div className="mx-auto w-full max-w-7xl px-6 py-6">
             <button
                 className="mb-6 text-sm text-violet-600 hover:underline"
-                onClick={() => navigate('/jobs/employers')}
+                onClick={() => fromAdmin ? navigate('/admin', { state: { tab: 'Listings' } }) : navigate('/jobs/employers')}
             >
                 ← Back to dashboard
             </button>

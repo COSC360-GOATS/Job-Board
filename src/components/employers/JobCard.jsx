@@ -19,7 +19,7 @@ const defaultJob = {
     skills: ['JavaScript', 'React', 'Node.js']
 };
 
-function JobCard({ job = defaultJob, onDelete }) {
+function JobCard({ job = defaultJob, onDelete, onEdit, onExplore }) {
     const navigate = useNavigate();
     const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
     const postedDate = job.postedAt || job.date || job.createdAt;
@@ -30,6 +30,11 @@ function JobCard({ job = defaultJob, onDelete }) {
     const buttonStyle = "cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100";
 
     async function deleteJob() {
+        if (onExplore) {
+            onDelete?.(job._id);
+            return;
+        }
+
         confirm("Are you sure you want to delete this job? This action cannot be undone.") && await fetch(`${API_BASE}/jobs/${job._id}`, {
             method: "DELETE",
         }).then(res => {
@@ -45,13 +50,23 @@ function JobCard({ job = defaultJob, onDelete }) {
         });
     }
 
+    const titleClickParams = () => {
+        if (onExplore) return onExplore(job._id);
+        return navigate(`/jobs/employers/${job._id}/applications`, { state: { job } });
+    };
+
+    const editClickParams = () => {
+        if (onEdit) return onEdit(job._id);
+        return navigate(`/jobs/employers/${job._id}`, { state: { job } });
+    };
+
     return (
         <div className="flex h-full w-full cursor-default flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm">
 
             <div className="flex justify-between items-start gap-3 grow">
                 <h3 
                     className="wrap-break-word min-w-0 flex-1 cursor-pointer text-2xl font-semibold hover:text-violet-700 hover:underline"
-                    onClick={() => navigate(`/jobs/employers/${job._id}/applications`, { state: { job } })}
+                    onClick={titleClickParams}
                     title={`View applications for ${job.title}`}
                     >
                         {job.title}
@@ -60,7 +75,7 @@ function JobCard({ job = defaultJob, onDelete }) {
                 <div className="flex justify-end gap-2 shrink-0">
                     <button
                         className={buttonStyle}
-                        onClick={() => navigate(`/jobs/employers/${job._id}`, { state: { job } })}
+                        onClick={editClickParams}
                     >
                         Edit
                     </button>
