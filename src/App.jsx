@@ -12,6 +12,7 @@ import { useEffect } from 'react'
 import LandingPage from './components/LandingPage'
 import ProfilePage from './components/applicants/ProfilePage'
 import EmployerProfile from './components/employers/EmployerProfile'
+import ApplicantActivityPage from './components/admin/ApplicantActivityPage'
 import { Navigate } from 'react-router-dom'
 import { getCurrentUser, getUserRole } from './utils/user'
 
@@ -58,6 +59,11 @@ function App() {
         <Route path="/admin" element={
           <AdminRoute>
             <AdminDashboard />
+          </AdminRoute>
+        } />
+        <Route path="/admin/applicants/:applicantId" element={
+          <AdminRoute>
+            <ApplicantActivityPage />
           </AdminRoute>
         } />
         <Route path="/register" element={<RegisterForm />} />

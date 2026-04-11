@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-function ApplicantApplicationsModal({ applicant, onClose }) {
+function ApplicantActivityPage() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const applicant = location.state?.applicant
+
   const [applications, setApplications] = useState([])
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
@@ -65,30 +70,40 @@ function ApplicantApplicationsModal({ applicant, onClose }) {
   }
 
   const getApplicantName = () => {
+    if (!applicant) return 'Applicant'
     if (applicant.name && typeof applicant.name === 'object' && applicant.name.first) return String(applicant.name.first)
     if (typeof applicant.name === 'string') return applicant.name
     if (typeof applicant.firstName === 'string') return applicant.firstName
     return 'Applicant'
   }
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] flex flex-col">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
-          <h2 className="text-2xl font-bold text-gray-900">{getApplicantName()}&apos;s Activity</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl self-end sm:self-auto">✕</button>
-        </div>
+  if (!applicant) {
+    return <div className="text-center py-12">No applicant selected.</div>
+  }
 
-        <div className="flex gap-2 mb-4 border-b border-gray-200 pb-2">
+  return (
+    <div className="mx-auto w-full max-w-7xl px-6 py-6">
+      <button
+          className="mb-6 text-sm text-violet-600 hover:underline"
+          onClick={() => navigate('/admin', { state: { tab: 'Applicants' } })}
+      >
+          ← Back to dashboard
+      </button>
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+        <h2 className="text-3xl font-bold text-slate-900">{getApplicantName()}&apos;s Activity</h2>
+      </div>
+
+        <div className="flex gap-2 mb-6 border-b border-slate-200 pb-2">
           <button 
             onClick={() => setTab('applications')}
-            className={`px-4 py-2 font-medium rounded-lg transition ${tab === 'applications' ? 'bg-slate-800 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+            className={`px-4 py-2 font-medium rounded-lg transition ${tab === 'applications' ? 'bg-violet-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
           >
             Applications
           </button>
           <button 
             onClick={() => setTab('reviews')}
-            className={`px-4 py-2 font-medium rounded-lg transition ${tab === 'reviews' ? 'bg-slate-800 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+            className={`px-4 py-2 font-medium rounded-lg transition ${tab === 'reviews' ? 'bg-violet-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
           >
             Reviews
           </button>
@@ -96,16 +111,18 @@ function ApplicantApplicationsModal({ applicant, onClose }) {
 
         {error && <p className="text-red-500 text-sm mb-4 bg-red-50 p-3 rounded">{error}</p>}
 
-        <div className="overflow-y-auto flex-1 pr-2">
+        <div className="flex w-full flex-col gap-5 py-3 cursor-default">
           {loading ? (
-            <p className="text-center text-gray-500 py-8">Loading...</p>
+            <p className="text-slate-600">Loading...</p>
           ) : tab === 'applications' ? (
             applications.length === 0 ? (
-              <p className="text-center text-gray-500 py-8 border-2 border-dashed border-gray-200 rounded-lg">No job applications found.</p>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-slate-600">
+                No job applications found.
+              </div>
             ) : (
               <div className="space-y-4">
                 {applications.map((app) => (
-                  <div key={app._id} className="border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm flex flex-col gap-2">
+                  <div key={app._id} className="flex h-full w-full cursor-default flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-gray-900 text-lg">Job: {app.jobTitle || 'Job'}</h3>
@@ -157,11 +174,13 @@ function ApplicantApplicationsModal({ applicant, onClose }) {
             )
           ) : (
             reviews.length === 0 ? (
-              <p className="text-center text-gray-500 py-8 border-2 border-dashed border-gray-200 rounded-lg">No reviews left by this applicant.</p>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-slate-600">
+                No reviews left by this applicant.
+              </div>
             ) : (
               <div className="space-y-4">
                 {reviews.map((rev) => (
-                  <div key={rev._id} className="border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm flex flex-col gap-2 relative">
+                  <div key={rev._id} className="flex h-full w-full cursor-default flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm relative">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-gray-900 text-lg pr-12">Employer: {rev.employerName || 'Unknown Employer'}</h3>
@@ -188,18 +207,8 @@ function ApplicantApplicationsModal({ applicant, onClose }) {
             )
           )}
         </div>
-
-        <div className="mt-6 flex justify-end shrink-0 pt-4 border-t border-gray-100">
-          <button
-            onClick={onClose}
-            className="px-5 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 hover:bg-slate-900 transition"
-          >
-            Close
-          </button>
-        </div>
-      </div>
     </div>
   )
 }
 
-export default ApplicantApplicationsModal
+export default ApplicantActivityPage

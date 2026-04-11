@@ -3,8 +3,6 @@ import ItemCard from './ItemCard'
 import EditJobModal from './EditJobModal'
 import EditApplicantModal from './EditApplicantModal'
 import EditEmployerModal from './EditEmployerModal'
-import ApplicantApplicationsModal from './ApplicantApplicationsModal'
-import ListingApplicationsModal from './ListingApplicationsModal'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 import JobCard from '../employers/JobCard'
@@ -21,8 +19,6 @@ function AdminDashboard() {
   const [editingJob, setEditingJob] = useState(null)
   const [editingApplicant, setEditingApplicant] = useState(null)
   const [editingEmployer, setEditingEmployer] = useState(null)
-  const [exploringApplicant, setExploringApplicant] = useState(null)
-  const [exploringListing, setExploringListing] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -117,7 +113,7 @@ function AdminDashboard() {
   const handleExplore = (id) => {
     if (activeTab === 'Applicants') {
       const applicant = items.find(item => item._id === id)
-      setExploringApplicant(applicant)
+      navigate(`/admin/applicants/${id}`, { state: { applicant } })
     } else if (activeTab === 'Employers') {
       navigate('/jobs?employerId=' + id) 
     } else if (activeTab === 'Listings') {
@@ -318,13 +314,6 @@ function AdminDashboard() {
             setItems(items.map(item => item._id === editingEmployer._id ? updatedEmployer : item))
             setEditingEmployer(null)
           }}
-        />
-      )}
-
-      {exploringApplicant && (
-        <ApplicantApplicationsModal
-          applicant={exploringApplicant}
-          onClose={() => setExploringApplicant(null)}
         />
       )}
 
