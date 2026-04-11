@@ -19,7 +19,7 @@ const baseFields = {
     skills: Joi.array().items(Joi.string().trim().min(1).max(100)).max(50),
     profilePicture: Joi.string().trim().max(500),
     resume: Joi.string().trim().max(500),
-    location: Joi.string().trim().min(2).max(100),
+    location: Joi.string().trim().min(0).max(100).allow(''),
 };
 
 export const createApplicantSchema = Joi.object({
