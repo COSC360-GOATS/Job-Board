@@ -3,6 +3,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../utils/user';
 
+function normalizeId(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object') {
+    if (typeof value.$oid === 'string') return value.$oid;
+    if (typeof value.id === 'string') return value.id;
+    if (typeof value._id === 'string') return value._id;
+  }
+  return String(value);
+}
+
 function JobDashboard() {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
@@ -76,14 +87,35 @@ function JobDashboard() {
 
     const events = new EventSource(`${API_BASE}/events`);
 
-    const onApplicationCreated = async () => {
+    const onApplicationChanged = async () => {
       await fetchJobs();
     };
 
-    events.addEventListener('application-created', onApplicationCreated);
+    events.addEventListener('application-created', onApplicationChanged);
+    events.addEventListener('application-updated', onApplicationChanged);
+    events.addEventListener('application-deleted', onApplicationChanged);
+
+    const onJobChanged = async (event) => {
+      try {
+        const payload = JSON.parse(event.data || '{}');
+        if (normalizeId(payload?.employerId) !== normalizeId(employerId)) return;
+        await fetchJobs();
+      } catch {
+        await fetchJobs();
+      }
+    };
+
+    events.addEventListener('job-created', onJobChanged);
+    events.addEventListener('job-updated', onJobChanged);
+    events.addEventListener('job-deleted', onJobChanged);
 
     return () => {
-      events.removeEventListener('application-created', onApplicationCreated);
+      events.removeEventListener('application-created', onApplicationChanged);
+      events.removeEventListener('application-updated', onApplicationChanged);
+      events.removeEventListener('application-deleted', onApplicationChanged);
+      events.removeEventListener('job-created', onJobChanged);
+      events.removeEventListener('job-updated', onJobChanged);
+      events.removeEventListener('job-deleted', onJobChanged);
       events.close();
     };
   }, [API_BASE, employerId, fetchJobs]);

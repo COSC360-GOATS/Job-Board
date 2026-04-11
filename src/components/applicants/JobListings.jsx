@@ -87,14 +87,18 @@ function JobListings() {
     useEffect(() => {
         const events = new EventSource(`${API_BASE}/events`);
 
-        const onJobCreated = async () => {
+        const onJobChanged = async () => {
             await loadJobs();
         };
 
-        events.addEventListener('job-created', onJobCreated);
+        events.addEventListener('job-created', onJobChanged);
+        events.addEventListener('job-updated', onJobChanged);
+        events.addEventListener('job-deleted', onJobChanged);
 
         return () => {
-            events.removeEventListener('job-created', onJobCreated);
+            events.removeEventListener('job-created', onJobChanged);
+            events.removeEventListener('job-updated', onJobChanged);
+            events.removeEventListener('job-deleted', onJobChanged);
             events.close();
         };
     }, [loadJobs]);

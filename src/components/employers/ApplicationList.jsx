@@ -86,7 +86,7 @@ function ApplicantList() {
 
         const events = new EventSource(`${API_BASE}/events`);
 
-        const onApplicationCreated = async (event) => {
+        const onApplicationChanged = async (event) => {
             try {
                 const payload = JSON.parse(event.data || '{}');
                 if (normalizeId(payload?.jobId) !== jobId) return;
@@ -96,10 +96,14 @@ function ApplicantList() {
             }
         };
 
-        events.addEventListener('application-created', onApplicationCreated);
+        events.addEventListener('application-created', onApplicationChanged);
+        events.addEventListener('application-updated', onApplicationChanged);
+        events.addEventListener('application-deleted', onApplicationChanged);
 
         return () => {
-            events.removeEventListener('application-created', onApplicationCreated);
+            events.removeEventListener('application-created', onApplicationChanged);
+            events.removeEventListener('application-updated', onApplicationChanged);
+            events.removeEventListener('application-deleted', onApplicationChanged);
             events.close();
         };
     }, [API_BASE, jobId, fetchApplications]);
