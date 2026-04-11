@@ -1,6 +1,12 @@
+import { useEffect, useState } from "react";
 import { Skill } from "../Skills";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
 import { formatPhoneNumber } from "../../utils/phone";
+import { ApplicationStatusBadge } from "../applicants/ApplicationStatusBadge";
+import {
+    APPLICATION_STATUS_OPTIONS,
+    normalizeApplicationStatus,
+} from "../../utils/applicationStatus";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -19,8 +25,24 @@ function toTelHref(value) {
     return `tel:${digits}`;
 }
 
-export function ApplicationCard({ application, job }) {
+function applicationIdString(app) {
+    const id = app?._id;
+    if (!id) return "";
+    if (typeof id === "string") return id;
+    if (typeof id === "object" && id.$oid) return id.$oid;
+    return String(id);
+}
+
+export function ApplicationCard({ application, job, onStatusUpdated }) {
     const applicant = application.applicant || {};
+    const appId = applicationIdString(application);
+    const [status, setStatus] = useState(() => normalizeApplicationStatus(application.status));
+    const [saving, setSaving] = useState(false);
+    const [statusError, setStatusError] = useState(null);
+
+    useEffect(() => {
+        setStatus(normalizeApplicationStatus(application.status));
+    }, [application._id, application.status]);
     const appliedDate = application.date || application['date:'] || application.appliedAt || application.createdAt;
 
     const fullName = typeof applicant.name === 'string'
@@ -50,6 +72,32 @@ export function ApplicationCard({ application, job }) {
     const isUnread = Boolean(application.isUnread ?? application.unread ?? application.read === false);
     const displayPhone = formatPhoneNumber(applicant.phone);
 
+    async function handleStatusChange(next) {
+        if (!appId || next === status) return;
+        const previous = status;
+        setStatus(next);
+        setStatusError(null);
+        setSaving(true);
+        try {
+            const res = await fetch(`${API_BASE}/applications/${appId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: next }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.error || data.message || "Could not update status");
+            }
+            setStatus(normalizeApplicationStatus(data.status));
+            onStatusUpdated?.();
+        } catch (err) {
+            setStatus(previous);
+            setStatusError(err.message || "Update failed");
+        } finally {
+            setSaving(false);
+        }
+    }
+
     const handleResumeDownload = async () => {
         if (!resumeSrc) return;
 
@@ -72,7 +120,7 @@ export function ApplicationCard({ application, job }) {
     return (
         <section className={`grid grid-cols-1 gap-4 rounded-2xl border p-6 text-slate-900 shadow-sm xl:grid-cols-2 ${isUnread ? 'border-violet-300 bg-violet-50/30' : 'border-slate-200 bg-white'}`}>
             <div className="flex flex-col gap-2 min-w-0 overflow-hidden p-2">
-                <div className="flex justify-between items-start gap-3 flex-wrap">
+                <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex items-center min-w-0">
                         {avatarSrc ? (
                             <img
@@ -119,11 +167,36 @@ export function ApplicationCard({ application, job }) {
                             <p className="text-slate-600">{applicant.location}</p>
                         </div>
                     </div>
+                    <div className="flex min-w-[200px] flex-col gap-1 sm:items-end">
+                        <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                            Application status
+                        </span>
+                        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                            <ApplicationStatusBadge status={status} />
+                            <select
+                                value={status}
+                                disabled={saving || !appId}
+                                onChange={(e) => handleStatusChange(e.target.value)}
+                                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-violet-500 disabled:opacity-60"
+                                aria-label="Set application status"
+                            >
+                                {APPLICATION_STATUS_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        {statusError && (
+                            <p className="text-xs text-red-600 sm:text-right">{statusError}</p>
+                        )}
+                        {saving && <p className="text-xs text-slate-500 sm:text-right">Saving…</p>}
+                    </div>
                     <button
                         type="button"
                         onClick={handleResumeDownload}
                         disabled={!resumeSrc}
-                        className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex shrink-0 cursor-pointer items-center gap-2 self-start rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
                         title={resumeSrc ? 'Download resume PDF' : 'No resume uploaded'}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
