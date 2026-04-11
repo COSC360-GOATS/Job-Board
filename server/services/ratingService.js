@@ -89,7 +89,16 @@ export default function ratingService(db) {
                 throw error;
             }
 
-            return await service.create(payload, { employerId: payload.employerId, applicantId: payload.applicantId });
+            const nowIso = new Date().toISOString();
+            const normalizedPayload = {
+                ...payload,
+                createdAt: payload?.createdAt || payload?.date || nowIso,
+            };
+
+            return await service.create(normalizedPayload, {
+                employerId: normalizedPayload.employerId,
+                applicantId: normalizedPayload.applicantId,
+            });
         },
 
         async getByEmployerId(employerId) {
