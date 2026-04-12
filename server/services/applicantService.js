@@ -29,7 +29,11 @@ export default function applicantService(db) {
                 throw error;
             }
 
-            const normalizedPayload = { ...payload, email: normalizedEmail };
+            const normalizedPayload = {
+                ...payload,
+                email: normalizedEmail,
+                createdAt: payload?.createdAt || new Date().toISOString(),
+            };
             return await baseService.create(normalizedPayload);
         }
     };

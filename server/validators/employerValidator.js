@@ -14,7 +14,7 @@ const baseFields = {
     phone: Joi.string().trim().min(7).max(30),
     location: Joi.string().trim().min(2).max(100),
     industry: Joi.string().trim().min(2).max(100),
-    logo: Joi.string().trim().max(500),
+    logo: Joi.string().trim().max(500).allow(''),
 };
 
 export const createEmployerSchema = Joi.object({
@@ -33,9 +33,9 @@ export const updateEmployerSchema = Joi.object({
     companyName: baseFields.companyName,
     email: baseFields.email,
     password: baseFields.password,
-    phone: baseFields.phone,
-    location: baseFields.location,
-    industry: baseFields.industry,
+    phone: Joi.string().trim().min(7).max(30).allow(''),
+    location: Joi.string().trim().min(2).max(100).allow(''),
+    industry: Joi.string().trim().min(2).max(100).allow(''),
     logo: baseFields.logo,
 }).unknown(false);
 

@@ -83,7 +83,7 @@ function JobForm({ job, onSave, onCancel, isModal }) {
     const [touched, setTouched] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const [saving, setSaving] = useState(false);
-    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
     const currentUser = getCurrentUser();
 
     const navigate = useNavigate();

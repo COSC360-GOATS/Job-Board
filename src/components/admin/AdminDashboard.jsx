@@ -1,13 +1,15 @@
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 import { useState, useEffect } from 'react'
 import ItemCard from './ItemCard'
 import EditJobModal from './EditJobModal'
 import EditApplicantModal from './EditApplicantModal'
 import EditEmployerModal from './EditEmployerModal'
+import AdminAnalyticsReport from './AdminAnalyticsReport'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 import JobCard from '../employers/JobCard'
 
-const TABS = ['Applicants', 'Reviews', 'Employers', 'Listings']
+const TABS = ['Applicants', 'Reviews', 'Employers', 'Listings', 'Analytics']
 
 function AdminDashboard() {
   const location = useLocation()
@@ -27,13 +29,13 @@ function AdminDashboard() {
         setLoading(true)
         setError('')
         
-        let endpoint = '/api/applicants'
+        let endpoint = `${API_BASE}/applicants`
         if (activeTab === 'Employers') {
-          endpoint = '/api/employers'
+          endpoint = `${API_BASE}/employers`
         } else if (activeTab === 'Listings') {
-          endpoint = '/api/jobs'
+          endpoint = `${API_BASE}/jobs`
         } else if (activeTab === 'Reviews') {
-          endpoint = '/api/ratings'
+          endpoint = `${API_BASE}/ratings`
         }
         
         const response = await fetch(endpoint)
@@ -59,15 +61,15 @@ function AdminDashboard() {
 
   const handleToggleStatus = async (id) => {
     try {
-      let endpoint = '/api/applicants'
+      let endpoint = `${API_BASE}/applicants`
       let statusField = 'isDeactivated'
       
       if (activeTab === 'Employers') {
-        endpoint = '/api/employers'
+        endpoint = `${API_BASE}/employers`
         statusField = 'isDeactivated'
       } else if (activeTab === 'Listings') {
         if (!window.confirm('Are you sure you want to permanently delete this job listing?')) return
-        const response = await fetch(`/api/jobs/${id}`, {
+        const response = await fetch(`${API_BASE}/jobs/${id}`, {
           method: 'DELETE'
         })
         if (!response.ok) {
@@ -76,7 +78,7 @@ function AdminDashboard() {
         setItems(items.filter(item => item._id !== id))
         return
       } else if (activeTab === 'Reviews') {
-        const response = await fetch(`/api/ratings/${id}`, {
+        const response = await fetch(`${API_BASE}/ratings/${id}`, {
           method: 'DELETE'
         })
         if (!response.ok) {
@@ -137,7 +139,7 @@ function AdminDashboard() {
 
   const handleSaveJob = async (jobData) => {
     try {
-      const response = await fetch(`/api/jobs/${editingJob._id}`, {
+      const response = await fetch(`${API_BASE}/jobs/${editingJob._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -169,25 +171,35 @@ function AdminDashboard() {
     } else if (activeTab === 'Reviews') {
       searchableText = `${item.comment || ''} ${item.rating || ''} ${item.employerName || ''} ${item.applicantName || ''}`
     } else {
-      let firstName = item.firstName
-      let lastName = item.lastName
+      let firstName = ''
+      let lastName = ''
       
-      if (typeof firstName === 'object' && firstName?.first) {
-        firstName = firstName.first
-      } else if (typeof firstName !== 'string') {
-        firstName = ''
-      }
-      
-      if (typeof lastName === 'object' && lastName?.last) {
-        lastName = lastName.last
-      } else if (typeof lastName !== 'string') {
-        lastName = ''
+      if (typeof item.name === 'string') {
+        firstName = item.name
+      } else if (item.name && typeof item.name === 'object') {
+        firstName = item.name.first || ''
+        lastName = item.name.last || ''
+      } else {
+        if (typeof item.firstName === 'object' && item.firstName?.first) {
+          firstName = item.firstName.first
+        } else if (typeof item.firstName === 'string') {
+          firstName = item.firstName
+        }
+        
+        if (typeof item.lastName === 'object' && item.lastName?.last) {
+          lastName = item.lastName.last
+        } else if (typeof item.lastName === 'string') {
+          lastName = item.lastName
+        }
       }
       
       searchableText = firstName && lastName ? `${firstName} ${lastName}` : (firstName || lastName || 'Unknown')
     }
     
-    const email = String(item.email || '')
+    let email = String(item.email || '')
+    if (activeTab === 'Reviews') {
+      email = String(`${item.applicantEmail || ''} ${item.employerEmail || ''}`)
+    }
     const searchLower = String(searchQuery).toLowerCase()
     return String(searchableText).toLowerCase().includes(searchLower) || email.toLowerCase().includes(searchLower)
   })
@@ -203,14 +215,14 @@ function AdminDashboard() {
               <button
                 key={tab}
                 onClick={() => {
-                  setLoading(true)
+                  setLoading(tab !== 'Analytics')
                   setItems([])
                   setActiveTab(tab)
                 }}
                 className={`px-4 py-2 rounded-lg font-medium transition ${
                   activeTab === tab
-                    ? 'bg-slate-800 text-white'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
+                    ? 'bg-violet-600 text-white'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-violet-300 hover:text-violet-700'
                 }`}
               >
                 {tab}
@@ -218,26 +230,32 @@ function AdminDashboard() {
             ))}
           </div>
 
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent"
-            />
-            <svg
-              className="absolute right-3 top-2.5 w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
+          {activeTab !== 'Analytics' && (
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-500"
+              />
+              <svg
+                className="absolute right-3 top-2.5 w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">
+          {activeTab === 'Analytics' && (
+            <AdminAnalyticsReport />
+          )}
+
           {loading && (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">Loading...</p>
@@ -250,7 +268,7 @@ function AdminDashboard() {
             </div>
           )}
 
-          {!loading && !error && activeTab !== 'Listings' && filteredItems.map((item) => (
+          {!loading && !error && activeTab !== 'Listings' && activeTab !== 'Analytics' && filteredItems.map((item) => (
             <ItemCard
               key={item._id}
               item={item}
@@ -280,7 +298,7 @@ function AdminDashboard() {
             </div>
           )}
 
-          {!loading && !error && filteredItems.length === 0 && (
+          {!loading && !error && activeTab !== 'Analytics' && filteredItems.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">No {activeTab.toLowerCase()} found</p>
             </div>

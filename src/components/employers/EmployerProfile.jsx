@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentUser, getUserRole } from "../../utils/user";
 import { formatPhoneNumber } from "../../utils/phone";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 function EmployerProfile() {
     const navigate = useNavigate();

@@ -2,6 +2,7 @@ import JobCard from './JobCard';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../utils/user';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 function normalizeId(value) {
   if (!value) return '';
@@ -17,11 +18,12 @@ function normalizeId(value) {
 function JobDashboard() {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
+  const [weeklyData, setWeeklyData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sortBy, setSortBy] = useState('postedAt');
   const [sortOrder, setSortOrder] = useState('desc');
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
   const user = getCurrentUser();
   const employerId = user?.id;
 
@@ -33,10 +35,17 @@ function JobDashboard() {
         throw new Error('Missing employer id');
       }
 
-      const res = await fetch(`${API_BASE}/jobs/employer/${employerId}`);
-      if (!res.ok) throw new Error('Failed to fetch jobs');
-      const data = await res.json();
+      const [jobsRes, weeklyRes] = await Promise.all([
+        fetch(`${API_BASE}/jobs/employer/${employerId}`),
+        fetch(`${API_BASE}/jobs/employer/${employerId}/applications/weekly`),
+      ]);
+      if (!jobsRes.ok) throw new Error('Failed to fetch jobs');
+      const data = await jobsRes.json();
       setJobs(Array.isArray(data) ? data : []);
+      if (weeklyRes.ok) {
+        const weekly = await weeklyRes.json();
+        setWeeklyData(Array.isArray(weekly) ? weekly : []);
+      }
       setError('');
     } catch {
       setError('Could not load jobs');
@@ -123,6 +132,38 @@ function JobDashboard() {
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-6 text-slate-900">
       <h1 className="mb-6 text-3xl font-bold text-slate-900">Employer Dashboard</h1>
+
+      {jobs.length > 0 && (
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-lg font-semibold text-slate-900">Applications & Views per Job</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={jobs.map(j => ({ name: j.title, applications: j.totalApplications || 0, views: j.views || 0 }))}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="applications" fill="#7c3aed" name="Applications" />
+                <Bar dataKey="views" fill="#c4b5fd" name="Views" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-lg font-semibold text-slate-900">Applications Over Time</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={weeklyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="week" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Line type="monotone" dataKey="count" stroke="#7c3aed" name="Applications" dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <button

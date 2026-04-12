@@ -23,6 +23,7 @@ export default function ratingService(db) {
                     } catch (e) {}
 
                     let applicantName = rating.applicantId;
+                    let applicantEmail = null;
                     if (applicant) {
                         let first = '';
                         let last = '';
@@ -38,14 +39,17 @@ export default function ratingService(db) {
                         }
                         
                         applicantName = `${first || ''} ${last || ''}`.trim() || applicant.email;
+                        applicantEmail = applicant.email || null;
                     }
 
                     let employerName = rating.employerId;
+                    let employerEmail = null;
                     if (employer) {
                         employerName = employer.name || employer.companyName || employer.email;
+                        employerEmail = employer.email || null;
                     }
 
-                    return { ...rating, applicantName, employerName };
+                    return { ...rating, applicantName, employerName, applicantEmail, employerEmail };
                 })
             );
         },
@@ -85,7 +89,16 @@ export default function ratingService(db) {
                 throw error;
             }
 
-            return await service.create(payload, { employerId: payload.employerId, applicantId: payload.applicantId });
+            const nowIso = new Date().toISOString();
+            const normalizedPayload = {
+                ...payload,
+                createdAt: payload?.createdAt || payload?.date || nowIso,
+            };
+
+            return await service.create(normalizedPayload, {
+                employerId: normalizedPayload.employerId,
+                applicantId: normalizedPayload.applicantId,
+            });
         },
 
         async getByEmployerId(employerId) {

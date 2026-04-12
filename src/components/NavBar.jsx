@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { getCurrentUser, getUserDisplayName, getUserInitial, getUserRole, isMongoObjectIdString } from '../utils/user'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
 function resolveImageUrl(url) {
 	if (!url) return ''

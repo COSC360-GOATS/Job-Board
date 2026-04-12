@@ -6,7 +6,7 @@ import StarRating from "../StarRating";
 import ReviewSection from "../ratings/ReviewSection";
 import { getCurrentUser, getUserRole, isAdmin, isMongoObjectIdString } from "../../utils/user";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 function ApplyPage() {
     const { jobId } = useParams();
