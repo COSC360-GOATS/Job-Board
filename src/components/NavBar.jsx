@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { getCurrentUser, getUserDisplayName, getUserInitial, getUserRole } from '../utils/user'
+import { getCurrentUser, getUserDisplayName, getUserInitial, getUserRole, isMongoObjectIdString } from '../utils/user'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -17,15 +17,16 @@ function NavBar({ transparent = false }) {
 	const [unreadCount, setUnreadCount] = useState(0);
 
 	useEffect(() => {
-		if (user?.role === 'employer') {
-			fetch(`${API_BASE}/jobs/employer/${user.id}`)
-				.then(res => res.json())
-				.then(jobs => {
-					const total = jobs.reduce((sum, job) => sum + (Number(job?.unreadApplications || 0)), 0);
-					setUnreadCount(total);
-				})
-				.catch(err => console.error('Failed to fetch unread applications count', err));
+		if (getUserRole(user) !== 'employer' || !isMongoObjectIdString(user?.id)) {
+			return;
 		}
+		fetch(`${API_BASE}/jobs/employer/${user.id}`)
+			.then(res => res.json())
+			.then(jobs => {
+				const total = jobs.reduce((sum, job) => sum + (Number(job?.unreadApplications || 0)), 0);
+				setUnreadCount(total);
+			})
+			.catch(err => console.error('Failed to fetch unread applications count', err));
 	}, [user?.id]);
 
 	const role = getUserRole(user);
@@ -34,7 +35,9 @@ function NavBar({ transparent = false }) {
 			{ page: 'Home', link: '/' },
 			{ page: 'Admin', link: '/admin' },
 			{ page: 'Explore Jobs', link: '/jobs' },
-			{ page: 'Manage Jobs', link: '/jobs/employers' }
+			{ page: 'Manage Jobs', link: '/jobs/employers' },
+			{ page: 'My Applications', link: '/my-applications' },
+			{ page: 'Profile', link: '/profile' },
 		]
 		: [
 			{ page: 'Home', link: '/' },

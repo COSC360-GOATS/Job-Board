@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import ApplicantJobCard from "./ApplicantJobCard";
-import { getCurrentUser, getUserRole } from "../../utils/user";
+import { getCurrentUser, getUserRole, hasApplicantPortalAccess, isMongoObjectIdString } from "../../utils/user";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -19,11 +19,13 @@ function JobListings() {
     const [savedJobIds, setSavedJobIds] = useState(() => new Set());
     const [saveBusyJobId, setSaveBusyJobId] = useState(null);
     const currentUser = getCurrentUser();
-    const isApplicant = getUserRole(currentUser) === "applicant";
     const applicantId = currentUser?.id;
+    const canUseSavedStars = hasApplicantPortalAccess(currentUser);
+    const canLoadRecommendations =
+        getUserRole(currentUser) === "applicant" && applicantId && isMongoObjectIdString(applicantId);
 
     const refreshSavedJobIds = useCallback(async () => {
-        if (!isApplicant || !applicantId) {
+        if (!canUseSavedStars || !applicantId) {
             setSavedJobIds(new Set());
             return;
         }
@@ -35,12 +37,12 @@ function JobListings() {
         } catch {
             // ignore
         }
-    }, [isApplicant, applicantId]);
+    }, [canUseSavedStars, applicantId]);
 
     const handleToggleSave = useCallback(
         async (job, nextSaved) => {
             const jobId = String(job._id);
-            if (!isApplicant || !applicantId || !jobId) return;
+            if (!canUseSavedStars || !applicantId || !jobId) return;
 
             setSaveBusyJobId(jobId);
             let snapshot = null;
@@ -72,7 +74,7 @@ function JobListings() {
                 setSaveBusyJobId(null);
             }
         },
-        [isApplicant, applicantId]
+        [canUseSavedStars, applicantId]
     );
 
     const loadJobs = useCallback(async () => {
@@ -84,8 +86,8 @@ function JobListings() {
                 fetch(`${API_BASE}/employers`),
             ];
 
-            if (isApplicant && currentUser?.id) {
-                requests.push(fetch(`${API_BASE}/jobs/recommendations/${currentUser.id}`));
+            if (canLoadRecommendations) {
+                requests.push(fetch(`${API_BASE}/jobs/recommendations/${applicantId}`));
             }
 
             const [jobsRes, employersRes, recommendationsRes] = await Promise.all(requests);
@@ -135,7 +137,7 @@ function JobListings() {
         } finally {
             setLoading(false);
         }
-    }, [currentUser?.id, isApplicant, refreshSavedJobIds]);
+    }, [applicantId, canLoadRecommendations, refreshSavedJobIds]);
 
     useEffect(() => {
         loadJobs();
@@ -246,7 +248,7 @@ function JobListings() {
                 </select>
             </div>
 
-            {isApplicant && recommendationsLoaded && (
+            {canLoadRecommendations && recommendationsLoaded && (
                 <section className="mb-8">
                     <div className="mb-4 border-b border-slate-200 pb-2">
                         <h2 className="text-lg font-semibold text-slate-900">Recommended Jobs</h2>
@@ -279,7 +281,7 @@ function JobListings() {
             <section>
                 <div className="mb-4 border-b border-slate-200 pb-2">
                     <h2 className="text-lg font-semibold text-slate-900">
-                        {isApplicant ? "Other Jobs" : "All Jobs"}
+                        {canLoadRecommendations ? "Other Jobs" : "All Jobs"}
                     </h2>
                 </div>
                 {otherJobs.length === 0 ? (

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Skill } from "../Skills";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
-import { getCurrentUser, getUserRole } from "../../utils/user";
+import { getCurrentUser, hasApplicantPortalAccess } from "../../utils/user";
 
 function jobIdString(job) {
     const id = job?._id;
@@ -37,7 +37,7 @@ function ApplicantJobCard({
     const navigate = useNavigate();
     const postedTimeAgo = formatTimeAgo(job.postedAt || job.date || job.createdAt);
     const user = getCurrentUser();
-    const showSave = getUserRole(user) === "applicant" && user?.id && typeof onToggleSave === "function";
+    const showSave = hasApplicantPortalAccess(user) && user?.id && typeof onToggleSave === "function";
     const jid = jobIdString(job);
 
     return (

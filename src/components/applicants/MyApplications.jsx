@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ApplicantJobCard from "./ApplicantJobCard";
-import { getCurrentUser, getUserRole } from "../../utils/user";
+import { getCurrentUser, getUserRole, isAdmin } from "../../utils/user";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -33,7 +33,7 @@ function MyApplications() {
             navigate("/login", { replace: true });
             return;
         }
-        if (role !== "applicant") {
+        if (role !== "applicant" && role !== "admin") {
             navigate("/", { replace: true });
             return;
         }
@@ -171,7 +171,7 @@ function MyApplications() {
         };
     }, []);
 
-    if (!userId || role !== "applicant") return null;
+    if (!userId || (role !== "applicant" && role !== "admin")) return null;
     if (loading) return <p className="mt-12 text-center text-slate-500">Loading…</p>;
     if (error) return <p className="mt-12 text-center text-red-500">Error: {error}</p>;
 
@@ -181,6 +181,13 @@ function MyApplications() {
             <p className="mb-6 text-sm text-slate-500">
                 View jobs you have applied to and manage jobs you have saved.
             </p>
+
+            {isAdmin(session) && (
+                <p className="mb-4 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm text-violet-900">
+                    Signed in as <strong>admin</strong>: applied list and saved jobs use the admin workspace (separate
+                    from real applicant accounts).
+                </p>
+            )}
 
             <div className="mb-6 flex gap-1 border-b border-slate-200">
                 <button

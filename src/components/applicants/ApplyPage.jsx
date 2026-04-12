@@ -4,7 +4,7 @@ import Skills, { Skill } from "../Skills";
 import { formatTimeAgo } from "../../utils/formatTimeAgo";
 import StarRating from "../StarRating";
 import ReviewSection from "../ratings/ReviewSection";
-import { getCurrentUser, getUserRole } from "../../utils/user";
+import { getCurrentUser, getUserRole, isAdmin, isMongoObjectIdString } from "../../utils/user";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -24,7 +24,9 @@ function ApplyPage() {
     const [submitted, setSubmitted] = useState(false);
 
     const user = getCurrentUser();
-    const isAuthenticated = user && getUserRole(user) === 'applicant';
+    const isApplicant = user && getUserRole(user) === "applicant";
+    const isAdminUser = user && isAdmin(user);
+    const canSubmitApplication = Boolean(isApplicant && user?.id && isMongoObjectIdString(user.id));
     const hasViewed = useRef(false);
 
     useEffect(() => {
@@ -47,7 +49,7 @@ function ApplyPage() {
         Promise.all([
             fetch(`${API_BASE}/employers/${job.employerId}`).then((r) => r.ok ? r.json() : null),
             fetch(`${API_BASE}/ratings/employer/${job.employerId}/avg`).then((r) => r.ok ? r.json() : null),
-        ]).then(([emp, avgData]) => {
+        ]).then(([emp]) => {
             setEmployer(emp);
 
         });
@@ -82,8 +84,16 @@ function ApplyPage() {
     async function handleSubmit(e) {
         e.preventDefault();
         
-        if (!isAuthenticated) {
+        if (!user?.id) {
             navigate("/login", { replace: false, state: { from: `/jobs/${jobId}/apply` } });
+            return;
+        }
+        if (!canSubmitApplication) {
+            setError(
+                isAdminUser
+                    ? "Administrators cannot submit applicant applications. Use an applicant account to apply."
+                    : "Please sign in as an applicant to apply."
+            );
             return;
         }
 
@@ -141,10 +151,18 @@ function ApplyPage() {
                 ← Back to job listings
             </button>
 
-            {!isAuthenticated && (
+            {!user?.id && (
                 <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
                     <p className="text-sm text-amber-900">
                         <strong>Note:</strong> You must log in to interact with a job.
+                    </p>
+                </div>
+            )}
+            {isAdminUser && (
+                <div className="mb-6 rounded-lg border border-violet-200 bg-violet-50 p-4">
+                    <p className="text-sm text-violet-900">
+                        <strong>Admin:</strong> You can review this job and form; submitting an application requires an
+                        applicant account.
                     </p>
                 </div>
             )}
@@ -195,7 +213,7 @@ function ApplyPage() {
 
                         <button
                             type="submit"
-                            disabled={submitting}
+                            disabled={submitting || !canSubmitApplication}
                             className="rounded-lg bg-violet-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-violet-700 disabled:opacity-50"
                         >
                             {submitting ? "Submitting…" : "Submit Application"}

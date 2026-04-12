@@ -19,6 +19,21 @@ export function getUserRole(user) {
     return null;
 }
 
+export function isAdmin(user) {
+    return getUserRole(user) === "admin";
+}
+
+/** Saved jobs / My Applications stars: same UX as applicants for admins. */
+export function hasApplicantPortalAccess(user) {
+    const role = getUserRole(user);
+    return role === "applicant" || role === "admin";
+}
+
+/** Real Mongo ObjectId string (24 hex). Login id `admin` is not one. */
+export function isMongoObjectIdString(id) {
+    return typeof id === "string" && /^[a-fA-F0-9]{24}$/.test(id);
+}
+
 export function getUserDisplayName(user) {
     if (!user) return '';
 

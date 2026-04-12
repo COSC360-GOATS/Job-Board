@@ -14,6 +14,7 @@ import ProfilePage from './components/applicants/ProfilePage'
 import MyApplications from './components/applicants/MyApplications'
 import EmployerProfile from './components/employers/EmployerProfile'
 import ApplicantActivityPage from './components/admin/ApplicantActivityPage'
+import AdminProfilePage from './components/admin/AdminProfilePage'
 import { Navigate } from 'react-router-dom'
 import { getCurrentUser, getUserRole } from './utils/user'
 
@@ -27,6 +28,7 @@ function AdminRoute({ children }) {
 
 function ProfileRouter() {
   const user = getCurrentUser()
+  if (getUserRole(user) === 'admin') return <AdminProfilePage />
   if (getUserRole(user) === 'employer') return <EmployerProfile />
   return <ProfilePage />
 }
