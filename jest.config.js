@@ -11,6 +11,9 @@ export default {
       testEnvironment: 'jsdom',
       roots: ['<rootDir>/testing/frontend'],
       setupFilesAfterEnv: ['<rootDir>/testing/setupTests.js'],
+      moduleNameMapper: {
+        '^recharts$': '<rootDir>/testing/frontend/mocks/rechartsMock.jsx',
+      },
       transform: {
         '^.+\\.jsx$': 'babel-jest',
       },
