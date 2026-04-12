@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import ApplicantJobCard from "./ApplicantJobCard";
-import { getCurrentUser, getUserRole } from "../../utils/user";
+import { getCurrentUser, getUserRole, hasApplicantPortalAccess, isMongoObjectIdString } from "../../utils/user";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -16,8 +16,66 @@ function JobListings() {
     const [search, setSearch] = useState("");
     const [location, setLocation] = useState("");
     const [sortOrder, setSortOrder] = useState("newest");
+    const [savedJobIds, setSavedJobIds] = useState(() => new Set());
+    const [saveBusyJobId, setSaveBusyJobId] = useState(null);
     const currentUser = getCurrentUser();
-    const isApplicant = getUserRole(currentUser) === "applicant";
+    const applicantId = currentUser?.id;
+    const canUseSavedStars = hasApplicantPortalAccess(currentUser);
+    const canLoadRecommendations =
+        getUserRole(currentUser) === "applicant" && applicantId && isMongoObjectIdString(applicantId);
+
+    const refreshSavedJobIds = useCallback(async () => {
+        if (!canUseSavedStars || !applicantId) {
+            setSavedJobIds(new Set());
+            return;
+        }
+        try {
+            const res = await fetch(`${API_BASE}/saved/ids/${applicantId}`);
+            if (!res.ok) return;
+            const ids = await res.json();
+            setSavedJobIds(new Set((Array.isArray(ids) ? ids : []).map(String)));
+        } catch {
+            // ignore
+        }
+    }, [canUseSavedStars, applicantId]);
+
+    const handleToggleSave = useCallback(
+        async (job, nextSaved) => {
+            const jobId = String(job._id);
+            if (!canUseSavedStars || !applicantId || !jobId) return;
+
+            setSaveBusyJobId(jobId);
+            let snapshot = null;
+            setSavedJobIds((prev) => {
+                snapshot = new Set(prev);
+                const next = new Set(prev);
+                if (nextSaved) next.add(jobId);
+                else next.delete(jobId);
+                return next;
+            });
+
+            try {
+                if (nextSaved) {
+                    const res = await fetch(`${API_BASE}/saved`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ applicantId, jobId }),
+                    });
+                    if (!res.ok) throw new Error("save failed");
+                } else {
+                    const res = await fetch(`${API_BASE}/saved/${applicantId}/${jobId}`, {
+                        method: "DELETE",
+                    });
+                    if (!res.ok && res.status !== 404) throw new Error("unsave failed");
+                }
+            } catch {
+                if (snapshot) setSavedJobIds(snapshot);
+            } finally {
+                setSaveBusyJobId(null);
+            }
+        },
+        [canUseSavedStars, applicantId]
+    );
 
     const loadJobs = useCallback(async () => {
         try {
@@ -28,8 +86,8 @@ function JobListings() {
                 fetch(`${API_BASE}/employers`),
             ];
 
-            if (isApplicant && currentUser?.id) {
-                requests.push(fetch(`${API_BASE}/jobs/recommendations/${currentUser.id}`));
+            if (canLoadRecommendations) {
+                requests.push(fetch(`${API_BASE}/jobs/recommendations/${applicantId}`));
             }
 
             const [jobsRes, employersRes, recommendationsRes] = await Promise.all(requests);
@@ -73,12 +131,13 @@ function JobListings() {
             }
             setRecommendationsLoaded(true);
             setError(null);
+            await refreshSavedJobIds();
         } catch (err) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
-    }, [currentUser?.id, isApplicant]);
+    }, [applicantId, canLoadRecommendations, refreshSavedJobIds]);
 
     useEffect(() => {
         loadJobs();
@@ -189,7 +248,7 @@ function JobListings() {
                 </select>
             </div>
 
-            {isApplicant && recommendationsLoaded && (
+            {canLoadRecommendations && recommendationsLoaded && (
                 <section className="mb-8">
                     <div className="mb-4 border-b border-slate-200 pb-2">
                         <h2 className="text-lg font-semibold text-slate-900">Recommended Jobs</h2>
@@ -205,6 +264,9 @@ function JobListings() {
                                     avgRating={avgRatingMap[job.employerId]}
                                     matchScore={job.matchScore}
                                     matchReasons={job.matchReasons}
+                                    isSaved={savedJobIds.has(String(job._id))}
+                                    onToggleSave={handleToggleSave}
+                                    saveBusy={saveBusyJobId === String(job._id)}
                                 />
                             ))}
                         </div>
@@ -219,7 +281,7 @@ function JobListings() {
             <section>
                 <div className="mb-4 border-b border-slate-200 pb-2">
                     <h2 className="text-lg font-semibold text-slate-900">
-                        {isApplicant ? "Other Jobs" : "All Jobs"}
+                        {canLoadRecommendations ? "Other Jobs" : "All Jobs"}
                     </h2>
                 </div>
                 {otherJobs.length === 0 ? (
@@ -232,6 +294,9 @@ function JobListings() {
                                 job={job}
                                 employerName={employerMap[job.employerId]}
                                 avgRating={avgRatingMap[job.employerId]}
+                                isSaved={savedJobIds.has(String(job._id))}
+                                onToggleSave={handleToggleSave}
+                                saveBusy={saveBusyJobId === String(job._id)}
                             />
                         ))}
                     </div>

@@ -17,9 +17,13 @@ export default function applicationService(db) {
                 applications.map(async (app) => {
                     try {
                         const job = await db.collection('jobs').findOne({ _id: new ObjectId(app.jobId) });
-                        return { ...app, job: job || null };
+                        return {
+                            ...app,
+                            job: job || null,
+                            jobTitle: job?.title ?? 'Deleted Job',
+                        };
                     } catch {
-                        return { ...app, job: null };
+                        return { ...app, job: null, jobTitle: 'Unknown Job' };
                     }
                 })
             );
@@ -60,23 +64,6 @@ export default function applicationService(db) {
             return await service.create(
                 normalizedPayload,
                 checkExists || { jobId: normalizedPayload.jobId, applicantId: normalizedPayload.applicantId }
-            );
-        },
-
-        async getByApplicantId(applicantId) {
-            const applications = await db.collection('applications').find({ applicantId }).toArray();
-            
-            return await Promise.all(
-                applications.map(async (app) => {
-                    try {
-                        if (app.jobId) {
-                            const { ObjectId } = await import('mongodb');
-                            const job = await db.collection('jobs').findOne({ _id: new ObjectId(app.jobId) });
-                            return { ...app, jobTitle: job ? job.title : 'Deleted Job' };
-                        }
-                    } catch(e) {}
-                    return { ...app, jobTitle: 'Unknown Job' };
-                })
             );
         },
     };
